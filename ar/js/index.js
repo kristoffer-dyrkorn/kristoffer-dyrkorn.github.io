@@ -157,8 +157,7 @@ function gotLocation(position) {
 
     console.log("Loading tile: " + tileURL)
 
-    const tileDisplacementMap = new THREE.TextureLoader().load(tileURL)
-    /*
+    const loader = new THREE.TextureLoader()
     loader.setCrossOrigin("")
     const tileDisplacementMap = loader.load(
       tileURL,
@@ -170,7 +169,6 @@ function gotLocation(position) {
         console.log("Error loading image")
       }
     )
-*/
 
     const tileGeometry = new THREE.PlaneBufferGeometry(TILE_EXTENTS, TILE_EXTENTS, 128, 128)
     const tileMaterial = new THREE.MeshPhongMaterial({
