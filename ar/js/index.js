@@ -39,7 +39,7 @@ const plane = new THREE.Mesh(planeGeometry, planeMaterial)
 // relative coordinates from camera to texture plane
 const planePosition = new THREE.Vector3(0, 0, -PLANE_DISTANCE)
 
-scene.add(plane)
+// scene.add(plane)
 
 const cubeGeometry = new THREE.BoxBufferGeometry(1, 1, 1)
 const cubeMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00 })
