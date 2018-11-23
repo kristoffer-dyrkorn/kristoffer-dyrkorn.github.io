@@ -131,7 +131,7 @@ function gotLocation(position) {
   console.log("Pos: " + position.coords.latitude + ", " + position.coords.longitude + ", " + position.coords.altitude)
   console.log("Acc: " + position.coords.accuracy + ", vert acc: " + position.coords.altitudeAccuracy)
 
-  const pos = latLonToUTM(position.coords.latitude, position.coords.longitude, 32)
+  const pos = latLonToUTM(position.coords.latitude, position.coords.longitude, 33)
 
   console.log("Pos: " + pos.e + ", " + pos.n)
 
