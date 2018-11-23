@@ -47,16 +47,6 @@ const cube = new THREE.Mesh(cubeGeometry, cubeMaterial)
 
 scene.add(cube)
 
-const tileGeometry = new THREE.PlaneGeometry(TILE_EXTENTS, TILE_EXTENTS, 255, 255)
-const tileMaterial = new THREE.MeshPhongMaterial({
-  color: 0xffffff,
-  side: THREE.DoubleSide
-})
-
-//tileMaterial.wireframe = true
-
-const tile = new THREE.Mesh(tileGeometry, tileMaterial)
-
 // no scene.add(tile) here, tile is added to scene
 // first when we have a fix on the GPS location.
 
@@ -170,9 +160,15 @@ function gotLocation(position) {
 
     console.log("Loading tile: " + tileURL)
 
+    const tileGeometry = new THREE.PlaneBufferGeometry(TILE_EXTENTS, TILE_EXTENTS, 255, 255)
+    const tileMaterial = new THREE.MeshPhongMaterial({
+      color: 0xffffff,
+      side: THREE.DoubleSide
+    })
     const displacementMap = new THREE.TextureLoader().load(tileURL)
     tileMaterial.displacementMap = displacementMap
 
+    const tile = new THREE.Mesh(tileGeometry, tileMaterial)
     tile.position.x = tileEast
     tile.position.y = tileNorth
 
