@@ -132,13 +132,12 @@ function gotLocation(position) {
   console.log("Acc: " + position.coords.accuracy + ", vert acc: " + position.coords.altitudeAccuracy)
 
   const pos = latLonToUTM(position.coords.latitude, position.coords.longitude, 32)
-  console.log("Pos: " + pos.easting + ", " + pos.northing)
 
-  camera.position.x = pos.easting
-  camera.position.y = pos.northing
+  console.log("Pos: " + pos.e + ", " + pos.n)
 
-  //TODO
-  camera.position.z = 134
+  camera.position.x = pos.e
+  camera.position.y = pos.n
+  camera.position.z = position.coords.altitude
 
   cube.position.x = camera.position.x
   cube.position.y = camera.position.y + 5
