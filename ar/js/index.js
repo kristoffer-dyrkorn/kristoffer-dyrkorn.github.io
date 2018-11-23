@@ -49,18 +49,15 @@ scene.add(cube)
 
 //-----
 
-const tileGeometry = new THREE.BoxBufferGeometry(TILE_EXTENTS, TILE_EXTENTS, 1)
+const tileGeometry = new THREE.PlaneBufferGeometry(TILE_EXTENTS, TILE_EXTENTS, 255, 255)
+const tileMaterial = new THREE.MeshPhongMaterial({
+  color: 0xffff00,
+  side: THREE.DoubleSide
+})
 
-//const tileGeometry = new THREE.PlaneBufferGeometry(TILE_EXTENTS, TILE_EXTENTS, 255, 255)
-const tileMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 })
-//const tileMaterial = new THREE.MeshPhongMaterial({
-//  color: 0xffff00,
-//  side: THREE.DoubleSide
-//})
-
-// const tileURL2 = "https://s3-eu-west-1.amazonaws.com/kd-flightsim/topography/244250-6642250.png"
-// const displacementMap = new THREE.TextureLoader().load(tileURL2)
-// tileMaterial.displacementMap = displacementMap
+const tileURL2 = "https://s3-eu-west-1.amazonaws.com/kd-flightsim/topography/244250-6642250.png"
+const displacementMap = new THREE.TextureLoader().load(tileURL2)
+tileMaterial.displacementMap = displacementMap
 
 const tile = new THREE.Mesh(tileGeometry, tileMaterial)
 tile.position.x = 244250 + TILE_EXTENTS / 2
