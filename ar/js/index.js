@@ -48,8 +48,12 @@ const cube = new THREE.Mesh(cubeGeometry, cubeMaterial)
 scene.add(cube)
 
 const tileGeometry = new THREE.PlaneGeometry(TILE_EXTENTS, TILE_EXTENTS, 255, 255)
-const tileMaterial = new THREE.MeshPhongMaterial({ color: 0xffffff })
-tileMaterial.wireframe = true
+const tileMaterial = new THREE.MeshPhongMaterial({
+  color: 0xffffff,
+  side: THREE.DoubleSide
+})
+
+//tileMaterial.wireframe = true
 
 const tile = new THREE.Mesh(tileGeometry, tileMaterial)
 
