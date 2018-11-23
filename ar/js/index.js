@@ -157,18 +157,19 @@ function gotLocation(position) {
 
     console.log("Loading tile: " + tileURL)
 
-    const tileGeometry = new THREE.PlaneBufferGeometry(TILE_EXTENTS, TILE_EXTENTS, 128, 128)
-    const tileMaterial = new THREE.MeshPhongMaterial({ color: 0xffffff })
-
     const tileDisplacementMap = new THREE.TextureLoader().load(tileURL)
-    tileMaterial.displacementMap = tileDisplacementMap
-    tileMaterial.wireframe = true
+
+    const tileGeometry = new THREE.PlaneBufferGeometry(TILE_EXTENTS, TILE_EXTENTS, 128, 128)
+    const tileMaterial = new THREE.MeshPhongMaterial({
+      displacementMap: tileDisplacementMap,
+      wireframe: true
+    })
 
     const tile = new THREE.Mesh(tileGeometry, tileMaterial)
+    scene.add(tile)
 
     tile.position.x = tileEast + TILE_EXTENTS / 2
     tile.position.y = tileNorth + TILE_EXTENTS / 2
-    tile.position.z = 0
 
     camera.position.x = pos.e
     camera.position.y = pos.n
@@ -177,8 +178,6 @@ function gotLocation(position) {
     cube.position.x = camera.position.x
     cube.position.y = camera.position.y + 10
     cube.position.z = camera.position.z
-
-    scene.add(tile)
 
     isTileLoaded = true
   }
