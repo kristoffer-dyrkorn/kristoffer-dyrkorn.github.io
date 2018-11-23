@@ -47,6 +47,28 @@ const cube = new THREE.Mesh(cubeGeometry, cubeMaterial)
 
 scene.add(cube)
 
+//-----
+
+const tileGeometry = new THREE.PlaneBufferGeometry(TILE_EXTENTS, TILE_EXTENTS, 255, 255)
+const tileMaterial = new THREE.MeshPhongMaterial({
+  color: 0xffffff,
+  side: THREE.DoubleSide
+})
+
+const tileURL2 = "https://s3-eu-west-1.amazonaws.com/kd-flightsim/topography/244250-6642250.png"
+
+const displacementMap = new THREE.TextureLoader().load(tileURL2)
+tileMaterial.displacementMap = displacementMap
+
+const tile = new THREE.Mesh(tileGeometry, tileMaterial)
+tile.position.x = 244250
+tile.position.y = 6642250
+tile.position.z = 0
+
+scene.add(tile)
+
+//-----
+
 // no scene.add(tile) here, tile is added to scene
 // first when we have a fix on the GPS location.
 
@@ -165,20 +187,6 @@ function gotLocation(position) {
 
     console.log("Loading tile: " + tileURL)
 
-    const tileGeometry = new THREE.PlaneBufferGeometry(TILE_EXTENTS, TILE_EXTENTS, 255, 255)
-    const tileMaterial = new THREE.MeshPhongMaterial({
-      color: 0xffffff,
-      side: THREE.DoubleSide
-    })
-    const displacementMap = new THREE.TextureLoader().load(tileURL)
-    tileMaterial.displacementMap = displacementMap
-
-    const tile = new THREE.Mesh(tileGeometry, tileMaterial)
-    tile.position.x = tileEast
-    tile.position.y = tileNorth
-    tile.position.z = 0
-
-    scene.add(tile)
     isTileLoaded = true
   }
 }
