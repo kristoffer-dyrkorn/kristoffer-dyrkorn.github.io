@@ -1,0 +1,140 @@
+const Y_FOV_LANDSCAPE = 37.5
+
+const NEAR_CLIP = 1
+const FAR_CLIP = 500
+const PLANE_DISTANCE = 100
+
+let actualHeading = 0
+let precision = 0
+let isVideoPlaying = false
+
+const gyroSample = new THREE.Euler(0, 0, 0, "ZXY")
+const rawOrientation = new THREE.Object3D()
+
+const canvas = document.getElementById("canvas")
+const renderer = new THREE.WebGLRenderer({ canvas: canvas })
+renderer.setPixelRatio(window.devicePixelRatio)
+
+const camera = new THREE.PerspectiveCamera()
+camera.near = NEAR_CLIP
+camera.far = FAR_CLIP
+
+const scene = new THREE.Scene()
+
+const video = document.getElementById("video")
+const videoTexture = new THREE.VideoTexture(video)
+videoTexture.minFilter = THREE.LinearFilter
+
+const planeGeometry = new THREE.PlaneBufferGeometry()
+const planeMaterial = new THREE.MeshBasicMaterial({ map: videoTexture })
+const plane = new THREE.Mesh(planeGeometry, planeMaterial)
+
+// relative coordinates from camera to texture plane
+const planePosition = new THREE.Vector3(0, 0, -PLANE_DISTANCE)
+
+scene.add(plane)
+
+const cubeGeometry = new THREE.BoxBufferGeometry(1, 1, 1)
+const cubeMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00 })
+const cube = new THREE.Mesh(cubeGeometry, cubeMaterial)
+
+scene.add(cube)
+
+const ambientLight = new THREE.AmbientLight(0x888888)
+scene.add(ambientLight)
+
+window.addEventListener("deviceorientation", updateOrientation)
+window.addEventListener("orientationchange", resetViewport)
+video.addEventListener("playing", prepareVideoOutput)
+canvas.addEventListener("click", startVideo)
+
+const watchID = navigator.geolocation.watchPosition(gotLocation, locationError, {
+  enableHighAccuracy: true,
+  maximumAge: 1000
+})
+
+logMessages()
+resetViewport()
+drawScene()
+
+function logMessages() {
+  console.log(`${gyroSample.x}, ${gyroSample.y}, ${gyroSample.z}, ${actualHeading}, ${precision}`)
+  setTimeout(logMessages, 2000)
+}
+
+function drawScene() {
+  requestAnimationFrame(drawScene)
+
+  // read raw orientation data from sensors
+  rawOrientation.setRotationFromEuler(gyroSample)
+  rawOrientation.rotateZ(-window.orientation * THREE.Math.DEG2RAD)
+  rawOrientation.rotateY(-actualHeading * THREE.Math.DEG2RAD)
+
+  // interpolate camera orientation towards sensor-read orientation
+  camera.quaternion.slerp(rawOrientation.quaternion, 0.2)
+
+  // position and orient plane relative to camera
+  plane.position.copy(planePosition)
+  camera.localToWorld(plane.position)
+  plane.quaternion.copy(camera.quaternion)
+
+  renderer.render(scene, camera)
+}
+
+function resetViewport() {
+  camera.aspect = window.innerWidth / window.innerHeight
+  camera.fov = Y_FOV_LANDSCAPE
+  if (window.orientation == 0) {
+    camera.fov = camera.fov / camera.aspect
+  }
+
+  // resize plane according to camera fov and aspect
+  plane.scale.y = Math.tan(camera.fov * 0.8 * THREE.Math.DEG2RAD) * PLANE_DISTANCE
+  plane.scale.x = plane.scale.y * camera.aspect
+
+  camera.updateProjectionMatrix()
+
+  renderer.setSize(window.innerWidth, window.innerHeight)
+}
+
+function updateOrientation(event) {
+  precision = event.webkitCompassAccuracy
+  actualHeading = event.webkitCompassHeading + window.orientation
+  gyroSample.x = event.beta * THREE.Math.DEG2RAD
+  gyroSample.y = event.gamma * THREE.Math.DEG2RAD
+  gyroSample.z = event.alpha * THREE.Math.DEG2RAD
+}
+
+function startVideo() {
+  if (!isVideoPlaying) {
+    const constraints = {
+      audio: false,
+      video: {
+        facingMode: "environment",
+        width: 1280,
+        height: 720
+      }
+    }
+    navigator.mediaDevices.getUserMedia(constraints).then(stream => {
+      video.srcObject = stream
+      video.play()
+    })
+  }
+}
+
+function prepareVideoOutput() {
+  console.log("Now playing " + video.videoWidth + "x" + video.videoHeight)
+  isVideoPlaying = true
+}
+
+function gotLocation(position) {
+  console.log("Pos: " + position.coords.latitude + ", " + position.coords.longitude + ", " + position.coords.altitude)
+  console.log("Acc: " + position.coords.accuracy + ", vert acc: " + position.coords.altitudeAccuracy)
+
+  const pos = latLonToUTM(position.coords.latitude, position.coords.longitude, 32)
+  camera.position.x = cube.position.y = 5
+}
+
+function locationError(error) {
+  console.log(error.message)
+}
