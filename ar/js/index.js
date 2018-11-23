@@ -158,13 +158,15 @@ function gotLocation(position) {
     console.log("Loading tile: " + tileURL)
 
     const loader = new THREE.TextureLoader()
-    loader.crossOrigin = ""
+    loader.setCrossOrigin("")
     const tileDisplacementMap = loader.load(
       tileURL,
-      function(e) {},
-      function(e) {},
+      function(img) {
+        log.console("Img: " + img)
+      },
+      undefined,
       function(e) {
-        log.console(e)
+        log.console("Error: " + e)
       }
     )
 
