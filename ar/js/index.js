@@ -160,8 +160,8 @@ function gotLocation(position) {
     cube.position.y = camera.position.y + 5
     cube.position.z = camera.position.z
 
-    const tileEast = Math.trunc((pos.e - MIN_EAST) / TILE_EXTENTS) * TILE_EXTENTS
-    const tileNorth = Math.trunc((pos.n - MIN_NORTH) / TILE_EXTENTS) * TILE_EXTENTS
+    const tileEast = Math.trunc((pos.e - MIN_EAST) / TILE_EXTENTS) * TILE_EXTENTS + MIN_EAST
+    const tileNorth = Math.trunc((pos.n - MIN_NORTH) / TILE_EXTENTS) * TILE_EXTENTS + MIN_NORTH
     const tileURL = `${tileServer}/topography/${tileEast}-${tileNorth}.png`
 
     console.log("Loading tile: " + tileURL)
