@@ -47,39 +47,6 @@ const cube = new THREE.Mesh(cubeGeometry, cubeMaterial)
 
 scene.add(cube)
 
-//-----
-
-const tileURL2 = "https://s3-eu-west-1.amazonaws.com/kd-flightsim/topography/244250-6642250.png"
-const tileDisplacementMap = new THREE.TextureLoader().load(tileURL2)
-
-const tileGeometry = new THREE.PlaneBufferGeometry(TILE_EXTENTS, TILE_EXTENTS, 255, 255)
-const tileMaterial = new THREE.MeshPhongMaterial({
-  color: 0xffff00,
-  side: THREE.DoubleSide,
-  displacementMap: tileDisplacementMap
-})
-const tile = new THREE.Mesh(tileGeometry, tileMaterial)
-
-tile.position.x = 244250 + TILE_EXTENTS / 2
-tile.position.y = 6642250 + TILE_EXTENTS / 2
-tile.position.z = 0
-
-scene.add(tile)
-
-// camera.position.x = pos.e
-// camera.position.y = pos.n
-// camera.position.z = position.coords.altitude
-
-camera.position.x = 254585
-camera.position.y = 6651852
-camera.position.z = 123
-
-cube.position.x = camera.position.x
-cube.position.y = camera.position.y + 5
-cube.position.z = camera.position.z
-
-//-----
-
 // no scene.add(tile) here, tile is added to scene
 // first when we have a fix on the GPS location.
 
@@ -96,10 +63,10 @@ window.addEventListener("orientationchange", resetViewport)
 video.addEventListener("playing", prepareVideoOutput)
 canvas.addEventListener("click", startVideo)
 
-//const watchID = navigator.geolocation.watchPosition(gotLocation, locationError, {
-//  enableHighAccuracy: true,
-//  maximumAge: 1000
-//})
+const watchID = navigator.geolocation.watchPosition(gotLocation, locationError, {
+  enableHighAccuracy: true,
+  maximumAge: 1000
+})
 
 logMessages()
 resetViewport()
@@ -189,6 +156,30 @@ function gotLocation(position) {
     const tileURL = `${tileServer}/topography/${tileEast}-${tileNorth}.png`
 
     console.log("Loading tile: " + tileURL)
+    const tileDisplacementMap = new THREE.TextureLoader().load(tileURL)
+
+    const tileGeometry = new THREE.PlaneBufferGeometry(TILE_EXTENTS, TILE_EXTENTS, 128, 128)
+    const tileMaterial = new THREE.MeshPhongMaterial({
+      color: 0xffffff,
+      side: THREE.DoubleSide,
+      displacementMap: tileDisplacementMap,
+      wireframe: true
+    })
+    const tile = new THREE.Mesh(tileGeometry, tileMaterial)
+
+    tile.position.x = tileEast + TILE_EXTENTS / 2
+    tile.position.y = tileNorth + TILE_EXTENTS / 2
+    tile.position.z = 0
+
+    camera.position.x = pos.e
+    camera.position.y = pos.n
+    camera.position.z = position.coords.altitude
+
+    cube.position.x = camera.position.x
+    cube.position.y = camera.position.y + 10
+    cube.position.z = camera.position.z
+
+    scene.add(tile)
 
     isTileLoaded = true
   }
