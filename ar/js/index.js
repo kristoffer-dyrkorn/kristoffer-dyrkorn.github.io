@@ -66,6 +66,18 @@ tile.position.z = 0
 
 scene.add(tile)
 
+// camera.position.x = pos.e
+// camera.position.y = pos.n
+// camera.position.z = position.coords.altitude
+
+camera.position.x = 254585
+camera.position.y = 6651852
+camera.position.z = 123
+
+cube.position.x = camera.position.x
+cube.position.y = camera.position.y + 5
+cube.position.z = camera.position.z
+
 //-----
 
 // no scene.add(tile) here, tile is added to scene
@@ -84,10 +96,10 @@ window.addEventListener("orientationchange", resetViewport)
 video.addEventListener("playing", prepareVideoOutput)
 canvas.addEventListener("click", startVideo)
 
-const watchID = navigator.geolocation.watchPosition(gotLocation, locationError, {
-  enableHighAccuracy: true,
-  maximumAge: 1000
-})
+//const watchID = navigator.geolocation.watchPosition(gotLocation, locationError, {
+//  enableHighAccuracy: true,
+//  maximumAge: 1000
+//})
 
 logMessages()
 resetViewport()
@@ -172,14 +184,6 @@ function gotLocation(position) {
   console.log("Pos: " + pos.e + ", " + pos.n)
 
   if (position.coords.accuracy < 30 && !isTileLoaded) {
-    camera.position.x = pos.e
-    camera.position.y = pos.n
-    camera.position.z = position.coords.altitude
-
-    cube.position.x = camera.position.x
-    cube.position.y = camera.position.y + 5
-    cube.position.z = camera.position.z
-
     const tileEast = Math.trunc((pos.e - MIN_EAST) / TILE_EXTENTS) * TILE_EXTENTS + MIN_EAST
     const tileNorth = Math.trunc((pos.n - MIN_NORTH) / TILE_EXTENTS) * TILE_EXTENTS + MIN_NORTH
     const tileURL = `${tileServer}/topography/${tileEast}-${tileNorth}.png`
