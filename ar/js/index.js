@@ -4,8 +4,15 @@ const NEAR_CLIP = 1
 const FAR_CLIP = 500
 const PLANE_DISTANCE = 100
 
+const MIN_EAST = -100000
+const MIN_NORTH = 6400000
+const TILE_EXTENTS = 12750
+
+const tileServer = "https://s3-eu-west-1.amazonaws.com/kd-flightsim"
+
 let actualHeading = 0
 let precision = 0
+let isTileLoaded = false
 let isVideoPlaying = false
 
 const gyroSample = new THREE.Euler(0, 0, 0, "ZXY")
@@ -39,6 +46,15 @@ const cubeMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00 })
 const cube = new THREE.Mesh(cubeGeometry, cubeMaterial)
 
 scene.add(cube)
+
+const tileGeometry = new THREE.PlaneGeometry(TILE_EXTENTS, TILE_EXTENTS, 255, 255)
+const tileMaterial = new THREE.MeshPhongMaterial({ color: 0xffffff })
+tileMaterial.wireframe = true
+
+const tile = new THREE.Mesh(tileGeometry, tileMaterial)
+
+// no scene.add(tile) here, tile is added to scene
+// first when we have a fix on the GPS location.
 
 const ambientLight = new THREE.AmbientLight(0x888888)
 scene.add(ambientLight)
@@ -135,13 +151,30 @@ function gotLocation(position) {
 
   console.log("Pos: " + pos.e + ", " + pos.n)
 
-  camera.position.x = pos.e
-  camera.position.y = pos.n
-  camera.position.z = position.coords.altitude
+  if (position.coords.accuracy < 30 && !isTileLoaded) {
+    camera.position.x = pos.e
+    camera.position.y = pos.n
+    camera.position.z = position.coords.altitude
 
-  cube.position.x = camera.position.x
-  cube.position.y = camera.position.y + 5
-  cube.position.z = camera.position.z
+    cube.position.x = camera.position.x
+    cube.position.y = camera.position.y + 5
+    cube.position.z = camera.position.z
+
+    const tileEast = Math.trunc((pos.e - MIN_EAST) / TILE_EXTENTS) * TILE_EXTENTS
+    const tileNorth = Math.trunc((pos.n - MIN_NORTH) / TILE_EXTENTS) * TILE_EXTENTS
+    const tileURL = `${tileServer}/topography/${tileEast}-${tileNorth}.png`
+
+    console.log("Loading tile: " + tileURL)
+
+    const displacementMap = new THREE.TextureLoader().load(tileURL)
+    tileMaterial.displacementMap = displacementMap
+
+    tile.position.x = tileEast
+    tile.position.y = tileNorth
+
+    scene.add(tile)
+    isTileLoaded = true
+  }
 }
 
 function locationError(error) {
