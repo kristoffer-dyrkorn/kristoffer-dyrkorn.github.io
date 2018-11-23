@@ -162,11 +162,11 @@ function gotLocation(position) {
     const tileDisplacementMap = loader.load(
       tileURL,
       function(img) {
-        log.console("Img: " + img)
+        console.log("Img: " + img)
       },
       undefined,
       function(e) {
-        log.console("Error: " + e)
+        console.log("Error: " + e)
       }
     )
 
