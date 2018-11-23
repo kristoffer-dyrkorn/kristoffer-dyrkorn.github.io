@@ -156,15 +156,14 @@ function gotLocation(position) {
     const tileURL = `${tileServer}/topography/${tileEast}-${tileNorth}.png`
 
     console.log("Loading tile: " + tileURL)
-    const tileDisplacementMap = new THREE.TextureLoader().load(tileURL)
 
     const tileGeometry = new THREE.PlaneBufferGeometry(TILE_EXTENTS, TILE_EXTENTS, 128, 128)
-    const tileMaterial = new THREE.MeshPhongMaterial({
-      color: 0xffffff,
-      side: THREE.DoubleSide,
-      displacementMap: tileDisplacementMap,
-      wireframe: true
-    })
+    const tileMaterial = new THREE.MeshPhongMaterial({ color: 0xffffff })
+
+    const tileDisplacementMap = new THREE.TextureLoader().load(tileURL)
+    tileMaterial.displacementMap = tileDisplacementMap
+    tileMaterial.wireframe = true
+
     const tile = new THREE.Mesh(tileGeometry, tileMaterial)
 
     tile.position.x = tileEast + TILE_EXTENTS / 2
