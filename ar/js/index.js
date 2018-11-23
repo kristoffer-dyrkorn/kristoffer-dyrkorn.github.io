@@ -73,7 +73,7 @@ resetViewport()
 drawScene()
 
 function logMessages() {
-  console.log(`${gyroSample.x}, ${gyroSample.y}, ${gyroSample.z}, ${actualHeading}, ${precision}`)
+  //  console.log(`${gyroSample.x}, ${gyroSample.y}, ${gyroSample.z}, ${actualHeading}, ${precision}`)
   setTimeout(logMessages, 2000)
 }
 
@@ -143,12 +143,10 @@ function prepareVideoOutput() {
 }
 
 function gotLocation(position) {
-  console.log("Pos: " + position.coords.latitude + ", " + position.coords.longitude + ", " + position.coords.altitude)
-  console.log("Acc: " + position.coords.accuracy + ", vert acc: " + position.coords.altitudeAccuracy)
+  //  console.log("Pos: " + position.coords.latitude + ", " + position.coords.longitude + ", " + position.coords.altitude)
+  //  console.log("Acc: " + position.coords.accuracy + ", vert acc: " + position.coords.altitudeAccuracy)
 
   const pos = latLonToUTM(position.coords.latitude, position.coords.longitude, 33)
-
-  console.log("Pos: " + pos.e + ", " + pos.n)
 
   if (position.coords.accuracy < 30 && !isTileLoaded) {
     const tileEast = Math.trunc((pos.e - MIN_EAST) / TILE_EXTENTS) * TILE_EXTENTS + MIN_EAST
