@@ -162,6 +162,7 @@ function gotLocation(position) {
     const tileGeometry = new THREE.PlaneBufferGeometry(TILE_EXTENTS, TILE_EXTENTS, 128, 128)
     const tileMaterial = new THREE.MeshPhongMaterial({
       displacementMap: tileDisplacementMap,
+      displacementScale: 10.0,
       wireframe: true
     })
 
