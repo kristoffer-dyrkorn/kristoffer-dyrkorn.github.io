@@ -49,7 +49,9 @@ scene.add(cube)
 
 //-----
 
-const tileGeometry = new THREE.PlaneBufferGeometry(TILE_EXTENTS, TILE_EXTENTS, 255, 255)
+const tileGeometry = new THREE.BoxBufferGeometry(TILE_EXTENTS, TILE_EXTENTS, 1)
+
+//const tileGeometry = new THREE.PlaneBufferGeometry(TILE_EXTENTS, TILE_EXTENTS, 255, 255)
 const tileMaterial = new THREE.MeshPhongMaterial({
   color: 0xffff00,
   side: THREE.DoubleSide
