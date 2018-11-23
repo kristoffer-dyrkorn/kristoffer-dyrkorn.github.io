@@ -1,7 +1,7 @@
 const Y_FOV_LANDSCAPE = 37.5
 
-const NEAR_CLIP = 1
-const FAR_CLIP = 500
+const NEAR_CLIP = 5
+const FAR_CLIP = 15000
 const PLANE_DISTANCE = 100
 
 const MIN_EAST = -100000
@@ -52,18 +52,19 @@ scene.add(cube)
 const tileGeometry = new THREE.BoxBufferGeometry(TILE_EXTENTS, TILE_EXTENTS, 1)
 
 //const tileGeometry = new THREE.PlaneBufferGeometry(TILE_EXTENTS, TILE_EXTENTS, 255, 255)
-const tileMaterial = new THREE.MeshPhongMaterial({
-  color: 0xffff00,
-  side: THREE.DoubleSide
-})
+const tileMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 })
+//const tileMaterial = new THREE.MeshPhongMaterial({
+//  color: 0xffff00,
+//  side: THREE.DoubleSide
+//})
 
 // const tileURL2 = "https://s3-eu-west-1.amazonaws.com/kd-flightsim/topography/244250-6642250.png"
 // const displacementMap = new THREE.TextureLoader().load(tileURL2)
 // tileMaterial.displacementMap = displacementMap
 
 const tile = new THREE.Mesh(tileGeometry, tileMaterial)
-tile.position.x = 244250
-tile.position.y = 6642250
+tile.position.x = 244250 + TILE_EXTENTS / 2
+tile.position.y = 6642250 + TILE_EXTENTS / 2
 tile.position.z = 0
 
 scene.add(tile)
