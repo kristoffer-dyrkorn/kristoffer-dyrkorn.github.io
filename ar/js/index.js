@@ -151,7 +151,8 @@ function gotLocation(position) {
   if (position.coords.accuracy < 30 && !isTileLoaded) {
     const tileEast = Math.trunc((pos.e - MIN_EAST) / TILE_EXTENTS) * TILE_EXTENTS + MIN_EAST
     const tileNorth = Math.trunc((pos.n - MIN_NORTH) / TILE_EXTENTS) * TILE_EXTENTS + MIN_NORTH
-    const tileURL = `${tileServer}/topography/${tileEast}-${tileNorth}.png`
+    //    const tileURL = `${tileServer}/topography/${tileEast}-${tileNorth}.png`
+    const tileURL = `320750-7190500.png`
 
     console.log("Loading tile: " + tileURL)
 
