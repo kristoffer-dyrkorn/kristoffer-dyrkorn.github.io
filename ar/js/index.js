@@ -53,7 +53,9 @@ const tileGeometry = new THREE.PlaneGeometry(TILE_EXTENTS, TILE_EXTENTS, 128, 12
 const tileMaterial = new THREE.MeshPhongMaterial()
 
 console.log("Loading tile: " + tileURL)
-const tileDisplacementMap = new THREE.TextureLoader().load(tileURL)
+const loader = new THREE.TextureLoader()
+loader.setCrossOrigin("anonymous")
+const tileDisplacementMap = loader.load("./displacement.png")
 
 tileMaterial.displacementMap = tileDisplacementMap
 tileMaterial.wireframe = true
