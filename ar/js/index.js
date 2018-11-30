@@ -55,7 +55,7 @@ const tileMaterial = new THREE.MeshPhongMaterial()
 console.log("Loading tile: " + tileURL)
 const loader = new THREE.TextureLoader()
 loader.setCrossOrigin("anonymous")
-const tileDisplacementMap = loader.load("./displacement.png")
+const tileDisplacementMap = loader.load(tileURL)
 
 tileMaterial.displacementMap = tileDisplacementMap
 tileMaterial.displacementScale = 10
@@ -193,7 +193,7 @@ function gotLocation(position) {
 
     //    camera.position.x = pos.e
     //    camera.position.y = pos.n
-    //    camera.position.z = position.coords.altitude
+    camera.position.z = position.coords.altitude
 
     //    cube.position.x = camera.position.x
     //    cube.position.y = camera.position.y + 10
