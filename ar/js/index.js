@@ -58,7 +58,7 @@ loader.setCrossOrigin("anonymous")
 const tileDisplacementMap = loader.load(tileURL)
 
 tileMaterial.displacementMap = tileDisplacementMap
-tileMaterial.displacementScale = 10
+tileMaterial.displacementScale = 10.0
 tileMaterial.wireframe = true
 
 const tile = new THREE.Mesh(tileGeometry, tileMaterial)
