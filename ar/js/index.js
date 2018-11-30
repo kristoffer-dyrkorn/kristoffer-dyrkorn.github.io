@@ -1,6 +1,6 @@
 const Y_FOV_LANDSCAPE = 37.5
 
-const NEAR_CLIP = 5
+const NEAR_CLIP = 50
 const FAR_CLIP = 15000
 const PLANE_DISTANCE = 100
 
@@ -37,11 +37,11 @@ const planeMaterial = new THREE.MeshBasicMaterial({ map: videoTexture })
 const plane = new THREE.Mesh(planeGeometry, planeMaterial)
 
 // relative coordinates from camera to texture plane
-const planePosition = new THREE.Vector3(0, 0, -PLANE_DISTANCE)
+const planeRelativePosition = new THREE.Vector3(0, 0, -PLANE_DISTANCE)
 
 // scene.add(plane)
 
-const cubeGeometry = new THREE.BoxBufferGeometry(1, 1, 1)
+const cubeGeometry = new THREE.BoxBufferGeometry(5, 5, 5)
 const cubeMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00 })
 const cube = new THREE.Mesh(cubeGeometry, cubeMaterial)
 
@@ -88,8 +88,8 @@ function drawScene() {
   // interpolate camera orientation towards sensor-read orientation
   camera.quaternion.slerp(rawOrientation.quaternion, 0.2)
 
-  // position and orient plane relative to camera
-  plane.position.copy(planePosition)
+  // position and orient the plane that is placed relative to camera
+  plane.position.copy(planeRelativePosition)
   camera.localToWorld(plane.position)
   plane.quaternion.copy(camera.quaternion)
 
@@ -148,55 +148,31 @@ function gotLocation(position) {
 
   const pos = latLonToUTM(position.coords.latitude, position.coords.longitude, 33)
 
-  if (!isTileLoaded) {
-    //  if (position.coords.accuracy < 30 && !isTileLoaded) {
+  if (position.coords.accuracy < 30 && !isTileLoaded) {
     const tileEast = Math.trunc((pos.e - MIN_EAST) / TILE_EXTENTS) * TILE_EXTENTS + MIN_EAST
     const tileNorth = Math.trunc((pos.n - MIN_NORTH) / TILE_EXTENTS) * TILE_EXTENTS + MIN_NORTH
     const tileURL = `${tileServer}/topography/${tileEast}-${tileNorth}.png`
-
-    // const tileURL = "./320750-7190500.png"
 
     const tileGeometry = new THREE.PlaneGeometry(TILE_EXTENTS, TILE_EXTENTS, 255, 255)
     const tileMaterial = new THREE.MeshPhongMaterial()
 
     console.log("Loading tile: " + tileURL)
-    const loader = new THREE.TextureLoader()
-    loader.setCrossOrigin("anonymous")
-    const tileDisplacementMap = new THREE.TextureLoader().load(tileURL)
-
-    tileMaterial.displacementMap = tileDisplacementMap
+    tileMaterial.displacementMap = new THREE.TextureLoader().load(tileURL)
     tileMaterial.displacementScale = 2550
     tileMaterial.wireframe = true
 
     const tile = new THREE.Mesh(tileGeometry, tileMaterial)
     scene.add(tile)
 
-    /*
-    const loader = new THREE.TextureLoader()
-    loader.setCrossOrigin("")
-    const tileDisplacementMap = loader.load(
-      tileURL,
-      function(img) {
-        console.log("Image successfully loaded")
-        tileDisplacementMap.needsUpdate = true
-        tileMaterial.needsUpdate = true
-      },
-      undefined,
-      function(e) {
-        console.log("Error loading image")
-      }
-    )
-    */
-
     tile.position.x = tileEast + TILE_EXTENTS / 2
     tile.position.y = tileNorth + TILE_EXTENTS / 2
 
     camera.position.x = pos.e
     camera.position.y = pos.n
-    camera.position.z = position.coords.altitude
+    camera.position.z = position.coords.altitude + 30
 
     cube.position.x = camera.position.x
-    cube.position.y = camera.position.y + 10
+    cube.position.y = camera.position.y + 75
     cube.position.z = camera.position.z
 
     isTileLoaded = true
