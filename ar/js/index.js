@@ -71,16 +71,16 @@ const tileURL = "320750-7190500.png"
 const tileGeometry = new THREE.PlaneGeometry(TILE_EXTENTS, TILE_EXTENTS, 128, 128)
 const tileMaterial = new THREE.MeshPhongMaterial()
 
-console.log("Loading tile: " + tileURL)
-const loader = new THREE.TextureLoader()
-loader.setCrossOrigin("anonymous")
-const tileDisplacementMap = loader.load(tileURL)
+//console.log("Loading tile: " + tileURL)
+//const loader = new THREE.TextureLoader()
+//loader.setCrossOrigin("anonymous")
+// const tileDisplacementMap = loader.load(tileURL)
 
-tileMaterial.displacementMap = tileDisplacementMap
-tileMaterial.wireframe = true
+//tileMaterial.displacementMap = tileDisplacementMap
+//tileMaterial.wireframe = true
 
 const tile = new THREE.Mesh(tileGeometry, tileMaterial)
-scene.add(tile)
+// scene.add(tile)
 
 // no scene.add(tile) here, tile is added to scene
 // first when we have a fix on the GPS location.
