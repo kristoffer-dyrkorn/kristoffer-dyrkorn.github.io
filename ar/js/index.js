@@ -209,17 +209,17 @@ function gotLocation(position) {
     tile.position.x = tileEast + TILE_EXTENTS / 2
     tile.position.y = tileNorth + TILE_EXTENTS / 2
 
-    camera.position.x = pos.e
-    camera.position.y = pos.n
-    camera.position.z = position.coords.altitude
+    //    camera.position.x = pos.e
+    //    camera.position.y = pos.n
+    //    camera.position.z = position.coords.altitude
 
-    cube.position.x = camera.position.x
-    cube.position.y = camera.position.y + 10
-    cube.position.z = camera.position.z
+    //    cube.position.x = camera.position.x
+    //    cube.position.y = camera.position.y + 10
+    //    cube.position.z = camera.position.z
 
-    cubez.position.x = camera.position.x + 100 / 2
-    cubez.position.y = camera.position.y + 100 / 2
-    cubez.position.z = 0
+    //    cubez.position.x = camera.position.x + 100 / 2
+    //    cubez.position.y = camera.position.y + 100 / 2
+    //    cubez.position.z = 0
 
     isTileLoaded = true
   }
