@@ -49,7 +49,7 @@ scene.add(cube)
 
 const tileURL = "320750-7190500.png"
 
-const tileGeometry = new THREE.PlaneGeometry(100, 100, 128, 128)
+const tileGeometry = new THREE.PlaneGeometry(100, 100, 50, 50)
 const tileMaterial = new THREE.MeshPhongMaterial()
 
 console.log("Loading tile: " + tileURL)
@@ -192,7 +192,7 @@ function gotLocation(position) {
 
     //    camera.position.x = pos.e
     //    camera.position.y = pos.n
-    camera.position.z = position.coords.altitude
+    //    camera.position.z = position.coords.altitude
 
     //    cube.position.x = camera.position.x
     //    cube.position.y = camera.position.y + 10
