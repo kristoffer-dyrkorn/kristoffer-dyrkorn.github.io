@@ -162,7 +162,7 @@ function gotLocation(position) {
     console.log("Loading tile: " + tileURL)
     const loader = new THREE.TextureLoader()
     loader.setCrossOrigin("anonymous")
-    const tileDisplacementMap = loader.load(tileURL)
+    const tileDisplacementMap = new THREE.TextureLoader().load(tileURL)
 
     tileMaterial.displacementMap = tileDisplacementMap
     tileMaterial.displacementScale = 2550
