@@ -20,7 +20,7 @@
       renderer.setSize(window.innerWidth, window.innerHeight)
       document.body.appendChild(renderer.domElement)
 
-      const geometry = new THREE.PlaneGeometry(4, 4, 50, 50) // to siste params er antall punkter en side består av
+      const geometry = new THREE.PlaneBufferGeometry(4, 4, 50, 50) // to siste params er antall punkter en side består av
       const material = new THREE.MeshPhongMaterial({
         color: 0xffffff,
         side: THREE.DoubleSide
