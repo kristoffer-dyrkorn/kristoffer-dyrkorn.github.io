@@ -38,7 +38,7 @@ const plane = new THREE.Mesh(planeGeometry, planeMaterial)
 
 ////////
 
-const geometry = new THREE.PlaneGeometry(TILE_EXTENTS, TILE_EXTENTS, 50, 50) // to siste params er antall punkter en side består av
+const geometry = new THREE.PlaneGeometry(100, 100, 50, 50) // to siste params er antall punkter en side består av
 const material = new THREE.MeshPhongMaterial()
 
 const loader = new THREE.TextureLoader()
@@ -68,7 +68,7 @@ scene.add(cube)
 
 const tileURL = "320750-7190500.png"
 
-const tileGeometry = new THREE.PlaneGeometry(100, 100, 128, 128)
+const tileGeometry = new THREE.PlaneGeometry(TILE_EXTENTS, TILE_EXTENTS, 128, 128)
 const tileMaterial = new THREE.MeshPhongMaterial()
 
 //console.log("Loading tile: " + tileURL)
