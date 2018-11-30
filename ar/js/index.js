@@ -36,25 +36,6 @@ const planeGeometry = new THREE.PlaneBufferGeometry()
 const planeMaterial = new THREE.MeshBasicMaterial({ map: videoTexture })
 const plane = new THREE.Mesh(planeGeometry, planeMaterial)
 
-////////
-
-const geometry = new THREE.PlaneGeometry(100, 100, 50, 50) // to siste params er antall punkter en side består av
-const material = new THREE.MeshPhongMaterial()
-
-const loader = new THREE.TextureLoader()
-loader.setCrossOrigin("anonymous")
-const displacement = loader.load("./displacement.png")
-
-material.displacementMap = displacement // gjør displacement
-// material.bumpMap = displacement; 			// ta bort kommentaren for å få jevn skyggelegging
-//		material.flatShading = true;				// denne må til for å skru på skyggelegging
-material.wireframe = true
-
-const cubez = new THREE.Mesh(geometry, material)
-scene.add(cubez)
-
-/////////
-
 // relative coordinates from camera to texture plane
 const planePosition = new THREE.Vector3(0, 0, -PLANE_DISTANCE)
 
@@ -71,16 +52,14 @@ const tileURL = "320750-7190500.png"
 const tileGeometry = new THREE.PlaneGeometry(TILE_EXTENTS, TILE_EXTENTS, 128, 128)
 const tileMaterial = new THREE.MeshPhongMaterial()
 
-//console.log("Loading tile: " + tileURL)
-//const loader = new THREE.TextureLoader()
-//loader.setCrossOrigin("anonymous")
-// const tileDisplacementMap = loader.load(tileURL)
+console.log("Loading tile: " + tileURL)
+const tileDisplacementMap = new THREE.TextureLoader().load(tileURL)
 
-//tileMaterial.displacementMap = tileDisplacementMap
-//tileMaterial.wireframe = true
+tileMaterial.displacementMap = tileDisplacementMap
+tileMaterial.wireframe = true
 
 const tile = new THREE.Mesh(tileGeometry, tileMaterial)
-// scene.add(tile)
+scene.add(tile)
 
 // no scene.add(tile) here, tile is added to scene
 // first when we have a fix on the GPS location.
@@ -206,8 +185,8 @@ function gotLocation(position) {
     )
     */
 
-    tile.position.x = tileEast + TILE_EXTENTS / 2
-    tile.position.y = tileNorth + TILE_EXTENTS / 2
+    //    tile.position.x = tileEast + TILE_EXTENTS / 2
+    //    tile.position.y = tileNorth + TILE_EXTENTS / 2
 
     //    camera.position.x = pos.e
     //    camera.position.y = pos.n
@@ -216,10 +195,6 @@ function gotLocation(position) {
     //    cube.position.x = camera.position.x
     //    cube.position.y = camera.position.y + 10
     //    cube.position.z = camera.position.z
-
-    //    cubez.position.x = camera.position.x + 100 / 2
-    //    cubez.position.y = camera.position.y + 100 / 2
-    //    cubez.position.z = 0
 
     isTileLoaded = true
   }
