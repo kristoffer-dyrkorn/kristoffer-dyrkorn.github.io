@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Displaced Surface</title>
+    <style>
+      body {
+        margin: 0;
+        overflow: hidden;
+      }
+    </style>
+  </head>
+  <body>
+    <script src="js/three.min.js"></script>
+    <script>
+      const scene = new THREE.Scene()
+      const camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 0.1, 10)
+
+      const renderer = new THREE.WebGLRenderer({ antialias: true })
+      renderer.setSize(window.innerWidth, window.innerHeight)
+      document.body.appendChild(renderer.domElement)
+
+      const geometry = new THREE.PlaneGeometry(4, 4, 50, 50) // to siste params er antall punkter en side består av
+      const material = new THREE.MeshPhongMaterial({
+        color: 0xffffff,
+        side: THREE.DoubleSide
+      })
+
+      const loader = new THREE.TextureLoader()
+      loader.setCrossOrigin("anonymous")
+      const displacement = loader.load("./displacement.png")
+
+      material.displacementMap = displacement // gjør displacement
+      // material.bumpMap = displacement; 			// ta bort kommentaren for å få jevn skyggelegging
+      //		material.flatShading = true;				// denne må til for å skru på skyggelegging
+      material.wireframe = true
+
+      const cube = new THREE.Mesh(geometry, material)
+      scene.add(cube)
+
+      const ambientLight = new THREE.AmbientLight(0x111111)
+      scene.add(ambientLight)
+
+      const lights = []
+      lights[0] = new THREE.PointLight(0xffffff, 0.8, 0)
+      lights[0].position.set(20, 20, 40)
+      scene.add(lights[0])
+
+      camera.position.z = 4.5
+      camera.position.y = -0.3
+
+      function animate() {
+        requestAnimationFrame(animate)
+
+        cube.rotation.x = -0.9
+
+        renderer.render(scene, camera)
+      }
+
+      animate()
+    </script>
+  </body>
+</html>
