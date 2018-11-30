@@ -21,14 +21,11 @@
       document.body.appendChild(renderer.domElement)
 
       const geometry = new THREE.PlaneGeometry(4, 4, 50, 50) // to siste params er antall punkter en side består av
-      const material = new THREE.MeshPhongMaterial({
-        color: 0xffffff,
-        side: THREE.DoubleSide
-      })
+      const material = new THREE.MeshPhongMaterial()
 
       const loader = new THREE.TextureLoader()
       loader.setCrossOrigin("anonymous")
-      const displacement = loader.load("320750-7190500.png")
+      const displacement = loader.load("./displacement.png")
 
       material.displacementMap = displacement // gjør displacement
       // material.bumpMap = displacement; 			// ta bort kommentaren for å få jevn skyggelegging
