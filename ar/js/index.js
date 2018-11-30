@@ -49,7 +49,7 @@ scene.add(cube)
 
 const tileURL = "./320750-7190500.png"
 
-const tileGeometry = new THREE.PlaneGeometry(TILE_EXTENTS, TILE_EXTENTS, 50, 50)
+const tileGeometry = new THREE.PlaneGeometry(200, 200, 50, 50)
 const tileMaterial = new THREE.MeshPhongMaterial()
 
 console.log("Loading tile: " + tileURL)
@@ -58,7 +58,7 @@ loader.setCrossOrigin("anonymous")
 const tileDisplacementMap = loader.load(tileURL)
 
 tileMaterial.displacementMap = tileDisplacementMap
-tileMaterial.displacementScale = 10.0
+tileMaterial.displacementScale = 100.0
 tileMaterial.wireframe = true
 
 const tile = new THREE.Mesh(tileGeometry, tileMaterial)
