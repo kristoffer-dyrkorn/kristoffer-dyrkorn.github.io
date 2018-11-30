@@ -47,23 +47,6 @@ const cube = new THREE.Mesh(cubeGeometry, cubeMaterial)
 
 scene.add(cube)
 
-const tileURL = "./320750-7190500.png"
-
-const tileGeometry = new THREE.PlaneGeometry(TILE_EXTENTS, TILE_EXTENTS, 255, 255)
-const tileMaterial = new THREE.MeshPhongMaterial()
-
-console.log("Loading tile: " + tileURL)
-const loader = new THREE.TextureLoader()
-loader.setCrossOrigin("anonymous")
-const tileDisplacementMap = loader.load(tileURL)
-
-tileMaterial.displacementMap = tileDisplacementMap
-tileMaterial.displacementScale = 2550
-tileMaterial.wireframe = true
-
-const tile = new THREE.Mesh(tileGeometry, tileMaterial)
-scene.add(tile)
-
 // no scene.add(tile) here, tile is added to scene
 // first when we have a fix on the GPS location.
 
@@ -169,7 +152,24 @@ function gotLocation(position) {
     //  if (position.coords.accuracy < 30 && !isTileLoaded) {
     const tileEast = Math.trunc((pos.e - MIN_EAST) / TILE_EXTENTS) * TILE_EXTENTS + MIN_EAST
     const tileNorth = Math.trunc((pos.n - MIN_NORTH) / TILE_EXTENTS) * TILE_EXTENTS + MIN_NORTH
-    //    const tileURL = `${tileServer}/topography/${tileEast}-${tileNorth}.png`
+    const tileURL = `${tileServer}/topography/${tileEast}-${tileNorth}.png`
+
+    // const tileURL = "./320750-7190500.png"
+
+    const tileGeometry = new THREE.PlaneGeometry(TILE_EXTENTS, TILE_EXTENTS, 255, 255)
+    const tileMaterial = new THREE.MeshPhongMaterial()
+
+    console.log("Loading tile: " + tileURL)
+    const loader = new THREE.TextureLoader()
+    loader.setCrossOrigin("anonymous")
+    const tileDisplacementMap = loader.load(tileURL)
+
+    tileMaterial.displacementMap = tileDisplacementMap
+    tileMaterial.displacementScale = 2550
+    tileMaterial.wireframe = true
+
+    const tile = new THREE.Mesh(tileGeometry, tileMaterial)
+    scene.add(tile)
 
     /*
     const loader = new THREE.TextureLoader()
