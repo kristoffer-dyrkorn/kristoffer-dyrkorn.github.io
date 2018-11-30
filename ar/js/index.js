@@ -148,7 +148,8 @@ function gotLocation(position) {
 
   const pos = latLonToUTM(position.coords.latitude, position.coords.longitude, 33)
 
-  if (position.coords.accuracy < 30 && !isTileLoaded) {
+  if (!isTileLoaded) {
+    //  if (position.coords.accuracy < 30 && !isTileLoaded) {
     const tileEast = Math.trunc((pos.e - MIN_EAST) / TILE_EXTENTS) * TILE_EXTENTS + MIN_EAST
     const tileNorth = Math.trunc((pos.n - MIN_NORTH) / TILE_EXTENTS) * TILE_EXTENTS + MIN_NORTH
     //    const tileURL = `${tileServer}/topography/${tileEast}-${tileNorth}.png`
