@@ -49,7 +49,7 @@ scene.add(cube)
 
 const tileURL = "./320750-7190500.png"
 
-const tileGeometry = new THREE.PlaneGeometry(100, 100, 50, 50)
+const tileGeometry = new THREE.PlaneGeometry(TILE_EXTENTS, TILE_EXTENTS, 50, 50)
 const tileMaterial = new THREE.MeshPhongMaterial()
 
 console.log("Loading tile: " + tileURL)
