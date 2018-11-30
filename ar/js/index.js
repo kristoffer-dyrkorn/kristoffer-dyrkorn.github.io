@@ -36,6 +36,25 @@ const planeGeometry = new THREE.PlaneBufferGeometry()
 const planeMaterial = new THREE.MeshBasicMaterial({ map: videoTexture })
 const plane = new THREE.Mesh(planeGeometry, planeMaterial)
 
+////////
+
+const geometry = new THREE.PlaneGeometry(4, 4, 50, 50) // to siste params er antall punkter en side består av
+const material = new THREE.MeshPhongMaterial()
+
+const loader = new THREE.TextureLoader()
+loader.setCrossOrigin("anonymous")
+const displacement = loader.load("./displacement.png")
+
+material.displacementMap = displacement // gjør displacement
+// material.bumpMap = displacement; 			// ta bort kommentaren for å få jevn skyggelegging
+//		material.flatShading = true;				// denne må til for å skru på skyggelegging
+material.wireframe = true
+
+const cubez = new THREE.Mesh(geometry, material)
+scene.add(cubez)
+
+/////////
+
 // relative coordinates from camera to texture plane
 const planePosition = new THREE.Vector3(0, 0, -PLANE_DISTANCE)
 
@@ -197,6 +216,10 @@ function gotLocation(position) {
     cube.position.x = camera.position.x
     cube.position.y = camera.position.y + 10
     cube.position.z = camera.position.z
+
+    cubez.position.x = camera.position.x
+    cubez.position.y = camera.position.y + 10
+    cubez.position.z = camera.position.z
 
     isTileLoaded = true
   }
