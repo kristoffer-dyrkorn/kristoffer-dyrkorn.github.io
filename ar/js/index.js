@@ -217,8 +217,8 @@ function gotLocation(position) {
     cube.position.y = camera.position.y + 10
     cube.position.z = camera.position.z
 
-    cubez.position.x = tileEast + TILE_EXTENTS / 2
-    cubez.position.y = tileNorth + TILE_EXTENTS / 2
+    cubez.position.x = tileEast + 100 / 2
+    cubez.position.y = tileNorth + 100 / 2
     cubez.position.z = 0
 
     isTileLoaded = true
