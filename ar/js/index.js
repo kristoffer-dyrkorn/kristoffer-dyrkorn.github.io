@@ -187,7 +187,7 @@ function gotLocation(position) {
     )
     */
 
-    tileMaterial.displacementMap = tileDisplacementMap
+    //    tileMaterial.displacementMap = tileDisplacementMap
 
     tile.position.x = tileEast + TILE_EXTENTS / 2
     tile.position.y = tileNorth + TILE_EXTENTS / 2
