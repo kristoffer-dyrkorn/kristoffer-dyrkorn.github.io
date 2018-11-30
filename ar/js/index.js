@@ -38,7 +38,7 @@ const plane = new THREE.Mesh(planeGeometry, planeMaterial)
 
 ////////
 
-const geometry = new THREE.PlaneGeometry(4, 4, 50, 50) // to siste params er antall punkter en side består av
+const geometry = new THREE.PlaneGeometry(TILE_EXTENTS, TILE_EXTENTS, 50, 50) // to siste params er antall punkter en side består av
 const material = new THREE.MeshPhongMaterial()
 
 const loader = new THREE.TextureLoader()
@@ -217,9 +217,9 @@ function gotLocation(position) {
     cube.position.y = camera.position.y + 10
     cube.position.z = camera.position.z
 
-    cubez.position.x = camera.position.x
-    cubez.position.y = camera.position.y + 10
-    cubez.position.z = camera.position.z
+    cubez.position.x = tileEast + TILE_EXTENTS / 2
+    cubez.position.y = tileNorth + TILE_EXTENTS / 2
+    cubez.position.z = 0
 
     isTileLoaded = true
   }
