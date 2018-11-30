@@ -47,13 +47,15 @@ const cube = new THREE.Mesh(cubeGeometry, cubeMaterial)
 
 scene.add(cube)
 
-const tileURL = `320750-7190500.png`
+const tileURL = "320750-7190500.png"
 
 const tileGeometry = new THREE.PlaneGeometry(TILE_EXTENTS, TILE_EXTENTS, 128, 128)
 const tileMaterial = new THREE.MeshPhongMaterial()
 
 console.log("Loading tile: " + tileURL)
-const tileDisplacementMap = new THREE.TextureLoader().load(tileURL)
+const loader = new THREE.TextureLoader()
+loader.setCrossOrigin("anonymous")
+const tileDisplacementMap = loader.load(tileURL)
 
 tileMaterial.displacementMap = tileDisplacementMap
 tileMaterial.wireframe = true
