@@ -10,7 +10,7 @@ const TILE_EXTENTS = 12750
 
 const tileServer = "https://s3-eu-west-1.amazonaws.com/kd-flightsim"
 
-let actualHeading = 0
+let compassHeading = 0
 let precision = 0
 let isTileLoaded = false
 let isVideoPlaying = false
@@ -80,13 +80,30 @@ function logMessages() {
 function drawScene() {
   requestAnimationFrame(drawScene)
 
-  // read raw orientation data from sensors
+  const compassOrientation = new THREE.Matrix4()
+  compassOrientation.makeRotationZ(compassHeading * THREE.Math.DEG2RAD)
+
+  const deviceOrientation = new THREE.Matrix4()
+  deviceOrientation.makeRotationFromEuler(gyroSample)
+
+  const screenOrientation = new THREE.Matrix4()
+  screenOrientation.makeRotationZ(-window.orientation * THREE.Math.DEG2RAD)
+
+  const orientation = compassOrientation.clone()
+
+  orientation.multiply(deviceOrientation)
+  orientation.multiply(screenOrientation)
+
+  /*
+  rawOrientation.setRotationFromMatrix(identityOrientation)
+  rawOrientation.rotateZ(-compassHeading * THREE.Math.DEG2RAD)
+
   rawOrientation.setRotationFromEuler(gyroSample)
   rawOrientation.rotateZ(-window.orientation * THREE.Math.DEG2RAD)
   //  rawOrientation.rotateY(-actualHeading * THREE.Math.DEG2RAD)
-
+*/
   // interpolate camera orientation towards sensor-read orientation
-  camera.quaternion.slerp(rawOrientation.quaternion, 0.2)
+  camera.quaternion.slerp(orientation.quaternion, 0.2)
 
   // position and orient the plane that is placed relative to camera
   plane.position.copy(planeRelativePosition)
@@ -114,10 +131,10 @@ function resetViewport() {
 
 function updateOrientation(event) {
   precision = event.webkitCompassAccuracy
-  actualHeading = event.webkitCompassHeading + window.orientation
+  compassHeading = event.webkitCompassHeading
   gyroSample.x = event.beta * THREE.Math.DEG2RAD
   gyroSample.y = event.gamma * THREE.Math.DEG2RAD
-  gyroSample.z = event.webkitCompassHeading * THREE.Math.DEG2RAD
+  gyroSample.z = event.alpha * THREE.Math.DEG2RAD
 }
 
 function startVideo() {
