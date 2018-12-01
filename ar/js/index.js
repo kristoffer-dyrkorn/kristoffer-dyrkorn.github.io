@@ -93,6 +93,7 @@ function drawScene() {
 
   orientation.multiply(deviceOrientation)
   orientation.multiply(screenOrientation)
+  rawOrientation.setRotationFromMatrix(orientation)
 
   /*
   rawOrientation.setRotationFromMatrix(identityOrientation)
@@ -103,7 +104,7 @@ function drawScene() {
   //  rawOrientation.rotateY(-actualHeading * THREE.Math.DEG2RAD)
 */
   // interpolate camera orientation towards sensor-read orientation
-  camera.quaternion.slerp(orientation.quaternion, 0.2)
+  camera.quaternion.slerp(rawOrientation.quaternion, 0.2)
 
   // position and orient the plane that is placed relative to camera
   plane.position.copy(planeRelativePosition)
