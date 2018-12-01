@@ -10,7 +10,7 @@ const TILE_EXTENTS = 12750
 
 const tileServer = "https://s3-eu-west-1.amazonaws.com/kd-flightsim"
 
-let compassHeading = 0
+let actualHeading = 0
 let precision = 0
 let isTileLoaded = false
 let isVideoPlaying = false
@@ -81,7 +81,7 @@ function drawScene() {
   requestAnimationFrame(drawScene)
 
   const compassOrientation = new THREE.Matrix4()
-  compassOrientation.makeRotationZ(compassHeading * THREE.Math.DEG2RAD)
+  compassOrientation.makeRotationZ(actualHeading * THREE.Math.DEG2RAD)
 
   const deviceOrientation = new THREE.Matrix4()
   deviceOrientation.makeRotationFromEuler(gyroSample)
@@ -132,7 +132,7 @@ function resetViewport() {
 
 function updateOrientation(event) {
   precision = event.webkitCompassAccuracy
-  compassHeading = event.webkitCompassHeading
+  actualHeading = event.webkitCompassHeading + window.orientation
   gyroSample.x = event.beta * THREE.Math.DEG2RAD
   gyroSample.y = event.gamma * THREE.Math.DEG2RAD
   gyroSample.z = event.alpha * THREE.Math.DEG2RAD
@@ -197,7 +197,7 @@ function gotLocation(position) {
       isTileLoaded = true
     }
   } else {
-    console.log("Waiting for GPS fix")
+    console.log("Waiting for GPS fix, accuracy = " + position.coords.accuracy + " m.")
   }
 }
 
