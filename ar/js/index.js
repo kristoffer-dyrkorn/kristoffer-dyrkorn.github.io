@@ -117,7 +117,7 @@ function updateOrientation(event) {
   actualHeading = event.webkitCompassHeading + window.orientation
   gyroSample.x = event.beta * THREE.Math.DEG2RAD
   //  gyroSample.y = event.gamma * THREE.Math.DEG2RAD // actualHeading * DEG2RAD?
-  gyroSample.y = actualHeading * THREE.Math.DEG2RAD // actualHeading * DEG2RAD?
+  gyroSample.y = (actualHeading - event.gamma) * THREE.Math.DEG2RAD // actualHeading * DEG2RAD?
   gyroSample.z = event.alpha * THREE.Math.DEG2RAD
 }
 
@@ -149,34 +149,38 @@ function gotLocation(position) {
 
   const pos = latLonToUTM(position.coords.latitude, position.coords.longitude, 33)
 
-  if (position.coords.accuracy < 30 && !isTileLoaded) {
-    const tileEast = Math.trunc((pos.e - MIN_EAST) / TILE_EXTENTS) * TILE_EXTENTS + MIN_EAST
-    const tileNorth = Math.trunc((pos.n - MIN_NORTH) / TILE_EXTENTS) * TILE_EXTENTS + MIN_NORTH
-    const tileURL = `${tileServer}/topography/${tileEast}-${tileNorth}.png`
+  if (position.coords.accuracy < 30) {
+    if (!isTileLoaded) {
+      const tileEast = Math.trunc((pos.e - MIN_EAST) / TILE_EXTENTS) * TILE_EXTENTS + MIN_EAST
+      const tileNorth = Math.trunc((pos.n - MIN_NORTH) / TILE_EXTENTS) * TILE_EXTENTS + MIN_NORTH
+      const tileURL = `${tileServer}/topography/${tileEast}-${tileNorth}.png`
 
-    const tileGeometry = new THREE.PlaneGeometry(TILE_EXTENTS, TILE_EXTENTS, 255, 255)
-    const tileMaterial = new THREE.MeshPhongMaterial()
+      const tileGeometry = new THREE.PlaneGeometry(TILE_EXTENTS, TILE_EXTENTS, 255, 255)
+      const tileMaterial = new THREE.MeshPhongMaterial()
 
-    console.log("Loading tile: " + tileURL)
-    tileMaterial.displacementMap = new THREE.TextureLoader().load(tileURL)
-    tileMaterial.displacementScale = 2550
-    tileMaterial.wireframe = true
+      console.log("Loading tile: " + tileURL)
+      tileMaterial.displacementMap = new THREE.TextureLoader().load(tileURL)
+      tileMaterial.displacementScale = 2550
+      tileMaterial.wireframe = true
 
-    const tile = new THREE.Mesh(tileGeometry, tileMaterial)
-    scene.add(tile)
+      const tile = new THREE.Mesh(tileGeometry, tileMaterial)
+      scene.add(tile)
 
-    tile.position.x = tileEast + TILE_EXTENTS / 2
-    tile.position.y = tileNorth + TILE_EXTENTS / 2
+      tile.position.x = tileEast + TILE_EXTENTS / 2
+      tile.position.y = tileNorth + TILE_EXTENTS / 2
 
-    camera.position.x = pos.e
-    camera.position.y = pos.n
-    camera.position.z = position.coords.altitude + 30
+      camera.position.x = pos.e
+      camera.position.y = pos.n
+      camera.position.z = position.coords.altitude + 30
 
-    cube.position.x = camera.position.x
-    cube.position.y = camera.position.y + 75
-    cube.position.z = camera.position.z
+      cube.position.x = camera.position.x
+      cube.position.y = camera.position.y + 75
+      cube.position.z = camera.position.z
 
-    isTileLoaded = true
+      isTileLoaded = true
+    }
+  } else {
+    console.log("Waiting for GPS fix")
   }
 }
 
