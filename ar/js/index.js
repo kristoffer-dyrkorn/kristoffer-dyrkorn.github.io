@@ -82,7 +82,7 @@ function drawScene() {
 
   // compass orientation
   const orientation = new THREE.Matrix4()
-  orientation.makeRotationY(actualHeading * THREE.Math.DEG2RAD)
+  orientation.makeRotationX(actualHeading * THREE.Math.DEG2RAD)
 
   const deviceOrientation = new THREE.Matrix4()
   deviceOrientation.makeRotationFromEuler(gyroSample)
@@ -166,6 +166,7 @@ function gotLocation(position) {
   const pos = latLonToUTM(position.coords.latitude, position.coords.longitude, 33)
 
   if (position.coords.accuracy < 30) {
+    console.log("GPS fixed, accuracy = " + position.coords.accuracy + " m.")
     if (!isTileLoaded) {
       const tileEast = Math.trunc((pos.e - MIN_EAST) / TILE_EXTENTS) * TILE_EXTENTS + MIN_EAST
       const tileNorth = Math.trunc((pos.n - MIN_NORTH) / TILE_EXTENTS) * TILE_EXTENTS + MIN_NORTH
