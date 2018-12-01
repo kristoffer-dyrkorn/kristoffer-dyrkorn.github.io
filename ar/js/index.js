@@ -80,16 +80,15 @@ function logMessages() {
 function drawScene() {
   requestAnimationFrame(drawScene)
 
-  const compassOrientation = new THREE.Matrix4()
-  compassOrientation.makeRotationZ(actualHeading * THREE.Math.DEG2RAD)
+  // compass orientation
+  const orientation = new THREE.Matrix4()
+  orientation.makeRotationY(actualHeading * THREE.Math.DEG2RAD)
 
   const deviceOrientation = new THREE.Matrix4()
   deviceOrientation.makeRotationFromEuler(gyroSample)
 
   const screenOrientation = new THREE.Matrix4()
   screenOrientation.makeRotationZ(-window.orientation * THREE.Math.DEG2RAD)
-
-  const orientation = compassOrientation.clone()
 
   orientation.multiply(deviceOrientation)
   orientation.multiply(screenOrientation)
