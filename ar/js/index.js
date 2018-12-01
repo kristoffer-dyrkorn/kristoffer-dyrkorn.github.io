@@ -11,7 +11,7 @@ const TILE_EXTENTS = 12750
 const tileServer = "https://s3-eu-west-1.amazonaws.com/kd-flightsim"
 
 let actualHeading = 0
-let precision = 0
+let headingAccuracy = 0
 let isTileLoaded = false
 let isVideoPlaying = false
 
@@ -130,8 +130,11 @@ function resetViewport() {
 }
 
 function updateOrientation(event) {
-  precision = event.webkitCompassAccuracy
+  headingAccuracy = event.webkitCompassAccuracy
   actualHeading = event.webkitCompassHeading + window.orientation
+
+  console.log("Heading: " + actualHeading + ", accuracy: " + headingAccuracy)
+
   gyroSample.x = event.beta * THREE.Math.DEG2RAD
   gyroSample.y = event.gamma * THREE.Math.DEG2RAD
   gyroSample.z = event.alpha * THREE.Math.DEG2RAD
@@ -165,9 +168,10 @@ function gotLocation(position) {
 
   const pos = latLonToUTM(position.coords.latitude, position.coords.longitude, 33)
 
-  if (position.coords.accuracy < 30) {
-    console.log("GPS fixed, accuracy = " + position.coords.accuracy + " m.")
+  if (position.coords.accuracy < 35) {
     if (!isTileLoaded) {
+      console.log("GPS fixed, accuracy = " + position.coords.accuracy + " m.")
+
       const tileEast = Math.trunc((pos.e - MIN_EAST) / TILE_EXTENTS) * TILE_EXTENTS + MIN_EAST
       const tileNorth = Math.trunc((pos.n - MIN_NORTH) / TILE_EXTENTS) * TILE_EXTENTS + MIN_NORTH
       const tileURL = `${tileServer}/topography/${tileEast}-${tileNorth}.png`
