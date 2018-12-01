@@ -82,7 +82,7 @@ function drawScene() {
 
   // compass orientation
   const orientation = new THREE.Matrix4()
-  orientation.makeRotationX(actualHeading * THREE.Math.DEG2RAD)
+  orientation.makeRotationZ(-actualHeading * THREE.Math.DEG2RAD)
 
   const deviceOrientation = new THREE.Matrix4()
   deviceOrientation.makeRotationFromEuler(gyroSample)
