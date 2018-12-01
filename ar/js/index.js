@@ -117,7 +117,7 @@ function updateOrientation(event) {
   actualHeading = event.webkitCompassHeading + window.orientation
   gyroSample.x = event.beta * THREE.Math.DEG2RAD
   //  gyroSample.y = event.gamma * THREE.Math.DEG2RAD // actualHeading * DEG2RAD?
-  gyroSample.y = (actualHeading - event.gamma) * THREE.Math.DEG2RAD // actualHeading * DEG2RAD?
+  gyroSample.y = actualHeading * THREE.Math.DEG2RAD // actualHeading * DEG2RAD?
   gyroSample.z = event.alpha * THREE.Math.DEG2RAD
 }
 
