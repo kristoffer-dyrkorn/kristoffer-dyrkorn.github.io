@@ -83,7 +83,7 @@ function drawScene() {
   // read raw orientation data from sensors
   rawOrientation.setRotationFromEuler(gyroSample)
   rawOrientation.rotateZ(-window.orientation * THREE.Math.DEG2RAD)
-  rawOrientation.rotateY(-actualHeading * THREE.Math.DEG2RAD)
+  //  rawOrientation.rotateY(-actualHeading * THREE.Math.DEG2RAD)
 
   // interpolate camera orientation towards sensor-read orientation
   camera.quaternion.slerp(rawOrientation.quaternion, 0.2)
