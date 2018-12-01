@@ -117,8 +117,7 @@ function updateOrientation(event) {
   actualHeading = event.webkitCompassHeading + window.orientation
   gyroSample.x = event.beta * THREE.Math.DEG2RAD
   gyroSample.y = event.gamma * THREE.Math.DEG2RAD
-  //  gyroSample.z = event.alpha * THREE.Math.DEG2RAD
-  gyroSample.z = actualHeading * THREE.Math.DEG2RAD
+  gyroSample.z = event.webkitCompassHeading * THREE.Math.DEG2RAD
 }
 
 function startVideo() {
