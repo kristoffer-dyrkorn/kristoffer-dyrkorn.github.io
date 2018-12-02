@@ -16,7 +16,7 @@ let isTileLoaded = false
 let isVideoPlaying = false
 
 const gyroSample = new THREE.Euler(0, 0, 0, "ZXY")
-const rawOrientation = new THREE.Object3D()
+const deviceObject = new THREE.Object3D()
 
 const canvas = document.getElementById("canvas")
 const renderer = new THREE.WebGLRenderer({ canvas: canvas })
@@ -30,7 +30,6 @@ const scene = new THREE.Scene()
 
 const video = document.getElementById("video")
 const videoTexture = new THREE.VideoTexture(video)
-videoTexture.minFilter = THREE.LinearFilter
 
 const planeGeometry = new THREE.PlaneBufferGeometry()
 const planeMaterial = new THREE.MeshBasicMaterial({ map: videoTexture })
@@ -80,7 +79,6 @@ function logMessages() {
 function drawScene() {
   requestAnimationFrame(drawScene)
 
-  // compass orientation
   const orientation = new THREE.Matrix4()
   orientation.makeRotationZ(-actualHeading * THREE.Math.DEG2RAD)
 
@@ -92,22 +90,18 @@ function drawScene() {
 
   orientation.multiply(deviceOrientation)
   orientation.multiply(screenOrientation)
-  rawOrientation.setRotationFromMatrix(orientation)
+  deviceObject.setRotationFromMatrix(orientation)
 
-  /*
-  rawOrientation.setRotationFromMatrix(identityOrientation)
-  rawOrientation.rotateZ(-compassHeading * THREE.Math.DEG2RAD)
-
-  rawOrientation.setRotationFromEuler(gyroSample)
-  rawOrientation.rotateZ(-window.orientation * THREE.Math.DEG2RAD)
-  //  rawOrientation.rotateY(-actualHeading * THREE.Math.DEG2RAD)
-*/
   // interpolate camera orientation towards sensor-read orientation
-  camera.quaternion.slerp(rawOrientation.quaternion, 0.2)
+  camera.quaternion.slerp(deviceObject.quaternion, 0.2)
 
-  // position and orient the plane that is placed relative to camera
+  // reset plane location: place it relative to the camera
   plane.position.copy(planeRelativePosition)
+
+  // overwrite plane.position with world coordinates, based on current camera position and orientation
   camera.localToWorld(plane.position)
+
+  // copy the camera orientation to the plane so the plane becomes parallel to the camera
   plane.quaternion.copy(camera.quaternion)
 
   renderer.render(scene, camera)
