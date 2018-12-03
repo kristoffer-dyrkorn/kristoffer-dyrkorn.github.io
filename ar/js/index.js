@@ -127,7 +127,7 @@ function updateOrientation(event) {
   headingAccuracy = event.webkitCompassAccuracy
   actualHeading = event.webkitCompassHeading + window.orientation
 
-  console.log("Heading: " + actualHeading + ", accuracy: " + headingAccuracy)
+  //  console.log("Heading: " + actualHeading + ", accuracy: " + headingAccuracy)
 
   gyroSample.x = event.beta * THREE.Math.DEG2RAD
   gyroSample.y = event.gamma * THREE.Math.DEG2RAD
@@ -162,7 +162,7 @@ function gotLocation(position) {
 
   const pos = latLonToUTM(position.coords.latitude, position.coords.longitude, 33)
 
-  if (position.coords.accuracy < 35) {
+  if (position.coords.accuracy < 100) {
     if (!isTileLoaded) {
       console.log("GPS fixed, accuracy = " + position.coords.accuracy + " m.")
 
