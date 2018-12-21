@@ -8,11 +8,11 @@ const MIN_EAST = -100000
 const MIN_NORTH = 6400000
 const TILE_EXTENTS = 12750
 
-const tileServer = "https://s3-eu-west-1.amazonaws.com/kd-flightsim"
+const tileServer = "https://s3-eu-west-1.amazonaws.com/kd-flightsim/topography"
 
 let actualHeading = 0
 let headingAccuracy = 0
-let isTileLoaded = false
+let areTilesLoaded = false
 let isVideoPlaying = false
 
 const gyroSample = new THREE.Euler(0, 0, 0, "ZXY")
@@ -31,23 +31,18 @@ const scene = new THREE.Scene()
 const video = document.getElementById("video")
 const videoTexture = new THREE.VideoTexture(video)
 
-const planeGeometry = new THREE.PlaneBufferGeometry()
-const planeMaterial = new THREE.MeshBasicMaterial({ map: videoTexture })
-const plane = new THREE.Mesh(planeGeometry, planeMaterial)
-
 // relative coordinates from camera to texture plane
 const planeRelativePosition = new THREE.Vector3(0, 0, -PLANE_DISTANCE)
 
+const planeGeometry = new THREE.PlaneBufferGeometry()
+const planeMaterial = new THREE.MeshBasicMaterial({ map: videoTexture })
+const plane = new THREE.Mesh(planeGeometry, planeMaterial)
 // scene.add(plane)
 
 const cubeGeometry = new THREE.BoxBufferGeometry(5, 5, 5)
 const cubeMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00 })
 const cube = new THREE.Mesh(cubeGeometry, cubeMaterial)
-
 scene.add(cube)
-
-// no scene.add(tile) here, tile is added to scene
-// first when we have a fix on the GPS location.
 
 const ambientLight = new THREE.AmbientLight(0x888888)
 scene.add(ambientLight)
@@ -67,14 +62,8 @@ const watchID = navigator.geolocation.watchPosition(gotLocation, locationError, 
   maximumAge: 1000
 })
 
-logMessages()
 resetViewport()
 drawScene()
-
-function logMessages() {
-  //  console.log(`${gyroSample.x}, ${gyroSample.y}, ${gyroSample.z}, ${actualHeading}, ${precision}`)
-  setTimeout(logMessages, 2000)
-}
 
 function drawScene() {
   requestAnimationFrame(drawScene)
@@ -93,12 +82,13 @@ function drawScene() {
   deviceObject.setRotationFromMatrix(orientation)
 
   // interpolate camera orientation towards sensor-read orientation
-  camera.quaternion.slerp(deviceObject.quaternion, 0.2)
+  camera.quaternion.slerp(deviceObject.quaternion, 0.3)
 
-  // reset plane location: place it relative to the camera
+  // reset the plane location: place it relative to the camera
   plane.position.copy(planeRelativePosition)
 
-  // overwrite plane.position with world coordinates, based on current camera position and orientation
+  // overwrite plane.position with the world coordinates for the plane,
+  // based on current camera position and orientation
   camera.localToWorld(plane.position)
 
   // copy the camera orientation to the plane so the plane becomes parallel to the camera
@@ -127,8 +117,6 @@ function updateOrientation(event) {
   headingAccuracy = event.webkitCompassAccuracy
   actualHeading = event.webkitCompassHeading + window.orientation
 
-  //  console.log("Heading: " + actualHeading + ", accuracy: " + headingAccuracy)
-
   gyroSample.x = event.beta * THREE.Math.DEG2RAD
   gyroSample.y = event.gamma * THREE.Math.DEG2RAD
   gyroSample.z = event.alpha * THREE.Math.DEG2RAD
@@ -156,46 +144,48 @@ function prepareVideoOutput() {
   isVideoPlaying = true
 }
 
+function loadTiles(eastPosition, northPosition) {
+  // coords of lower left point of center tile
+  const centerEast = Math.trunc((eastPosition - MIN_EAST) / TILE_EXTENTS) * TILE_EXTENTS + MIN_EAST
+  const centerNorth = Math.trunc((northPosition - MIN_NORTH) / TILE_EXTENTS) * TILE_EXTENTS + MIN_NORTH
+
+  loadTile(centerEast, centerNorth, 255)
+  //  loadTile(centerEast - TILE_EXTENTS, centerNorth - TILE_EXTENTS, 127)
+}
+
+function loadTile(east, north, resolution) {
+  const tileGeometry = new THREE.PlaneGeometry(TILE_EXTENTS, TILE_EXTENTS, resolution)
+  const tileMaterial = new THREE.MeshPhongMaterial()
+
+  const tileURL = `${tileServer}/${east}-${north}.png`
+  console.log("Loading tile: " + tileURL)
+  tileMaterial.displacementMap = new THREE.TextureLoader().load(tileURL)
+  tileMaterial.displacementScale = 2550
+  tileMaterial.wireframe = true
+
+  const tile = new THREE.Mesh(tileGeometry, tileMaterial)
+  tile.position.x = east + TILE_EXTENTS / 2
+  tile.position.y = north + TILE_EXTENTS / 2
+  scene.add(tile)
+}
+
 function gotLocation(position) {
-  //  console.log("Pos: " + position.coords.latitude + ", " + position.coords.longitude + ", " + position.coords.altitude)
-  //  console.log("Acc: " + position.coords.accuracy + ", vert acc: " + position.coords.altitudeAccuracy)
+  console.log("Heading accuracy, degrees: " + headingAccuracy)
 
   const pos = latLonToUTM(position.coords.latitude, position.coords.longitude, 33)
 
-  if (position.coords.accuracy < 100) {
-    if (!isTileLoaded) {
-      console.log("GPS fixed, accuracy = " + position.coords.accuracy + " m.")
+  if (!areTilesLoaded) {
+    loadTiles(pos.e, pos.n)
 
-      const tileEast = Math.trunc((pos.e - MIN_EAST) / TILE_EXTENTS) * TILE_EXTENTS + MIN_EAST
-      const tileNorth = Math.trunc((pos.n - MIN_NORTH) / TILE_EXTENTS) * TILE_EXTENTS + MIN_NORTH
-      const tileURL = `${tileServer}/topography/${tileEast}-${tileNorth}.png`
+    camera.position.x = pos.e
+    camera.position.y = pos.n
+    camera.position.z = position.coords.altitude + 30
 
-      const tileGeometry = new THREE.PlaneGeometry(TILE_EXTENTS, TILE_EXTENTS, 255, 255)
-      const tileMaterial = new THREE.MeshPhongMaterial()
+    cube.position.x = camera.position.x
+    cube.position.y = camera.position.y + 75
+    cube.position.z = camera.position.z
 
-      console.log("Loading tile: " + tileURL)
-      tileMaterial.displacementMap = new THREE.TextureLoader().load(tileURL)
-      tileMaterial.displacementScale = 2550
-      tileMaterial.wireframe = true
-
-      const tile = new THREE.Mesh(tileGeometry, tileMaterial)
-      scene.add(tile)
-
-      tile.position.x = tileEast + TILE_EXTENTS / 2
-      tile.position.y = tileNorth + TILE_EXTENTS / 2
-
-      camera.position.x = pos.e
-      camera.position.y = pos.n
-      camera.position.z = position.coords.altitude + 30
-
-      cube.position.x = camera.position.x
-      cube.position.y = camera.position.y + 75
-      cube.position.z = camera.position.z
-
-      isTileLoaded = true
-    }
-  } else {
-    console.log("Waiting for GPS fix, accuracy = " + position.coords.accuracy + " m.")
+    areTilesLoaded = true
   }
 }
 
