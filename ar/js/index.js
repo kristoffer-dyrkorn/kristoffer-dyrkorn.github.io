@@ -171,6 +171,7 @@ function loadTile(east, north, resolution) {
 
 function gotLocation(position) {
   console.log("Heading accuracy, degrees: " + headingAccuracy)
+  console.log("Position accuracy, meters: " + position.coords.accuracy)
 
   const pos = latLonToUTM(position.coords.latitude, position.coords.longitude, 33)
 
