@@ -179,15 +179,15 @@ function gotLocation(position) {
     if (!areTilesLoaded) {
       loadTiles(pos.e, pos.n)
       areTilesLoaded = true
+
+      camera.position.x = pos.e
+      camera.position.y = pos.n
+      camera.position.z = position.coords.altitude + 30
+
+      cube.position.x = camera.position.x
+      cube.position.y = camera.position.y + 75
+      cube.position.z = camera.position.z
     }
-
-    camera.position.x = pos.e
-    camera.position.y = pos.n
-    camera.position.z = position.coords.altitude + 30
-
-    cube.position.x = camera.position.x
-    cube.position.y = camera.position.y + 75
-    cube.position.z = camera.position.z
   }
 }
 
