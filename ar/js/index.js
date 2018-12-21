@@ -154,7 +154,7 @@ function loadTiles(eastPosition, northPosition) {
 }
 
 function loadTile(east, north, resolution) {
-  const tileGeometry = new THREE.PlaneGeometry(TILE_EXTENTS, TILE_EXTENTS, resolution)
+  const tileGeometry = new THREE.PlaneGeometry(TILE_EXTENTS, TILE_EXTENTS, resolution, resolution)
   const tileMaterial = new THREE.MeshPhongMaterial()
 
   const tileURL = `${tileServer}/${east}-${north}.png`
