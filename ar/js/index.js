@@ -117,6 +117,8 @@ function updateOrientation(event) {
   headingAccuracy = event.webkitCompassAccuracy
   actualHeading = event.webkitCompassHeading + window.orientation
 
+  console.log("Actual heading: " + actualHeading)
+
   gyroSample.x = event.beta * THREE.Math.DEG2RAD
   gyroSample.y = event.gamma * THREE.Math.DEG2RAD
   gyroSample.z = event.alpha * THREE.Math.DEG2RAD
