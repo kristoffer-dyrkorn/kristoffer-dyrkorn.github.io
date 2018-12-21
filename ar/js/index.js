@@ -1,12 +1,12 @@
 const Y_FOV_LANDSCAPE = 37.5
-
-const NEAR_CLIP = 50
-const FAR_CLIP = 15000
 const PLANE_DISTANCE = 100
 
 const MIN_EAST = -100000
 const MIN_NORTH = 6400000
 const TILE_EXTENTS = 12750
+
+const NEAR_CLIP = 50
+const FAR_CLIP = TILE_EXTENTS * 1.5
 
 const tileServer = "https://s3-eu-west-1.amazonaws.com/kd-flightsim/topography"
 
@@ -150,7 +150,17 @@ function loadTiles(eastPosition, northPosition) {
   const centerNorth = Math.trunc((northPosition - MIN_NORTH) / TILE_EXTENTS) * TILE_EXTENTS + MIN_NORTH
 
   loadTile(centerEast, centerNorth, 255)
-  //  loadTile(centerEast - TILE_EXTENTS, centerNorth - TILE_EXTENTS, 127)
+
+  loadTile(centerEast - TILE_EXTENTS, centerNorth - TILE_EXTENTS, 127)
+  loadTile(centerEast, centerNorth - TILE_EXTENTS, 127)
+  loadTile(centerEast + TILE_EXTENTS, centerNorth - TILE_EXTENTS, 127)
+
+  loadTile(centerEast - TILE_EXTENTS, centerNorth, 127)
+  loadTile(centerEast + TILE_EXTENTS, centerNorth, 127)
+
+  loadTile(centerEast - TILE_EXTENTS, centerNorth + TILE_EXTENTS, 127)
+  loadTile(centerEast, centerNorth + TILE_EXTENTS, 127)
+  loadTile(centerEast + TILE_EXTENTS, centerNorth + TILE_EXTENTS, 127)
 }
 
 function loadTile(east, north, resolution) {
