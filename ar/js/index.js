@@ -75,7 +75,7 @@ function drawScene() {
   deviceOrientation.makeRotationFromEuler(gyroSample)
 
   const screenOrientation = new THREE.Matrix4()
-  screenOrientation.makeRotationZ(-window.orientation * THREE.Math.DEG2RAD)
+  //  screenOrientation.makeRotationZ(-window.orientation * THREE.Math.DEG2RAD)
 
   orientation.multiply(deviceOrientation)
   orientation.multiply(screenOrientation)
@@ -115,7 +115,7 @@ function resetViewport() {
 
 function updateOrientation(event) {
   headingAccuracy = event.webkitCompassAccuracy
-  actualHeading = 360 - event.webkitCompassHeading + window.orientation
+  actualHeading = -event.webkitCompassHeading + window.orientation
 
   actualHeading %= 360
   if (actualHeading < 0) {
