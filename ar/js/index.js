@@ -115,7 +115,7 @@ function resetViewport() {
 
 function updateOrientation(event) {
   headingAccuracy = event.webkitCompassAccuracy
-  actualHeading = -event.webkitCompassHeading + window.orientation
+  actualHeading = event.webkitCompassHeading + window.orientation
 
   actualHeading %= 360
   if (actualHeading < 0) {
@@ -125,7 +125,7 @@ function updateOrientation(event) {
   gyroSample.x = event.beta * THREE.Math.DEG2RAD
   gyroSample.y = event.gamma * THREE.Math.DEG2RAD
   //  gyroSample.z = event.alpha * THREE.Math.DEG2RAD
-  gyroSample.z = actualHeading * THREE.Math.DEG2RAD
+  gyroSample.z = -event.webkitCompassHeading * THREE.Math.DEG2RAD
 }
 
 function startVideo() {
