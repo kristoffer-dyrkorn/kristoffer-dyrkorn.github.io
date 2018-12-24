@@ -115,7 +115,7 @@ function resetViewport() {
 
 function updateOrientation(event) {
   headingAccuracy = event.webkitCompassAccuracy
-  actualHeading = event.webkitCompassHeading + window.orientation
+  actualHeading = 360 - event.webkitCompassHeading + window.orientation
 
   actualHeading %= 360
   if (actualHeading < 0) {
