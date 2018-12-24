@@ -22,6 +22,8 @@ const canvas = document.getElementById("canvas")
 const renderer = new THREE.WebGLRenderer({ canvas: canvas })
 renderer.setPixelRatio(window.devicePixelRatio)
 
+renderer.context.disable(renderer.context.DEPTH_TEST)
+
 const camera = new THREE.PerspectiveCamera()
 camera.near = NEAR_CLIP
 camera.far = FAR_CLIP
@@ -37,7 +39,7 @@ const planeRelativePosition = new THREE.Vector3(0, 0, -PLANE_DISTANCE)
 const planeGeometry = new THREE.PlaneBufferGeometry()
 const planeMaterial = new THREE.MeshBasicMaterial({ map: videoTexture })
 const plane = new THREE.Mesh(planeGeometry, planeMaterial)
-// scene.add(plane)
+scene.add(plane)
 
 const cubeGeometry = new THREE.BoxBufferGeometry(5, 5, 5)
 const cubeMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00 })
