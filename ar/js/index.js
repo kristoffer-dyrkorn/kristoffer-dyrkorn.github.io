@@ -37,7 +37,7 @@ const planeRelativePosition = new THREE.Vector3(0, 0, -PLANE_DISTANCE)
 const planeGeometry = new THREE.PlaneBufferGeometry()
 const planeMaterial = new THREE.MeshBasicMaterial({ map: videoTexture })
 const plane = new THREE.Mesh(planeGeometry, planeMaterial)
-scene.add(plane)
+// scene.add(plane)
 
 const cubeGeometry = new THREE.BoxBufferGeometry(5, 5, 5)
 const cubeMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00 })
@@ -69,7 +69,7 @@ function drawScene() {
   requestAnimationFrame(drawScene)
 
   const orientation = new THREE.Matrix4()
-  //  orientation.makeRotationZ(-actualHeading * THREE.Math.DEG2RAD)
+  orientation.makeRotationZ(-actualHeading * THREE.Math.DEG2RAD)
 
   const deviceOrientation = new THREE.Matrix4()
   deviceOrientation.makeRotationFromEuler(gyroSample)
@@ -125,7 +125,8 @@ function updateOrientation(event) {
   gyroSample.x = event.beta * THREE.Math.DEG2RAD
   gyroSample.y = event.gamma * THREE.Math.DEG2RAD
   //  gyroSample.z = event.alpha * THREE.Math.DEG2RAD
-  gyroSample.z = -event.webkitCompassHeading * THREE.Math.DEG2RAD
+  //  gyroSample.z = -event.webkitCompassHeading * THREE.Math.DEG2RAD
+  gyroSample.z = 0
 }
 
 function startVideo() {
