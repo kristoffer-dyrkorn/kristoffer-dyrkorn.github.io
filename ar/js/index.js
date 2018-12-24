@@ -75,7 +75,7 @@ function drawScene() {
   deviceOrientation.makeRotationFromEuler(gyroSample)
 
   const screenOrientation = new THREE.Matrix4()
-  //  screenOrientation.makeRotationZ(-window.orientation * THREE.Math.DEG2RAD)
+  screenOrientation.makeRotationZ(-window.orientation * THREE.Math.DEG2RAD)
 
   orientation.multiply(deviceOrientation)
   orientation.multiply(screenOrientation)
