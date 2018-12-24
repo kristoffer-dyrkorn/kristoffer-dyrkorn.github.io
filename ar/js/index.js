@@ -37,7 +37,7 @@ const planeRelativePosition = new THREE.Vector3(0, 0, -PLANE_DISTANCE)
 const planeGeometry = new THREE.PlaneBufferGeometry()
 const planeMaterial = new THREE.MeshBasicMaterial({ map: videoTexture })
 const plane = new THREE.Mesh(planeGeometry, planeMaterial)
-// scene.add(plane)
+scene.add(plane)
 
 const cubeGeometry = new THREE.BoxBufferGeometry(5, 5, 5)
 const cubeMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00 })
@@ -104,7 +104,7 @@ function resetViewport() {
     camera.fov = camera.fov / camera.aspect
   }
 
-  // resize plane according to camera fov and aspect
+  // resize plane according to camera y fov and aspect
   plane.scale.y = Math.tan(camera.fov * 0.8 * THREE.Math.DEG2RAD) * PLANE_DISTANCE
   plane.scale.x = plane.scale.y * camera.aspect
 
