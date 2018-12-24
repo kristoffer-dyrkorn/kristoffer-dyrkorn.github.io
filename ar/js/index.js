@@ -6,7 +6,7 @@ const MIN_NORTH = 6400000
 const TILE_EXTENTS = 12750
 
 const NEAR_CLIP = 50
-const FAR_CLIP = TILE_EXTENTS * 1.5
+const FAR_CLIP = TILE_EXTENTS * 2
 
 const tileServer = "https://s3-eu-west-1.amazonaws.com/kd-flightsim/topography"
 
@@ -69,7 +69,7 @@ function drawScene() {
   requestAnimationFrame(drawScene)
 
   const orientation = new THREE.Matrix4()
-  orientation.makeRotationZ(-actualHeading * THREE.Math.DEG2RAD)
+  //  orientation.makeRotationZ(-actualHeading * THREE.Math.DEG2RAD)
 
   const deviceOrientation = new THREE.Matrix4()
   deviceOrientation.makeRotationFromEuler(gyroSample)
@@ -117,18 +117,15 @@ function updateOrientation(event) {
   headingAccuracy = event.webkitCompassAccuracy
   actualHeading = event.webkitCompassHeading + window.orientation
 
-  if (actualHeading > 360) {
-    actualHeading -= 360
-  }
+  actualHeading %= 360
   if (actualHeading < 0) {
     actualHeading += 360
   }
 
-  console.log("Actual heading: " + actualHeading)
-
   gyroSample.x = event.beta * THREE.Math.DEG2RAD
   gyroSample.y = event.gamma * THREE.Math.DEG2RAD
-  gyroSample.z = event.alpha * THREE.Math.DEG2RAD
+  //  gyroSample.z = event.alpha * THREE.Math.DEG2RAD
+  gyroSample.z = actualHeading * THREE.Math.DEG2RAD
 }
 
 function startVideo() {
