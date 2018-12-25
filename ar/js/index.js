@@ -128,16 +128,6 @@ function updateOrientation(event) {
   const compassOrientation = new THREE.Matrix4()
   compassOrientation.makeRotationFromEuler(compassSample)
 
-  const compassScreenOrientation = new THREE.Matrix4()
-  compassScreenOrientation.makeRotationZ(window.orientation * THREE.Math.DEG2RAD)
-
-  compassOrientation.multiply(compassScreenOrientation)
-
-  const screenRotation = new THREE.Matrix4()
-  screenRotation.makeRotationZ(-window.orientation * THREE.Math.DEG2RAD)
-
-  compassOrientation.multiply(screenRotation)
-
   finalOrientation.setFromRotationMatrix(compassOrientation)
 
   if (finalOrientation.x < 0) {
