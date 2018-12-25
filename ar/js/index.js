@@ -126,8 +126,8 @@ function updateOrientation(event) {
 
   gyroSample.x = event.beta * THREE.Math.DEG2RAD
   gyroSample.y = event.gamma * THREE.Math.DEG2RAD
-  gyroSample.z = event.alpha * THREE.Math.DEG2RAD
-  // gyroSample.z = 0
+  //  gyroSample.z = event.alpha * THREE.Math.DEG2RAD
+  gyroSample.z = 0
   // gyroSample.z = -event.webkitCompassHeading * THREE.Math.DEG2RAD
 }
 
