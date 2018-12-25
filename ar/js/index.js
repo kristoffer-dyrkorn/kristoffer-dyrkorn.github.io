@@ -71,7 +71,7 @@ function drawScene() {
   requestAnimationFrame(drawScene)
 
   const orientation = new THREE.Matrix4()
-  //  orientation.makeRotationZ(-actualHeading * THREE.Math.DEG2RAD)
+  orientation.makeRotationZ(-actualHeading * THREE.Math.DEG2RAD)
 
   const deviceOrientation = new THREE.Matrix4()
   deviceOrientation.makeRotationFromEuler(gyroSample)
@@ -126,9 +126,9 @@ function updateOrientation(event) {
 
   gyroSample.x = event.beta * THREE.Math.DEG2RAD
   gyroSample.y = event.gamma * THREE.Math.DEG2RAD
-  //  gyroSample.z = event.alpha * THREE.Math.DEG2RAD
+  gyroSample.z = event.alpha * THREE.Math.DEG2RAD
   // gyroSample.z = 0
-  gyroSample.z = -event.webkitCompassHeading * THREE.Math.DEG2RAD
+  // gyroSample.z = -event.webkitCompassHeading * THREE.Math.DEG2RAD
 }
 
 function startVideo() {
