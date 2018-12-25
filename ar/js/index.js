@@ -16,9 +16,6 @@ let areTilesLoaded = false
 let isVideoPlaying = false
 
 const gyroSample = new THREE.Euler(0, 0, 0, "ZXY")
-
-const finalOrientation = new THREE.Euler(0, 0, 0, "ZXY")
-
 const deviceObject = new THREE.Object3D()
 
 const canvas = document.getElementById("canvas")
@@ -76,10 +73,10 @@ function drawScene() {
   /*
   const orientation = new THREE.Matrix4()
   orientation.makeRotationZ(-actualHeading * THREE.Math.DEG2RAD)
-  */
+*/
 
   const deviceOrientation = new THREE.Matrix4()
-  deviceOrientation.makeRotationFromEuler(finalOrientation)
+  deviceOrientation.makeRotationFromEuler(gyroSample)
 
   const screenOrientation = new THREE.Matrix4()
   screenOrientation.makeRotationZ(-window.orientation * THREE.Math.DEG2RAD)
@@ -122,28 +119,6 @@ function resetViewport() {
 
 function updateOrientation(event) {
   headingAccuracy = event.webkitCompassAccuracy
-
-  const compassSample = new THREE.Euler(event.webkitCompassHeading * THREE.Math.DEG2RAD, 0, 0, "ZXY")
-
-  const compassOrientation = new THREE.Matrix4()
-  compassOrientation.makeRotationFromEuler(compassSample)
-
-  finalOrientation.setFromRotationMatrix(compassOrientation)
-
-  if (finalOrientation.x < 0) {
-    finalOrientation.x += 360 * THREE.Math.DEG2RAD
-  }
-
-  if (finalOrientation.x > 360 * THREE.Math.DEG2RAD) {
-    finalOrientation.x -= 360 * THREE.DEG2RAD
-  }
-
-  let adjustedAlpha = event.alpha * THREE.Math.DEG2RAD
-  adjustedAlpha -= finalOrientation.x
-
-  finalOrientation.set(adjustedAlpha, event.beta * THREE.Math.DEG2RAD, event.gamma * THREE.Math.DEG2RAD)
-
-  /*
   actualHeading = event.webkitCompassHeading + window.orientation
 
   actualHeading %= 360
@@ -153,10 +128,7 @@ function updateOrientation(event) {
 
   gyroSample.x = event.beta * THREE.Math.DEG2RAD
   gyroSample.y = event.gamma * THREE.Math.DEG2RAD
-  gyroSample.z = event.alpha * THREE.Math.DEG2RAD
-  // gyroSample.z = 0
-  // gyroSample.z = -event.webkitCompassHeading * THREE.Math.DEG2RAD
-*/
+  gyroSample.z = actualHeading * THREE.Math.DEG2RAD
 }
 
 function startVideo() {
