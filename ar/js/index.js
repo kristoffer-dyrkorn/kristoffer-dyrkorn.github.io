@@ -126,7 +126,7 @@ function updateOrientation(event) {
 
   gyroSample.x = event.beta * THREE.Math.DEG2RAD
   gyroSample.y = event.gamma * THREE.Math.DEG2RAD
-  gyroSample.z = (event.alpha - actualHeading) * THREE.Math.DEG2RAD
+  gyroSample.z = (event.alpha + actualHeading) * THREE.Math.DEG2RAD
 }
 
 function startVideo() {
