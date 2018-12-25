@@ -70,8 +70,8 @@ drawScene()
 function drawScene() {
   requestAnimationFrame(drawScene)
 
-  //  const orientation = new THREE.Matrix4()
-  //  orientation.makeRotationZ(-event.webkitCompassHeading * THREE.Math.DEG2RAD)
+  const orientation = new THREE.Matrix4()
+  orientation.makeRotationZ(-actualHeading * THREE.Math.DEG2RAD)
 
   const deviceOrientation = new THREE.Matrix4()
   deviceOrientation.makeRotationFromEuler(gyroSample)
@@ -79,9 +79,9 @@ function drawScene() {
   const screenOrientation = new THREE.Matrix4()
   screenOrientation.makeRotationZ(-window.orientation * THREE.Math.DEG2RAD)
 
-  //  orientation.multiply(deviceOrientation)
-  deviceOrientation.multiply(screenOrientation)
-  deviceObject.setRotationFromMatrix(deviceOrientation)
+  orientation.multiply(deviceOrientation)
+  orientation.multiply(screenOrientation)
+  deviceObject.setRotationFromMatrix(orientation)
 
   // interpolate camera orientation towards sensor-read orientation
   camera.quaternion.slerp(deviceObject.quaternion, 0.3)
@@ -126,7 +126,7 @@ function updateOrientation(event) {
 
   gyroSample.x = event.beta * THREE.Math.DEG2RAD
   gyroSample.y = event.gamma * THREE.Math.DEG2RAD
-  gyroSample.z = (event.alpha - actualHeading) * THREE.Math.DEG2RAD
+  gyroSample.z = (event.alpha - event.webkitCompassHeading) * THREE.Math.DEG2RAD
 }
 
 function startVideo() {
