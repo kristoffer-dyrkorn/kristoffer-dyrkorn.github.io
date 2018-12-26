@@ -116,12 +116,11 @@ function resetViewport() {
 }
 
 function updateOrientation(event) {
-  if (!baseHeading && event.webkitCompassAccuracy !== -1 && event.webkitCompassAccuracy < 25) {
-    console.log("Heading accuracy, degrees: " + event.webkitCompassAccuracy)
+  if (baseHeading === undefined && event.webkitCompassAccuracy !== -1 && event.webkitCompassAccuracy < 25) {
     baseHeading = event.webkitCompassHeading
   }
 
-  const headingAdjustment = baseHeading + window.orientation
+  const headingAdjustment = baseHeading
 
   if (baseHeading) {
     gyroSample.x = event.beta * THREE.Math.DEG2RAD
