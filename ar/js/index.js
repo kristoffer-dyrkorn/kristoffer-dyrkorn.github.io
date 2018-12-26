@@ -11,7 +11,7 @@ const FAR_CLIP = TILE_EXTENTS * 2
 const tileServer = "https://s3-eu-west-1.amazonaws.com/kd-flightsim/topography"
 
 let actualHeading = 0
-let headingAccuracy = 0
+let baseHeading
 let areTilesLoaded = false
 let isVideoPlaying = false
 
@@ -70,8 +70,8 @@ drawScene()
 function drawScene() {
   requestAnimationFrame(drawScene)
 
-  const orientation = new THREE.Matrix4()
-  orientation.makeRotationZ(-actualHeading * THREE.Math.DEG2RAD)
+  //  const orientation = new THREE.Matrix4()
+  //  orientation.makeRotationZ(-actualHeading * THREE.Math.DEG2RAD)
 
   const deviceOrientation = new THREE.Matrix4()
   deviceOrientation.makeRotationFromEuler(gyroSample)
@@ -79,9 +79,9 @@ function drawScene() {
   const screenOrientation = new THREE.Matrix4()
   screenOrientation.makeRotationZ(-window.orientation * THREE.Math.DEG2RAD)
 
-  orientation.multiply(deviceOrientation)
-  orientation.multiply(screenOrientation)
-  deviceObject.setRotationFromMatrix(orientation)
+  //  orientation.multiply(deviceOrientation)
+  deviceOrientation.multiply(screenOrientation)
+  deviceObject.setRotationFromMatrix(deviceOrientation)
 
   // interpolate camera orientation towards sensor-read orientation
   camera.quaternion.slerp(deviceObject.quaternion, 0.3)
@@ -116,17 +116,34 @@ function resetViewport() {
 }
 
 function updateOrientation(event) {
-  headingAccuracy = event.webkitCompassAccuracy
+  if (!baseHeading && event.webkitCompassAccuracy < 10) {
+    console.log("Heading accuracy, degrees: " + headingAccuracy)
+    baseHeading = event.webkitCompassHeading
+  }
+
+  /*
   actualHeading = event.webkitCompassHeading + window.orientation
 
   actualHeading %= 360
   if (actualHeading < 0) {
     actualHeading += 360
   }
+  */
 
   gyroSample.x = event.beta * THREE.Math.DEG2RAD
   gyroSample.y = event.gamma * THREE.Math.DEG2RAD
-  gyroSample.z = (event.alpha + event.webkitCompassHeading) * THREE.Math.DEG2RAD
+  gyroSample.z = (event.alpha - (baseHeading + window.orientation)) * THREE.Math.DEG2RAD
+
+  // avhengig av å ta med alpha her pga flip over/under horisont
+  // ide: roter med actualHeading på utsiden, juster alpha med tilsvarende her
+
+  // ide 2: les kompass kun som basis retning - ved oppstart - og kompenser alpha med det
+
+  // feil:
+  // roterer dobbelt
+  // starter i 0 grader
+  // står stille
+  // flipper over/under horisont
 }
 
 function startVideo() {
@@ -187,7 +204,6 @@ function loadTile(east, north, resolution) {
 }
 
 function gotLocation(position) {
-  console.log("Heading accuracy, degrees: " + headingAccuracy)
   console.log("Position accuracy, meters: " + position.coords.accuracy)
 
   const pos = latLonToUTM(position.coords.latitude, position.coords.longitude, 33)
