@@ -79,7 +79,7 @@ function drawScene() {
   deviceObject.setRotationFromMatrix(finalOrientation)
 
   // interpolate camera orientation towards sensor-read orientation
-  camera.quaternion.slerp(deviceObject.quaternion, 0.3)
+  camera.quaternion.slerp(deviceObject.quaternion, 0.5)
 
   // reset the plane location: place it relative to the camera
   plane.position.copy(planeRelativePosition)
