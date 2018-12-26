@@ -121,19 +121,12 @@ function updateOrientation(event) {
     baseHeading = event.webkitCompassHeading
   }
 
-  /*
-  actualHeading = event.webkitCompassHeading + window.orientation
-
-  actualHeading %= 360
-  if (actualHeading < 0) {
-    actualHeading += 360
-  }
-  */
+  const headingAdjustment = baseHeading + window.orientation
 
   if (baseHeading) {
     gyroSample.x = event.beta * THREE.Math.DEG2RAD
     gyroSample.y = event.gamma * THREE.Math.DEG2RAD
-    gyroSample.z = (event.alpha - baseHeading + window.orientation) * THREE.Math.DEG2RAD
+    gyroSample.z = (event.alpha - headingAdjustment) * THREE.Math.DEG2RAD
   }
 
   // avhengig av å ta med alpha her pga flip over/under horisont
