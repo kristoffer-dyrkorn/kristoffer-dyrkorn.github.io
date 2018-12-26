@@ -130,14 +130,15 @@ function updateOrientation(event) {
     actualHeading += 360
   }
   */
+
   if (baseHeading) {
     gyroSample.x = event.beta * THREE.Math.DEG2RAD
     gyroSample.y = event.gamma * THREE.Math.DEG2RAD
-    gyroSample.z = (event.alpha - (baseHeading + window.orientation)) * THREE.Math.DEG2RAD
+    gyroSample.z = (event.alpha - baseHeading + window.orientation) * THREE.Math.DEG2RAD
   }
 
   // avhengig av å ta med alpha her pga flip over/under horisont
-  // ide: roter med actualHeading på utsiden, juster alpha med tilsvarende her
+  // ide: rotér med actualHeading på utsiden, juster alpha med tilsvarende her
 
   // ide 2: les kompass kun som basis retning - ved oppstart - og kompenser alpha med det
 
