@@ -117,6 +117,7 @@ function resetViewport() {
 
 function updateOrientation(event) {
   if (baseHeading === undefined && event.webkitCompassAccuracy !== -1 && event.webkitCompassAccuracy < 25) {
+    console.log("Set baseheading, accuracy = " + event.webkitCompassAccuracy)
     baseHeading = event.webkitCompassHeading
   }
 
