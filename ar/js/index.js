@@ -225,5 +225,5 @@ function gotLocation(position) {
 }
 
 function locationError(error) {
-  console.log(error.message)
+  alert("Could not get GPS position. (Is GPS switched on?)")
 }
