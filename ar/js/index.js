@@ -15,6 +15,9 @@ let baseHeading
 let areTilesLoaded = false
 let isVideoPlaying = false
 
+const deviceOrientation = new THREE.Matrix4()
+const screenOrientation = new THREE.Matrix4()
+
 const gyroSample = new THREE.Euler(0, 0, 0, "ZXY")
 const deviceObject = new THREE.Object3D()
 
@@ -70,18 +73,10 @@ drawScene()
 function drawScene() {
   requestAnimationFrame(drawScene)
 
-  //  const orientation = new THREE.Matrix4()
-  //  orientation.makeRotationZ(-actualHeading * THREE.Math.DEG2RAD)
+  const finalOrientation = deviceOrientation.clone()
 
-  const deviceOrientation = new THREE.Matrix4()
-  deviceOrientation.makeRotationFromEuler(gyroSample)
-
-  const screenOrientation = new THREE.Matrix4()
-  screenOrientation.makeRotationZ(-window.orientation * THREE.Math.DEG2RAD)
-
-  //  orientation.multiply(deviceOrientation)
-  deviceOrientation.multiply(screenOrientation)
-  deviceObject.setRotationFromMatrix(deviceOrientation)
+  finalOrientation.multiply(screenOrientation)
+  deviceObject.setRotationFromMatrix(finalOrientation)
 
   // interpolate camera orientation towards sensor-read orientation
   camera.quaternion.slerp(deviceObject.quaternion, 0.3)
@@ -113,6 +108,8 @@ function resetViewport() {
   camera.updateProjectionMatrix()
 
   renderer.setSize(window.innerWidth, window.innerHeight)
+
+  screenOrientation.makeRotationZ(-window.orientation * THREE.Math.DEG2RAD)
 }
 
 function updateOrientation(event) {
@@ -125,18 +122,9 @@ function updateOrientation(event) {
     gyroSample.x = event.beta * THREE.Math.DEG2RAD
     gyroSample.y = event.gamma * THREE.Math.DEG2RAD
     gyroSample.z = (event.alpha - baseHeading) * THREE.Math.DEG2RAD
+
+    deviceOrientation.makeRotationFromEuler(gyroSample)
   }
-
-  // avhengig av å ta med alpha her pga flip over/under horisont
-  // ide: rotér med actualHeading på utsiden, juster alpha med tilsvarende her
-
-  // ide 2: les kompass kun som basis retning - ved oppstart - og kompenser alpha med det
-
-  // feil:
-  // roterer dobbelt
-  // starter i 0 grader
-  // står stille
-  // flipper over/under horisont
 }
 
 function startVideo() {
