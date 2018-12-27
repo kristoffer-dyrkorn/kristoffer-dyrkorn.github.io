@@ -101,21 +101,24 @@ function resetViewport() {
     camera.fov = camera.fov / camera.aspect
   }
 
-  // resize plane according to camera y fov and aspect
-  plane.scale.y = Math.tan(camera.fov * 0.85 * THREE.Math.DEG2RAD) * PLANE_DISTANCE
-  plane.scale.x = plane.scale.y * camera.aspect
-
   camera.updateProjectionMatrix()
 
+  // resize plane according to camera y fov and aspect
+  plane.scale.y = Math.tan(camera.fov * 0.82 * THREE.Math.DEG2RAD) * PLANE_DISTANCE
+  plane.scale.x = plane.scale.y * camera.aspect
+
+  // update output window size
   renderer.setSize(window.innerWidth, window.innerHeight)
 
+  // update landscape/portrait rendering adjustment
   screenOrientation.makeRotationZ(-window.orientation * THREE.Math.DEG2RAD)
 }
 
 function updateOrientation(event) {
-  if (baseHeading === undefined && event.webkitCompassAccuracy !== -1 && event.webkitCompassAccuracy < 25) {
+  if (event.webkitCompassAccuracy !== -1 && event.webkitCompassAccuracy < 25) {
     console.log("Set baseheading, accuracy = " + event.webkitCompassAccuracy)
-    baseHeading = event.webkitCompassHeading
+
+    baseHeading = event.webkitCompassHeading + event.alpha
   }
 
   if (baseHeading) {
