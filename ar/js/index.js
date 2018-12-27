@@ -193,12 +193,11 @@ function loadTile(east, north, resolution) {
 }
 
 function gotLocation(position) {
-  console.log("Position accuracy, meters: " + position.coords.accuracy)
-
   const pos = latLonToUTM(position.coords.latitude, position.coords.longitude, 33)
 
   if (position.coords.accuracy < 100) {
     if (!areTilesLoaded) {
+      console.log("Position accuracy, meters: " + position.coords.accuracy)
       log("")
       loadTiles(pos.e, pos.n)
       areTilesLoaded = true
