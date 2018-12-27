@@ -219,5 +219,5 @@ function locationError(error) {
 }
 
 function log(text) {
-  document.getElementById("console").textContent = text
+  //  document.getElementById("console").textContent = text
 }
