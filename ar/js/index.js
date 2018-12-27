@@ -68,7 +68,7 @@ const watchID = navigator.geolocation.watchPosition(gotLocation, locationError, 
   maximumAge: 1000
 })
 
-log("Reading position and direction data...")
+log("Waiting for precise location and direction data...")
 
 resetViewport()
 drawScene()
