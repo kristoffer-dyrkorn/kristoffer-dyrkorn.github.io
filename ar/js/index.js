@@ -1,4 +1,4 @@
-const Y_FOV_LANDSCAPE = 40
+const Y_FOV_LANDSCAPE = 35
 const PLANE_DISTANCE = 100
 
 const MIN_EAST = -100000
@@ -118,7 +118,7 @@ function resetViewport() {
 }
 
 function updateOrientation(event) {
-  if (event.webkitCompassAccuracy !== -1 && event.webkitCompassAccuracy < 30) {
+  if (event.webkitCompassAccuracy !== -1 && event.webkitCompassAccuracy < 20) {
     if (!hasBaseheading) {
       console.log("Set baseheading, accuracy = " + event.webkitCompassAccuracy)
       baseHeading = event.webkitCompassHeading
@@ -195,7 +195,7 @@ function loadTile(east, north, resolution) {
 function gotLocation(position) {
   const pos = latLonToUTM(position.coords.latitude, position.coords.longitude, 33)
 
-  if (position.coords.accuracy < 50) {
+  if (position.coords.accuracy < 35) {
     if (!areTilesLoaded) {
       console.log("Position accuracy, meters: " + position.coords.accuracy)
       log("")
