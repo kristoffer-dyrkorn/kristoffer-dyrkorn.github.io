@@ -215,7 +215,7 @@ function gotLocation(position) {
 }
 
 function locationError(error) {
-  log("Could not get GPS position. Please check if GPS is switched on.")
+  log("Could not get GPS position. Is GPS switched on?")
 }
 
 function log(text) {
