@@ -1,4 +1,4 @@
-const Y_FOV_LANDSCAPE = 37.5
+const Y_FOV_LANDSCAPE = 35
 const PLANE_DISTANCE = 100
 
 const MIN_EAST = -100000
@@ -204,7 +204,7 @@ function gotLocation(position) {
 
       camera.position.x = pos.e
       camera.position.y = pos.n
-      camera.position.z = position.coords.altitude + 30
+      camera.position.z = position.coords.altitude + 10
 
       cube.position.x = camera.position.x
       cube.position.y = camera.position.y + 75
