@@ -1,4 +1,4 @@
-const Y_FOV_LANDSCAPE = 20
+const Y_FOV_LANDSCAPE = 35
 const PLANE_DISTANCE = 100
 
 const MIN_EAST = -100000
