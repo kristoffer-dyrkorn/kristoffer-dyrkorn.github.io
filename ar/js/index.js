@@ -12,6 +12,7 @@ const tileServer = "https://s3-eu-west-1.amazonaws.com/kd-flightsim/topography"
 
 let actualHeading = 0
 let baseHeading
+let hasBaseheading = false
 let areTilesLoaded = false
 let isVideoPlaying = false
 
@@ -67,6 +68,8 @@ const watchID = navigator.geolocation.watchPosition(gotLocation, locationError, 
   maximumAge: 1000
 })
 
+log("Reading position and direction data...")
+
 resetViewport()
 drawScene()
 
@@ -116,12 +119,14 @@ function resetViewport() {
 
 function updateOrientation(event) {
   if (event.webkitCompassAccuracy !== -1 && event.webkitCompassAccuracy < 25) {
-    console.log("Set baseheading, accuracy = " + event.webkitCompassAccuracy)
-
-    baseHeading = event.webkitCompassHeading + event.alpha
+    if (!hasBaseheading) {
+      console.log("Set baseheading, accuracy = " + event.webkitCompassAccuracy)
+      baseHeading = event.webkitCompassHeading
+      hasBaseheading = true
+    }
   }
 
-  if (baseHeading) {
+  if (hasBaseheading) {
     gyroSample.x = event.beta * THREE.Math.DEG2RAD
     gyroSample.y = event.gamma * THREE.Math.DEG2RAD
     gyroSample.z = (event.alpha - baseHeading) * THREE.Math.DEG2RAD
@@ -194,6 +199,7 @@ function gotLocation(position) {
 
   if (position.coords.accuracy < 100) {
     if (!areTilesLoaded) {
+      log("")
       loadTiles(pos.e, pos.n)
       areTilesLoaded = true
 
@@ -209,5 +215,9 @@ function gotLocation(position) {
 }
 
 function locationError(error) {
-  alert("Could not get GPS position.\n(Is GPS switched on?)")
+  log("Could not get GPS position. Please check if GPS is switched on.")
+}
+
+function log(text) {
+  document.getElementById("console").textContent = text
 }
