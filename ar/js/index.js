@@ -1,4 +1,7 @@
-const Y_FOV_LANDSCAPE = 35
+const Y_FOV_LANDSCAPE = 34.3
+// https://developer.apple.com/library/archive/documentation/DeviceInformation/Reference/iOSDeviceCompatibility/Cameras/Cameras.html#//apple_ref/doc/uid/TP40013599-CH107-SW21
+// 1280x720 X_FOV = 60.983 => Y_FOV = 34.30
+
 const PLANE_DISTANCE = 100
 
 const MIN_EAST = -100000
@@ -25,7 +28,6 @@ const deviceObject = new THREE.Object3D()
 const canvas = document.getElementById("canvas")
 const renderer = new THREE.WebGLRenderer({ canvas: canvas })
 renderer.setPixelRatio(window.devicePixelRatio)
-
 renderer.context.disable(renderer.context.DEPTH_TEST)
 
 const camera = new THREE.PerspectiveCamera()
@@ -68,7 +70,7 @@ const watchID = navigator.geolocation.watchPosition(gotLocation, locationError, 
   maximumAge: 1000
 })
 
-log("Waiting for precise location and direction data...")
+log("Getting accurate location and direction data...")
 
 resetViewport()
 drawScene()
