@@ -70,9 +70,9 @@ const watchID = navigator.geolocation.watchPosition(gotLocation, locationError, 
   maximumAge: 1000
 })
 
-let accuracyLogger = setInterval(log, 1000, bestHeadingAccuracy)
-
 log("Getting GPS data:")
+
+let accuracyLogger = setInterval(log, 1000, "Current heading accuracy: " + bestHeadingAccuracy + " degrees.")
 
 resetViewport()
 drawScene()
