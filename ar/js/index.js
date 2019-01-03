@@ -119,9 +119,11 @@ function resetViewport() {
 }
 
 function updateOrientation(event) {
+  log("Heading accuracy: " + event.webkitCompassAccuracy + " degrees.")
+
   if (event.webkitCompassAccuracy !== -1 && event.webkitCompassAccuracy < 20) {
     if (!hasBaseheading) {
-      console.log("Set baseheading, accuracy = " + event.webkitCompassAccuracy)
+      log("Base heading set, accuracy: " + event.webkitCompassAccuracy + " degrees.")
       baseHeading = event.webkitCompassHeading
       hasBaseheading = true
     }
@@ -202,11 +204,11 @@ function loadTile(east, north, resolution) {
 function gotLocation(position) {
   const pos = latLonToUTM(position.coords.latitude, position.coords.longitude, 33)
 
-  log("Reading GPS with accuracy: " + position.coords.accuracy + " meters")
+  log("Current GPS accuracy: " + position.coords.accuracy + " meters.")
 
-  if (position.coords.accuracy < 35) {
+  if (position.coords.accuracy < 70) {
     if (!areTilesLoaded) {
-      log("Fixed GPS location. Accuracy is: " + position.coords.accuracy + " meters.")
+      log("Set GPS location. Accuracy: " + position.coords.accuracy + " meters.")
       clearLog()
       loadTiles(pos.e, pos.n)
       areTilesLoaded = true
