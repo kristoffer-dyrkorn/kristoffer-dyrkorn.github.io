@@ -62,7 +62,6 @@ scene.add(lights[0])
 
 window.addEventListener("deviceorientation", updateOrientation)
 window.addEventListener("orientationchange", resetViewport)
-video.addEventListener("playing", prepareVideoOutput)
 canvas.addEventListener("click", startVideo)
 
 const watchID = navigator.geolocation.watchPosition(gotLocation, locationError, {
@@ -147,16 +146,22 @@ function startVideo() {
         height: 720
       }
     }
-    navigator.mediaDevices.getUserMedia(constraints).then(stream => {
-      video.srcObject = stream
-      video.play()
-    })
+    navigator.mediaDevices
+      .getUserMedia(constraints)
+      .then(stream => {
+        video.srcObject = stream
+        try {
+          video.play()
+          isVideoPlaying = true
+          console.log("Now playing " + video.videoWidth + "x" + video.videoHeight)
+        } catch (error) {
+          console.log("Error playing video from camera: " + error)
+        }
+      })
+      .catch(function(error) {
+        console.log("Error reading video from camera: " + error)
+      })
   }
-}
-
-function prepareVideoOutput() {
-  console.log("Now playing " + video.videoWidth + "x" + video.videoHeight)
-  isVideoPlaying = true
 }
 
 function loadTiles(eastPosition, northPosition) {
