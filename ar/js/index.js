@@ -177,18 +177,18 @@ function loadTiles(eastPosition, northPosition) {
   const centerEast = Math.trunc((eastPosition - MIN_EAST) / TILE_EXTENTS) * TILE_EXTENTS + MIN_EAST
   const centerNorth = Math.trunc((northPosition - MIN_NORTH) / TILE_EXTENTS) * TILE_EXTENTS + MIN_NORTH
 
-  loadTile(centerEast, centerNorth, 255)
+  loadTile(centerEast, centerNorth, 256)
 
-  loadTile(centerEast - TILE_EXTENTS, centerNorth - TILE_EXTENTS, 127)
-  loadTile(centerEast, centerNorth - TILE_EXTENTS, 127)
-  loadTile(centerEast + TILE_EXTENTS, centerNorth - TILE_EXTENTS, 127)
+  loadTile(centerEast - TILE_EXTENTS, centerNorth - TILE_EXTENTS, 128)
+  loadTile(centerEast, centerNorth - TILE_EXTENTS, 128)
+  loadTile(centerEast + TILE_EXTENTS, centerNorth - TILE_EXTENTS, 128)
 
-  loadTile(centerEast - TILE_EXTENTS, centerNorth, 127)
-  loadTile(centerEast + TILE_EXTENTS, centerNorth, 127)
+  loadTile(centerEast - TILE_EXTENTS, centerNorth, 128)
+  loadTile(centerEast + TILE_EXTENTS, centerNorth, 128)
 
-  loadTile(centerEast - TILE_EXTENTS, centerNorth + TILE_EXTENTS, 127)
-  loadTile(centerEast, centerNorth + TILE_EXTENTS, 127)
-  loadTile(centerEast + TILE_EXTENTS, centerNorth + TILE_EXTENTS, 127)
+  loadTile(centerEast - TILE_EXTENTS, centerNorth + TILE_EXTENTS, 128)
+  loadTile(centerEast, centerNorth + TILE_EXTENTS, 128)
+  loadTile(centerEast + TILE_EXTENTS, centerNorth + TILE_EXTENTS, 128)
 }
 
 function loadTile(east, north, resolution) {
