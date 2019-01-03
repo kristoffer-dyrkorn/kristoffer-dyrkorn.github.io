@@ -215,7 +215,7 @@ function gotLocation(position) {
   if (position.coords.accuracy < 70) {
     if (!areTilesLoaded) {
       // log("Set GPS location. Accuracy: " + position.coords.accuracy + " meters.")
-      clearLog()
+      //      clearLog()
       loadTiles(pos.e, pos.n)
       areTilesLoaded = true
 
