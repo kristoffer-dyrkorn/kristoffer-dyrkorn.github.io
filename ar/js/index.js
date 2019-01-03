@@ -67,7 +67,7 @@ canvas.addEventListener("click", startVideo)
 
 const watchID = navigator.geolocation.watchPosition(gotLocation, locationError, {
   enableHighAccuracy: true,
-  maximumAge: 1000
+  maximumAge: 2000
 })
 
 log("Getting GPS data:")
@@ -214,7 +214,7 @@ function gotLocation(position) {
 
   if (position.coords.accuracy < 70) {
     if (!areTilesLoaded) {
-      log("Set GPS location. Accuracy: " + position.coords.accuracy + " meters.")
+      // log("Set GPS location. Accuracy: " + position.coords.accuracy + " meters.")
       clearLog()
       loadTiles(pos.e, pos.n)
       areTilesLoaded = true
@@ -235,7 +235,7 @@ function locationError(error) {
 }
 
 function log(text) {
-  document.getElementById("console").innerHTML += "<br/>" + text
+  document.getElementById("console").innerHTML += text + "<br/>"
 }
 
 function clearLog() {
