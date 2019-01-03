@@ -72,7 +72,7 @@ const watchID = navigator.geolocation.watchPosition(gotLocation, locationError, 
 
 log("Getting GPS data:")
 
-let accuracyLogger = setInterval(log, 1000, "Current heading accuracy: " + bestHeadingAccuracy + " degrees.")
+let accuracyLogger = setInterval(log, 2000, "Current heading accuracy: " + bestHeadingAccuracy + " degrees.")
 
 resetViewport()
 drawScene()
@@ -212,7 +212,7 @@ function gotLocation(position) {
 
   log("Current GPS accuracy: " + position.coords.accuracy + " meters.")
 
-  if (position.coords.accuracy < 70) {
+  if (position.coords.accuracy < 35) {
     if (!areTilesLoaded) {
       // log("Set GPS location. Accuracy: " + position.coords.accuracy + " meters.")
       //      clearLog()
