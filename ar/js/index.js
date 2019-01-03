@@ -122,7 +122,7 @@ function resetViewport() {
 }
 
 function updateOrientation(event) {
-  if (event.webkitCompassAccuracy < bestHeadingAccuracy) {
+  if (event.webkitCompassAccuracy !== -1 && event.webkitCompassAccuracy < bestHeadingAccuracy) {
     bestHeadingAccuracy = event.webkitCompassAccuracy
   }
 
