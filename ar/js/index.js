@@ -67,12 +67,12 @@ canvas.addEventListener("click", startVideo)
 
 const watchID = navigator.geolocation.watchPosition(gotLocation, locationError, {
   enableHighAccuracy: true,
-  maximumAge: 2000
+  maximumAge: 1000
 })
 
 log("Getting GPS data:")
 
-let accuracyLogger = setInterval(log, 2000, "Current heading accuracy: " + bestHeadingAccuracy + " degrees.")
+let accuracyLogger = setInterval(log, 1000, "Current heading accuracy: " + bestHeadingAccuracy + " degrees.")
 
 resetViewport()
 drawScene()
@@ -122,8 +122,6 @@ function resetViewport() {
 }
 
 function updateOrientation(event) {
-  log("Current accuracy: " + event.webkitCompassAccuracy + " degrees.")
-
   if (event.webkitCompassAccuracy !== -1 && event.webkitCompassAccuracy < bestHeadingAccuracy) {
     bestHeadingAccuracy = event.webkitCompassAccuracy
     log("Best accuracy: " + bestHeadingAccuracy + " degrees.")
