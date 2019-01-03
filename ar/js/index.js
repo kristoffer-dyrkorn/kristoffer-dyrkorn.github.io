@@ -69,7 +69,7 @@ const watchID = navigator.geolocation.watchPosition(gotLocation, locationError, 
   maximumAge: 1000
 })
 
-log("Getting accurate location and direction data...")
+log("Getting GPS data:")
 
 resetViewport()
 drawScene()
@@ -202,9 +202,11 @@ function loadTile(east, north, resolution) {
 function gotLocation(position) {
   const pos = latLonToUTM(position.coords.latitude, position.coords.longitude, 33)
 
+  log("Reading GPS with accuracy: " + position.coords.accuracy + " meters")
+
   if (position.coords.accuracy < 35) {
     if (!areTilesLoaded) {
-      log("Position accuracy, meters: " + position.coords.accuracy)
+      log("Fixed GPS location. Accuracy is: " + position.coords.accuracy + " meters.")
       clearLog()
       loadTiles(pos.e, pos.n)
       areTilesLoaded = true
@@ -225,9 +227,9 @@ function locationError(error) {
 }
 
 function log(text) {
-  document.getElementById("console").textContent += text
+  document.getElementById("console").innerHTML += "<br/>" + text
 }
 
 function clearLog() {
-  document.getElementById("console").textContent = ""
+  document.getElementById("console").innerHTML = ""
 }
