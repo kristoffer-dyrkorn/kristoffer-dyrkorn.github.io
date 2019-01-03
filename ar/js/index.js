@@ -122,8 +122,11 @@ function resetViewport() {
 }
 
 function updateOrientation(event) {
+  log("Current accuracy: " + event.webkitCompassAccuracy + " degrees.")
+
   if (event.webkitCompassAccuracy !== -1 && event.webkitCompassAccuracy < bestHeadingAccuracy) {
     bestHeadingAccuracy = event.webkitCompassAccuracy
+    log("Best accuracy: " + bestHeadingAccuracy + " degrees.")
   }
 
   if (bestHeadingAccuracy < 20) {
