@@ -204,8 +204,8 @@ function gotLocation(position) {
 
   if (position.coords.accuracy < 35) {
     if (!areTilesLoaded) {
-      console.log("Position accuracy, meters: " + position.coords.accuracy)
-      log("")
+      log("Position accuracy, meters: " + position.coords.accuracy)
+      clearLog()
       loadTiles(pos.e, pos.n)
       areTilesLoaded = true
 
@@ -225,5 +225,9 @@ function locationError(error) {
 }
 
 function log(text) {
-  document.getElementById("console").textContent = text
+  document.getElementById("console").textContent += text
+}
+
+function clearLog() {
+  document.getElementById("console").textContent = ""
 }
