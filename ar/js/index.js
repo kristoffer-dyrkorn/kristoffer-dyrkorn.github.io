@@ -15,6 +15,7 @@ const tileServer = "https://s3-eu-west-1.amazonaws.com/kd-flightsim/topography"
 
 let actualHeading = 0
 let baseHeading
+let bestHeadingAccuracy = 45
 let hasBaseheading = false
 let areTilesLoaded = false
 let isVideoPlaying = false
@@ -69,6 +70,8 @@ const watchID = navigator.geolocation.watchPosition(gotLocation, locationError, 
   maximumAge: 1000
 })
 
+let accuracyLogger = setInterval(log, 1000, bestHeadingAccuracy)
+
 log("Getting GPS data:")
 
 resetViewport()
@@ -119,13 +122,16 @@ function resetViewport() {
 }
 
 function updateOrientation(event) {
-  log("Heading accuracy: " + event.webkitCompassAccuracy + " degrees.")
+  if (event.webkitCompassAccuracy < bestHeadingAccuracy) {
+    bestHeadingAccuracy = event.webkitCompassAccuracy
+  }
 
-  if (event.webkitCompassAccuracy !== -1 && event.webkitCompassAccuracy < 20) {
+  if (bestHeadingAccuracy < 20) {
     if (!hasBaseheading) {
-      log("Base heading set, accuracy: " + event.webkitCompassAccuracy + " degrees.")
+      log("Base heading set, accuracy: " + bestHeadingAccuracy + " degrees.")
       baseHeading = event.webkitCompassHeading
       hasBaseheading = true
+      clearInterval(accuracyLogger)
     }
   }
 
