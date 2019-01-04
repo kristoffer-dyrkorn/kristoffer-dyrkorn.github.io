@@ -2,7 +2,7 @@ export default class Readout {
   constructor(description, timeout) {
     this.description = description
     this.isSettled = false
-    this.timeoutId = setTimeout(settle, timeout)
+    this.timeoutId = setTimeout(this.settle.bind(this), timeout)
     this.intervalLoggerId = setInterval(logValue, 1000)
   }
 
