@@ -1,4 +1,5 @@
 import Readout from "./readout.js"
+import Logger from "./logger.js"
 
 // https://developer.apple.com/library/archive/documentation/DeviceInformation/Reference/iOSDeviceCompatibility/Cameras/Cameras.html#//apple_ref/doc/uid/TP40013599-CH107-SW21
 // 1280x720 X_FOV = 60.983 => Y_FOV = 34.30
@@ -60,8 +61,8 @@ lights[0] = new THREE.PointLight(0xffffff, 0.8, 0)
 lights[0].position.set(20, 20, 40)
 scene.add(lights[0])
 
-const headingReadout = new Readout("heading accuracy", 5000)
-const positionReadout = new Readout("position accuracy", 5000)
+const headingReadout = new Readout("heading accuracy (deg)", 5000)
+const positionReadout = new Readout("position accuracy (m)", 5000)
 
 window.addEventListener("deviceorientation", updateOrientation)
 window.addEventListener("orientationchange", resetViewport)
@@ -72,7 +73,7 @@ const watchID = navigator.geolocation.watchPosition(gotLocation, locationError, 
   maximumAge: 1000
 })
 
-log("Getting GPS data:")
+Logger.log("Getting GPS data:")
 
 resetViewport()
 drawScene()
@@ -128,7 +129,7 @@ function updateOrientation(event) {
 
   if (headingReadout.isSettled) {
     if (!hasBaseheading) {
-      log("Base heading set, accuracy: " + headingReadout.value + " degrees.")
+      Logger.log("Base heading set, accuracy: " + headingReadout.value + " degrees.")
       baseHeading = event.webkitCompassHeading
       hasBaseheading = true
     }
@@ -160,13 +161,13 @@ function startVideo() {
         try {
           video.play()
           isVideoPlaying = true
-          console.log("Now playing " + video.videoWidth + "x" + video.videoHeight)
+          console.log("Playing " + video.videoWidth + "x" + video.videoHeight)
         } catch (error) {
-          console.log("Error playing video from camera: " + error)
+          console.error("Error playing video from camera: " + error)
         }
       })
       .catch(function(error) {
-        console.log("Error reading video from camera: " + error)
+        console.error("Error reading video from camera: " + error)
       })
   }
 }
@@ -195,7 +196,7 @@ function loadTile(east, north, resolution) {
   const tileMaterial = new THREE.MeshPhongMaterial()
 
   const tileURL = `${tileServer}/${east}-${north}.png`
-  console.log("Loading tile: " + tileURL)
+  Logger.log("Loading tile: " + tileURL)
   tileMaterial.displacementMap = new THREE.TextureLoader().load(tileURL)
   tileMaterial.displacementScale = 2550
   tileMaterial.wireframe = true
@@ -226,13 +227,5 @@ function gotLocation(position) {
 }
 
 function locationError(error) {
-  log("Could not get GPS position. Is GPS switched on?")
-}
-
-function log(text) {
-  document.getElementById("console").innerHTML += text + "<br/>"
-}
-
-function clearLog() {
-  document.getElementById("console").innerHTML = ""
+  Logger.log("Could not get GPS position. Is GPS switched on?")
 }
