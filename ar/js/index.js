@@ -60,8 +60,8 @@ lights[0] = new THREE.PointLight(0xffffff, 0.8, 0)
 lights[0].position.set(20, 20, 40)
 scene.add(lights[0])
 
-headingReadout = new Readout("heading accuracy", 5000)
-positionReadout = new Readout("position accuracy", 5000)
+const headingReadout = new Readout("heading accuracy", 5000)
+const positionReadout = new Readout("position accuracy", 5000)
 
 window.addEventListener("deviceorientation", updateOrientation)
 window.addEventListener("orientationchange", resetViewport)
