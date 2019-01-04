@@ -3,7 +3,7 @@ export default class Readout {
     this.description = description
     this.isSettled = false
     this.timeoutId = setTimeout(this.settle.bind(this), timeout)
-    this.intervalLoggerId = setInterval(logValue, 1000)
+    this.intervalLoggerId = setInterval(this.logValue.bind(this), 1000)
   }
 
   logValue() {
