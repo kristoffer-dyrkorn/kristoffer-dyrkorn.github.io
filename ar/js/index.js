@@ -1,7 +1,8 @@
-const Y_FOV_LANDSCAPE = 34.3
+import Readout from "./readout.js"
+
 // https://developer.apple.com/library/archive/documentation/DeviceInformation/Reference/iOSDeviceCompatibility/Cameras/Cameras.html#//apple_ref/doc/uid/TP40013599-CH107-SW21
 // 1280x720 X_FOV = 60.983 => Y_FOV = 34.30
-
+const Y_FOV_LANDSCAPE = 34.3
 const PLANE_DISTANCE = 100
 
 const MIN_EAST = -100000
@@ -13,9 +14,7 @@ const FAR_CLIP = TILE_EXTENTS * 2
 
 const tileServer = "https://s3-eu-west-1.amazonaws.com/kd-flightsim/topography"
 
-let actualHeading = 0
 let baseHeading
-let bestHeadingAccuracy = 45
 let hasBaseheading = false
 let areTilesLoaded = false
 let isVideoPlaying = false
@@ -61,6 +60,9 @@ lights[0] = new THREE.PointLight(0xffffff, 0.8, 0)
 lights[0].position.set(20, 20, 40)
 scene.add(lights[0])
 
+headingReadout = new Readout("heading accuracy", 5000)
+positionReadout = new Readout("position accuracy", 5000)
+
 window.addEventListener("deviceorientation", updateOrientation)
 window.addEventListener("orientationchange", resetViewport)
 canvas.addEventListener("click", startVideo)
@@ -71,8 +73,6 @@ const watchID = navigator.geolocation.watchPosition(gotLocation, locationError, 
 })
 
 log("Getting GPS data:")
-
-let accuracyLogger = setInterval(log, 1000, "Current heading accuracy: " + bestHeadingAccuracy + " degrees.")
 
 resetViewport()
 drawScene()
@@ -122,17 +122,15 @@ function resetViewport() {
 }
 
 function updateOrientation(event) {
-  if (event.webkitCompassAccuracy !== -1 && event.webkitCompassAccuracy < bestHeadingAccuracy) {
-    bestHeadingAccuracy = event.webkitCompassAccuracy
-    log("Best accuracy: " + bestHeadingAccuracy + " degrees.")
+  if (event.webkitCompassAccuracy !== -1) {
+    headingReadout.update(event.webkitCompassAccuracy)
   }
 
-  if (bestHeadingAccuracy < 20) {
+  if (headingReadout.isSettled) {
     if (!hasBaseheading) {
-      log("Base heading set, accuracy: " + bestHeadingAccuracy + " degrees.")
+      log("Base heading set, accuracy: " + headingReadout.value + " degrees.")
       baseHeading = event.webkitCompassHeading
       hasBaseheading = true
-      clearInterval(accuracyLogger)
     }
   }
 
@@ -209,15 +207,10 @@ function loadTile(east, north, resolution) {
 }
 
 function gotLocation(position) {
-  const pos = latLonToUTM(position.coords.latitude, position.coords.longitude, 33)
-
-  log("Current GPS accuracy: " + position.coords.accuracy + " meters.")
-
-  if (position.coords.accuracy < 35) {
+  positionReadout.update(position.coords.accuracy)
+  if (positionReadout.isSettled) {
     if (!areTilesLoaded) {
-      // log("Set GPS location. Accuracy: " + position.coords.accuracy + " meters.")
-      //      clearLog()
-      log("Loading tiles! " + position.coords.accuracy)
+      const pos = latLonToUTM(position.coords.latitude, position.coords.longitude, 33)
       loadTiles(pos.e, pos.n)
       areTilesLoaded = true
 
