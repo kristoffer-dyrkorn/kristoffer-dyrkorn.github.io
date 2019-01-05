@@ -64,7 +64,7 @@ canvas.addEventListener("click", startVideo)
 
 Logger.log("Getting GPS data.")
 
-const watchID = navigator.geolocation.watchPosition(location.update.bind(location), locationError, {
+const locationWatchID = navigator.geolocation.watchPosition(location.update.bind(location), locationError, {
   enableHighAccuracy: true,
   maximumAge: 1000
 })
@@ -193,5 +193,6 @@ function gotLocation(position) {
 function locationError(error) {
   Logger.log("Could not get GPS position. Is GPS switched on?")
   orientation.stopReadout()
-  position.stopReadout()
+  location.stopReadout()
+  navigator.geolocation.clearWatch(locationWatchID)
 }
