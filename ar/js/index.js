@@ -58,13 +58,13 @@ lights[0] = new THREE.PointLight(0xffffff, 0.8, 0)
 lights[0].position.set(20, 20, 40)
 scene.add(lights[0])
 
-window.addEventListener("deviceorientation", orientation.setDeviceOrientation)
+window.addEventListener("deviceorientation", orientation.setDeviceOrientation.bind(orientation))
 window.addEventListener("orientationchange", resetViewport)
 canvas.addEventListener("click", startVideo)
 
 Logger.log("Getting GPS data.")
 
-const watchID = navigator.geolocation.watchPosition(location.update, location.error, {
+const watchID = navigator.geolocation.watchPosition(location.update.bind(location), location.error.bind(location), {
   enableHighAccuracy: true,
   maximumAge: 1000
 })
