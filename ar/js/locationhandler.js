@@ -14,8 +14,7 @@ export default class LocationHandler {
     }
   }
 
-  error(error) {
-    Logger.log("Could not get GPS position. Is GPS switched on?")
+  stopReadout() {
     this.positionReadout.stop()
   }
 }

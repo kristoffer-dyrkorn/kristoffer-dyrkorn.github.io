@@ -18,13 +18,13 @@ export default class OrientationHandler {
 
     if (this.headingReadout.isSettled) {
       if (!this.hasBaseheading) {
-        Logger.log("Base heading set, accuracy: " + headingReadout.value + " degrees.")
+        Logger.log("Base heading set, accuracy: " + this.headingReadout.value + " degrees.")
         this.baseHeading = event.webkitCompassHeading
         this.hasBaseheading = true
       }
     }
 
-    if (hasBaseheading) {
+    if (this.hasBaseheading) {
       this.gyroSample.x = event.beta * THREE.Math.DEG2RAD
       this.gyroSample.y = event.gamma * THREE.Math.DEG2RAD
       this.gyroSample.z = (event.alpha - this.baseHeading) * THREE.Math.DEG2RAD
