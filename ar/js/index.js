@@ -1,5 +1,6 @@
 import Readout from "./readout.js"
 import Logger from "./logger.js"
+import OrientationHandler from "./orientationhandler.js"
 
 // https://developer.apple.com/library/archive/documentation/DeviceInformation/Reference/iOSDeviceCompatibility/Cameras/Cameras.html#//apple_ref/doc/uid/TP40013599-CH107-SW21
 // 1280x720 X_FOV = 60.983 => Y_FOV = 34.30
@@ -15,15 +16,10 @@ const FAR_CLIP = TILE_EXTENTS * 2
 
 const tileServer = "https://s3-eu-west-1.amazonaws.com/kd-flightsim/topography"
 
-let baseHeading
-let hasBaseheading = false
 let areTilesLoaded = false
 let isVideoPlaying = false
 
-const deviceOrientation = new THREE.Matrix4()
-const screenOrientation = new THREE.Matrix4()
-
-const gyroSample = new THREE.Euler(0, 0, 0, "ZXY")
+const orientation = new OrientationHandler()
 const deviceObject = new THREE.Object3D()
 
 const canvas = document.getElementById("canvas")
@@ -61,10 +57,9 @@ lights[0] = new THREE.PointLight(0xffffff, 0.8, 0)
 lights[0].position.set(20, 20, 40)
 scene.add(lights[0])
 
-const headingReadout = new Readout("heading accuracy (deg)", 5000)
 const positionReadout = new Readout("position accuracy (m)", 5000)
 
-window.addEventListener("deviceorientation", updateOrientation)
+window.addEventListener("deviceorientation", orientation.setDeviceOrientation)
 window.addEventListener("orientationchange", resetViewport)
 canvas.addEventListener("click", startVideo)
 
@@ -81,22 +76,21 @@ drawScene()
 function drawScene() {
   requestAnimationFrame(drawScene)
 
-  const finalOrientation = deviceOrientation.clone()
+  // assign effective device orientation to device object
+  deviceObject.setRotationFromMatrix(orientation.getOrientation())
 
-  finalOrientation.multiply(screenOrientation)
-  deviceObject.setRotationFromMatrix(finalOrientation)
-
-  // interpolate camera orientation towards sensor-read orientation
+  // interpolate camera orientation towards this orientation
   camera.quaternion.slerp(deviceObject.quaternion, 0.5)
 
-  // reset the plane location: place it relative to the camera
+  // reset the plane location, place it relative to the camera
   plane.position.copy(planeRelativePosition)
 
   // overwrite plane.position with the world coordinates for the plane,
   // based on current camera position and orientation
   camera.localToWorld(plane.position)
 
-  // copy the camera orientation to the plane so the plane becomes parallel to the camera
+  // set the plane orientation to the camera orientation
+  // so the plane becomes parallel to the camera
   plane.quaternion.copy(camera.quaternion)
 
   renderer.render(scene, camera)
@@ -119,29 +113,7 @@ function resetViewport() {
   renderer.setSize(window.innerWidth, window.innerHeight)
 
   // update landscape/portrait rendering adjustment
-  screenOrientation.makeRotationZ(-window.orientation * THREE.Math.DEG2RAD)
-}
-
-function updateOrientation(event) {
-  if (event.webkitCompassAccuracy !== -1) {
-    headingReadout.update(event.webkitCompassAccuracy)
-  }
-
-  if (headingReadout.isSettled) {
-    if (!hasBaseheading) {
-      Logger.log("Base heading set, accuracy: " + headingReadout.value + " degrees.")
-      baseHeading = event.webkitCompassHeading
-      hasBaseheading = true
-    }
-  }
-
-  if (hasBaseheading) {
-    gyroSample.x = event.beta * THREE.Math.DEG2RAD
-    gyroSample.y = event.gamma * THREE.Math.DEG2RAD
-    gyroSample.z = (event.alpha - baseHeading) * THREE.Math.DEG2RAD
-
-    deviceOrientation.makeRotationFromEuler(gyroSample)
-  }
+  orientation.setViewportRotation(-window.orientation * THREE.Math.DEG2RAD)
 }
 
 function startVideo() {
