@@ -62,12 +62,12 @@ window.addEventListener("deviceorientation", orientation.setDeviceOrientation)
 window.addEventListener("orientationchange", resetViewport)
 canvas.addEventListener("click", startVideo)
 
+Logger.log("Getting GPS data.")
+
 const watchID = navigator.geolocation.watchPosition(location.update, location.error, {
   enableHighAccuracy: true,
   maximumAge: 1000
 })
-
-Logger.log("Getting GPS data:")
 
 resetViewport()
 drawScene()
