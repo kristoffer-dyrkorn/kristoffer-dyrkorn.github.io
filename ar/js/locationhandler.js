@@ -3,7 +3,7 @@ import Readout from "./readout.js"
 
 export default class LocationHandler {
   constructor(callback) {
-    this.positionReadout = new Readout("position accuracy (m)", 5000)
+    this.positionReadout = new Readout("position accuracy (m)", 200, 5000)
     this.callback = callback
   }
 

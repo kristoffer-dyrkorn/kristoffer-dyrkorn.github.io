@@ -1,8 +1,9 @@
 import Logger from "./logger.js"
 
 export default class Readout {
-  constructor(description, timeout) {
+  constructor(description, initialValue, timeout) {
     this.description = description
+    this.value = initialValue
     this.isSettled = false
     this.timeoutId = setTimeout(this.settle.bind(this), timeout)
     this.intervalLoggerId = setInterval(this.logValue.bind(this), 1000)
@@ -24,7 +25,7 @@ export default class Readout {
 
   settle() {
     // console.log("Settled " + this.description + ", value: " + this.value)
-    const text = "Settled " + this.description + ", value: " + this.value
+    const text = "Settled " + this.description + ", value: " + (this.value | 0)
     Logger.log(text)
     this.isSettled = true
     clearTimeout(this.timeoutId)
