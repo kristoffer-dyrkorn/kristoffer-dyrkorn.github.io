@@ -200,4 +200,5 @@ function gotLocation(position) {
 
 function locationError(error) {
   Logger.log("Could not get GPS position. Is GPS switched on?")
+  orientation.stopReadout()
 }

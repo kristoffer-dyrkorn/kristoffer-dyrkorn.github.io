@@ -30,4 +30,10 @@ export default class Readout {
     clearTimeout(this.timeoutId)
     clearInterval(this.intervalLoggerId)
   }
+
+  stop() {
+    Logger.log("Stopped readout for " + this.description)
+    clearTimeout(this.timeoutId)
+    clearInterval(this.intervalLoggerId)
+  }
 }
