@@ -59,7 +59,7 @@ lights[0].position.set(20, 20, 40)
 scene.add(lights[0])
 
 window.addEventListener("deviceorientation", function() {
-  orientation.setDeviceOrientation
+  orientation.setDeviceOrientation.bind(this)
 })
 window.addEventListener("orientationchange", resetViewport)
 canvas.addEventListener("click", startVideo)
@@ -68,10 +68,10 @@ Logger.log("Getting GPS data.")
 
 const watchID = navigator.geolocation.watchPosition(
   function() {
-    location.update
+    location.update.bind(this)
   },
   function() {
-    location.error
+    location.error.bind(this)
   },
   {
     enableHighAccuracy: true,
