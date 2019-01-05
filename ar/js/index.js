@@ -1,6 +1,7 @@
 import Readout from "./readout.js"
 import Logger from "./logger.js"
 import OrientationHandler from "./orientationhandler.js"
+import LocationHandler from "./locationhandler.js"
 
 // https://developer.apple.com/library/archive/documentation/DeviceInformation/Reference/iOSDeviceCompatibility/Cameras/Cameras.html#//apple_ref/doc/uid/TP40013599-CH107-SW21
 // 1280x720 X_FOV = 60.983 => Y_FOV = 34.30
@@ -16,10 +17,10 @@ const FAR_CLIP = TILE_EXTENTS * 2
 
 const tileServer = "https://s3-eu-west-1.amazonaws.com/kd-flightsim/topography"
 
-let areTilesLoaded = false
 let isVideoPlaying = false
 
 const orientation = new OrientationHandler()
+const location = new LocationHandler(gotLocation)
 const deviceObject = new THREE.Object3D()
 
 const canvas = document.getElementById("canvas")
@@ -57,13 +58,11 @@ lights[0] = new THREE.PointLight(0xffffff, 0.8, 0)
 lights[0].position.set(20, 20, 40)
 scene.add(lights[0])
 
-const positionReadout = new Readout("position accuracy (m)", 5000)
-
 window.addEventListener("deviceorientation", orientation.setDeviceOrientation)
 window.addEventListener("orientationchange", resetViewport)
 canvas.addEventListener("click", startVideo)
 
-const watchID = navigator.geolocation.watchPosition(gotLocation, locationError, {
+const watchID = navigator.geolocation.watchPosition(location.update, location.error, {
   enableHighAccuracy: true,
   maximumAge: 1000
 })
@@ -144,6 +143,22 @@ function startVideo() {
   }
 }
 
+function loadTile(east, north, resolution) {
+  const tileGeometry = new THREE.PlaneGeometry(TILE_EXTENTS, TILE_EXTENTS, resolution, resolution)
+  const tileMaterial = new THREE.MeshPhongMaterial()
+
+  const tileURL = `${tileServer}/${east}-${north}.png`
+  Logger.log("Loading tile: " + tileURL)
+  tileMaterial.displacementMap = new THREE.TextureLoader().load(tileURL)
+  tileMaterial.displacementScale = 2550
+  tileMaterial.wireframe = true
+
+  const tile = new THREE.Mesh(tileGeometry, tileMaterial)
+  tile.position.x = east + TILE_EXTENTS / 2
+  tile.position.y = north + TILE_EXTENTS / 2
+  scene.add(tile)
+}
+
 function loadTiles(eastPosition, northPosition) {
   // coords of lower left point of center tile
   const centerEast = Math.trunc((eastPosition - MIN_EAST) / TILE_EXTENTS) * TILE_EXTENTS + MIN_EAST
@@ -163,42 +178,14 @@ function loadTiles(eastPosition, northPosition) {
   loadTile(centerEast + TILE_EXTENTS, centerNorth + TILE_EXTENTS, 128)
 }
 
-function loadTile(east, north, resolution) {
-  const tileGeometry = new THREE.PlaneGeometry(TILE_EXTENTS, TILE_EXTENTS, resolution, resolution)
-  const tileMaterial = new THREE.MeshPhongMaterial()
-
-  const tileURL = `${tileServer}/${east}-${north}.png`
-  Logger.log("Loading tile: " + tileURL)
-  tileMaterial.displacementMap = new THREE.TextureLoader().load(tileURL)
-  tileMaterial.displacementScale = 2550
-  tileMaterial.wireframe = true
-
-  const tile = new THREE.Mesh(tileGeometry, tileMaterial)
-  tile.position.x = east + TILE_EXTENTS / 2
-  tile.position.y = north + TILE_EXTENTS / 2
-  scene.add(tile)
-}
-
 function gotLocation(position) {
-  positionReadout.update(position.coords.accuracy)
-  if (positionReadout.isSettled) {
-    if (!areTilesLoaded) {
-      const pos = latLonToUTM(position.coords.latitude, position.coords.longitude, 33)
-      loadTiles(pos.e, pos.n)
-      areTilesLoaded = true
+  loadTiles(position.e, position.n)
 
-      camera.position.x = pos.e
-      camera.position.y = pos.n
-      camera.position.z = position.coords.altitude + 10
+  camera.position.x = position.e
+  camera.position.y = position.n
+  camera.position.z = position.coords.altitude + 10
 
-      cube.position.x = camera.position.x
-      cube.position.y = camera.position.y + 75
-      cube.position.z = camera.position.z
-    }
-  }
-}
-
-function locationError(error) {
-  Logger.log("Could not get GPS position. Is GPS switched on?")
-  orientation.stopReadout()
+  cube.position.x = camera.position.x
+  cube.position.y = camera.position.y + 75
+  cube.position.z = camera.position.z
 }
