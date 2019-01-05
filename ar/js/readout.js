@@ -9,7 +9,7 @@ export default class Readout {
   }
 
   logValue() {
-    const text = "Current " + this.description + " is: " + this.value
+    const text = "Current " + this.description + " is: " + (this.value | 0)
     Logger.log(text)
   }
 
