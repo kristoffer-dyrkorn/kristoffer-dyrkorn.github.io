@@ -24,12 +24,15 @@ export default class Readout {
   }
 
   settle() {
-    // console.log("Settled " + this.description + ", value: " + this.value)
-    const text = "Settled " + this.description + ", value: " + (this.value | 0)
+    // truncate float values but keep undefined values
+    if (this.value) {
+      this.value = this.value | 0
+    }
+    const text = "Settled " + this.description + ", value: " + this.value
     Logger.log(text)
-    this.isSettled = true
     clearTimeout(this.timeoutId)
     clearInterval(this.intervalLoggerId)
+    this.isSettled = true
   }
 
   stop() {
