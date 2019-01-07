@@ -58,7 +58,7 @@ lights[0] = new THREE.PointLight(0xffffff, 0.8, 0)
 lights[0].position.set(20, 20, 40)
 scene.add(lights[0])
 
-window.addEventListener("deviceorientation", event => orientation.setDeviceOrientation(event))
+//window.addEventListener("deviceorientation", event => orientation.setDeviceOrientation(event))
 window.addEventListener("orientationchange", resetViewport)
 canvas.addEventListener("click", startVideo)
 
