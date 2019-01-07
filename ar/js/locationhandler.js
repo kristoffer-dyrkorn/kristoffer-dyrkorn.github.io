@@ -11,7 +11,7 @@ export default class LocationHandler {
     this.positionReadout.update(position.coords.accuracy)
     if (this.positionReadout.isSettled) {
       const pos = latLonToUTM(position.coords.latitude, position.coords.longitude, 33)
-      this.callback(pos)
+      this.callback(pos.e, pos.n, position.coords.altitude)
     }
   }
 

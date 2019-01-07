@@ -178,12 +178,12 @@ function loadTiles(eastPosition, northPosition) {
   loadTile(centerEast + TILE_EXTENTS, centerNorth + TILE_EXTENTS, 128)
 }
 
-function gotLocation(position) {
-  loadTiles(position.e, position.n)
+function gotLocation(east, north, altitude) {
+  loadTiles(east, north)
 
-  camera.position.x = position.e
-  camera.position.y = position.n
-  camera.position.z = position.coords.altitude + 10
+  camera.position.x = east
+  camera.position.y = north
+  camera.position.z = altitude + 10
 
   cube.position.x = camera.position.x
   cube.position.y = camera.position.y + 75
