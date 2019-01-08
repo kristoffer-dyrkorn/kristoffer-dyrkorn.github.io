@@ -20,7 +20,7 @@ export default class OrientationHandler {
 
     if (this.headingReadout.isSettled) {
       if (!this.hasBaseheading) {
-        Logger.log("Base heading set, accuracy: " + this.headingReadout.value + " degrees.")
+        Logger.log(`Base heading set, accuracy: ${this.headingReadout.value} degrees.`)
         this.baseHeading = event.webkitCompassHeading
         this.hasBaseheading = true
       }

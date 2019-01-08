@@ -125,13 +125,13 @@ function startVideo() {
         try {
           video.play()
           isVideoPlaying = true
-          console.log("Playing " + video.videoWidth + "x" + video.videoHeight)
+          console.log(`Playing ${video.videoWidth} x ${video.videoHeight}`)
         } catch (error) {
-          console.error("Error playing video from camera: " + error)
+          console.error(`Error playing video from camera: ${error}`)
         }
       })
       .catch(function(error) {
-        console.error("Error reading video from camera: " + error)
+        console.error(`Error reading video from camera: ${error}`)
       })
   }
 }
@@ -140,8 +140,9 @@ function loadTile(east, north, resolution) {
   const tileGeometry = new THREE.PlaneGeometry(TILE_EXTENTS, TILE_EXTENTS, resolution, resolution)
   const tileMaterial = new THREE.MeshPhongMaterial()
 
-  const tileURL = `${tileServer}/${east}-${north}.png`
-  Logger.log("Loading tile: " + tileURL)
+  const tileFile = `${east}-${north}.png`
+  const tileURL = `${tileServer}/${fileFile}`
+  Logger.log(`Loading tile: ${tileFile}`)
   tileMaterial.displacementMap = new THREE.TextureLoader().load(tileURL)
   tileMaterial.displacementScale = 2550
   tileMaterial.wireframe = true
@@ -159,7 +160,6 @@ function loadTiles(eastPosition, northPosition) {
 
   loadTile(centerEast, centerNorth, 256)
 
-  /*
   loadTile(centerEast - TILE_EXTENTS, centerNorth - TILE_EXTENTS, 128)
   loadTile(centerEast, centerNorth - TILE_EXTENTS, 128)
   loadTile(centerEast + TILE_EXTENTS, centerNorth - TILE_EXTENTS, 128)
@@ -170,7 +170,6 @@ function loadTiles(eastPosition, northPosition) {
   loadTile(centerEast - TILE_EXTENTS, centerNorth + TILE_EXTENTS, 128)
   loadTile(centerEast, centerNorth + TILE_EXTENTS, 128)
   loadTile(centerEast + TILE_EXTENTS, centerNorth + TILE_EXTENTS, 128)
-  */
 }
 
 function gotLocation(east, north, altitude) {

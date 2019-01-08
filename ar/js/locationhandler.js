@@ -27,7 +27,7 @@ export default class LocationHandler {
 
   handleError(error) {
     navigator.geolocation.clearWatch(this.locationWatchID)
-    Logger.log("Could not get GPS position: " + error)
+    Logger.log(`Could not get GPS position: ${error}`)
     this.positionReadout.stop()
   }
 }
