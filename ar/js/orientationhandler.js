@@ -10,7 +10,7 @@ export default class OrientationHandler {
     this.deviceOrientation = new THREE.Matrix4()
     this.screenOrientation = new THREE.Matrix4()
 
-    window.addEventListener("deviceorientation", set)
+    window.addEventListener("deviceorientation", event => set(event))
   }
 
   set(event) {
