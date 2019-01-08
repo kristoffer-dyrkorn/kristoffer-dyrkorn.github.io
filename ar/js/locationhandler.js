@@ -6,7 +6,7 @@ export default class LocationHandler {
     this.positionReadout = new Readout("position accuracy (m)", 5000)
     this.callback = callback
 
-    this.locationWatchID = navigator.geolocation.watchPosition(set, error, {
+    this.locationWatchID = navigator.geolocation.watchPosition(position => set(position), error => handleError(error), {
       enableHighAccuracy: true,
       maximumAge: 1000
     })
@@ -21,7 +21,7 @@ export default class LocationHandler {
     }
   }
 
-  error(error) {
+  handleError(error) {
     navigator.geolocation.clearWatch(this.locationWatchID)
     Logger.log("Could not get GPS position. Is GPS switched on?")
     this.positionReadout.stop()
