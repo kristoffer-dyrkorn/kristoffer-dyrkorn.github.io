@@ -6,10 +6,14 @@ export default class LocationHandler {
     this.positionReadout = new Readout("position accuracy (m)", 5000)
     this.callback = callback
 
-    this.locationWatchID = navigator.geolocation.watchPosition(position => set(position), error => handleError(error), {
-      enableHighAccuracy: true,
-      maximumAge: 1000
-    })
+    this.locationWatchID = navigator.geolocation.watchPosition(
+      position => this.set(position),
+      error => this.handleError(error),
+      {
+        enableHighAccuracy: true,
+        maximumAge: 1000
+      }
+    )
   }
 
   set(position) {
