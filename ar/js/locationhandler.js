@@ -3,7 +3,7 @@ import Readout from "./readout.js"
 
 export default class LocationHandler {
   constructor(callback) {
-    this.positionReadout = new Readout("position accuracy (m)", 5000)
+    this.positionReadout = new Readout("position accuracy (m)", 25, 10000)
     this.callback = callback
 
     this.locationWatchID = navigator.geolocation.watchPosition(
@@ -27,7 +27,7 @@ export default class LocationHandler {
 
   handleError(error) {
     navigator.geolocation.clearWatch(this.locationWatchID)
-    Logger.log("Could not get GPS position. Is GPS switched on?")
+    Logger.log("Could not get GPS position: " + error)
     this.positionReadout.stop()
   }
 }
