@@ -166,6 +166,7 @@ function loadTiles(eastPosition, northPosition) {
 
   loadTile(centerEast, centerNorth, 256)
 
+  /*
   loadTile(centerEast - TILE_EXTENTS, centerNorth - TILE_EXTENTS, 128)
   loadTile(centerEast, centerNorth - TILE_EXTENTS, 128)
   loadTile(centerEast + TILE_EXTENTS, centerNorth - TILE_EXTENTS, 128)
@@ -176,6 +177,7 @@ function loadTiles(eastPosition, northPosition) {
   loadTile(centerEast - TILE_EXTENTS, centerNorth + TILE_EXTENTS, 128)
   loadTile(centerEast, centerNorth + TILE_EXTENTS, 128)
   loadTile(centerEast + TILE_EXTENTS, centerNorth + TILE_EXTENTS, 128)
+  */
 }
 
 function gotLocation(east, north, altitude) {
