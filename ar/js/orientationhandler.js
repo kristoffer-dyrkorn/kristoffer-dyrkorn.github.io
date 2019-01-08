@@ -9,11 +9,13 @@ export default class OrientationHandler {
     this.gyroSample = new THREE.Euler(0, 0, 0, "ZXY")
     this.deviceOrientation = new THREE.Matrix4()
     this.screenOrientation = new THREE.Matrix4()
+
+    window.addEventListener("deviceorientation", set)
   }
 
   set(event) {
     if (event.webkitCompassAccuracy !== -1) {
-      this.headingReadout.update(event.webkitCompassAccuracy)
+      this.headingReadout.set(event.webkitCompassAccuracy)
     }
 
     if (this.headingReadout.isSettled) {

@@ -1,4 +1,3 @@
-import Readout from "./readout.js"
 import Logger from "./logger.js"
 import OrientationHandler from "./orientationhandler.js"
 import LocationHandler from "./locationhandler.js"
@@ -58,16 +57,10 @@ lights[0] = new THREE.PointLight(0xffffff, 0.8, 0)
 lights[0].position.set(20, 20, 40)
 scene.add(lights[0])
 
-window.addEventListener("deviceorientation", setOrientation)
 window.addEventListener("orientationchange", resetViewport)
 canvas.addEventListener("click", startVideo)
 
 Logger.log("Getting GPS data.")
-
-const locationWatchID = navigator.geolocation.watchPosition(setLocation, locationError, {
-  enableHighAccuracy: true,
-  maximumAge: 1000
-})
 
 resetViewport()
 drawScene()
@@ -190,19 +183,4 @@ function gotLocation(east, north, altitude) {
   cube.position.x = camera.position.x
   cube.position.y = camera.position.y + 75
   cube.position.z = camera.position.z
-}
-
-function setOrientation(event) {
-  orientation.set(event)
-}
-
-function setLocation(position) {
-  location.set(position)
-}
-
-function locationError(error) {
-  Logger.log("Could not get GPS position. Is GPS switched on?")
-  orientation.stopReadout()
-  location.stopReadout()
-  navigator.geolocation.clearWatch(locationWatchID)
 }

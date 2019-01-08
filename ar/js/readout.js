@@ -14,7 +14,7 @@ export default class Readout {
     Logger.log(text)
   }
 
-  update(value) {
+  set(value) {
     this.value = value
     /*
     if (value < this.threshold) {
