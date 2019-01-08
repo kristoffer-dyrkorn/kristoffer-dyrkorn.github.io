@@ -58,18 +58,16 @@ lights[0] = new THREE.PointLight(0xffffff, 0.8, 0)
 lights[0].position.set(20, 20, 40)
 scene.add(lights[0])
 
-//window.addEventListener("deviceorientation", event => orientation.setDeviceOrientation(event))
+window.addEventListener("deviceorientation", setOrientation)
 window.addEventListener("orientationchange", resetViewport)
 canvas.addEventListener("click", startVideo)
 
 Logger.log("Getting GPS data.")
 
-/*
-const locationWatchID = navigator.geolocation.watchPosition(location.update.bind(location), locationError, {
+const locationWatchID = navigator.geolocation.watchPosition(setLocation, locationError, {
   enableHighAccuracy: true,
   maximumAge: 1000
 })
-*/
 
 resetViewport()
 drawScene()
@@ -78,7 +76,7 @@ function drawScene() {
   requestAnimationFrame(drawScene)
 
   // assign effective device orientation to device object
-  deviceObject.setRotationFromMatrix(orientation.getOrientation())
+  deviceObject.setRotationFromMatrix(orientation.get())
 
   // interpolate camera orientation towards this orientation
   camera.quaternion.slerp(deviceObject.quaternion, 0.5)
@@ -192,9 +190,17 @@ function gotLocation(east, north, altitude) {
   cube.position.z = camera.position.z
 }
 
+function setOrientation(event) {
+  orientation.set(event)
+}
+
+function setLocation(position) {
+  location.set(position)
+}
+
 function locationError(error) {
   Logger.log("Could not get GPS position. Is GPS switched on?")
   orientation.stopReadout()
   location.stopReadout()
-  //  navigator.geolocation.clearWatch(locationWatchID)
+  navigator.geolocation.clearWatch(locationWatchID)
 }

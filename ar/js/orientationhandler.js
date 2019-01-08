@@ -11,7 +11,7 @@ export default class OrientationHandler {
     this.screenOrientation = new THREE.Matrix4()
   }
 
-  setDeviceOrientation(event) {
+  set(event) {
     if (event.webkitCompassAccuracy !== -1) {
       this.headingReadout.update(event.webkitCompassAccuracy)
     }
@@ -37,7 +37,7 @@ export default class OrientationHandler {
     this.screenOrientation.makeRotationZ(angle)
   }
 
-  getOrientation() {
+  get() {
     const finalOrientation = this.deviceOrientation.clone()
     finalOrientation.multiply(this.screenOrientation)
     return finalOrientation
