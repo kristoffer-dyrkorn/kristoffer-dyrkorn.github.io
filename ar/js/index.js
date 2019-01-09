@@ -60,6 +60,46 @@ scene.add(lights[0])
 window.addEventListener("orientationchange", resetViewport)
 canvas.addEventListener("click", startVideo)
 
+window.addEventListener("touchstart", touchStart, false)
+window.addEventListener("touchmove", touchMove, false)
+
+let currentTouch
+
+function touchStart(event) {
+  //  event.preventDefault();
+  var touches = event.changedTouches
+
+  /* store touch info on touchstart */
+  currentTouch = {
+    identifier: touches[0].identifier,
+    pageX: touches[0].pageX,
+    pageY: touches[0].pageY
+  }
+
+  Logger.log(`Started: ${touches[0].pageX}, ${touches[0].pageY}`)
+}
+
+function touchMove(event) {
+  //  event.preventDefault();
+  var touches = event.changedTouches
+
+  /* store touch info on touchstart */
+  touchesInAction["$" + touches[0].identifier] = {
+    identifier: touches[0].identifier,
+    pageX: touches[0].pageX,
+    pageY: touches[0].pageY
+  }
+
+  Logger.log(`Moved: ${touches[0].pageX}, ${touches[0].pageY}`)
+  Logger.log(`Delta: ${touches[0].pageX - currentTouch.pageX}, ${touches[0].pageY - currentTouch.pageY}`)
+
+  currentTouch = {
+    identifier: touches[0].identifier,
+    pageX: touches[0].pageX,
+    pageY: touches[0].pageY
+  }
+}
+
 Logger.log("Getting GPS data.")
 
 resetViewport()
