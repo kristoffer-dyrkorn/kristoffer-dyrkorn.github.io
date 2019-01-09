@@ -66,8 +66,8 @@ window.addEventListener("touchmove", touchMove, false)
 let currentTouch
 
 function touchStart(event) {
-  //  event.preventDefault();
-  var touches = event.changedTouches
+  event.preventDefault()
+  const touches = event.changedTouches
 
   /* store touch info on touchstart */
   currentTouch = {
@@ -80,15 +80,8 @@ function touchStart(event) {
 }
 
 function touchMove(event) {
-  //  event.preventDefault();
-  var touches = event.changedTouches
-
-  /* store touch info on touchstart */
-  touchesInAction["$" + touches[0].identifier] = {
-    identifier: touches[0].identifier,
-    pageX: touches[0].pageX,
-    pageY: touches[0].pageY
-  }
+  event.preventDefault()
+  const touches = event.changedTouches
 
   Logger.log(`Moved: ${touches[0].pageX}, ${touches[0].pageY}`)
   Logger.log(`Delta: ${touches[0].pageX - currentTouch.pageX}, ${touches[0].pageY - currentTouch.pageY}`)
