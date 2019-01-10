@@ -197,7 +197,7 @@ function gotLocation(east, north, altitude) {
 
   camera.position.x = east
   camera.position.y = north
-  camera.position.z = altitude + 20
+  camera.position.z = altitude + 15
 
   cube.position.x = camera.position.x
   cube.position.y = camera.position.y + 75
