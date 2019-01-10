@@ -3,7 +3,7 @@ import Readout from "./readout.js"
 
 export default class OrientationHandler {
   constructor() {
-    this.headingReadout = new Readout("heading accuracy (deg)", 15, 10000)
+    this.headingReadout = new Readout("heading accuracy (deg)", 25, 5000)
     this.hasBaseheading = false
     this.baseHeading = 0
     this.gyroSample = new THREE.Euler(0, 0, 0, "ZXY")

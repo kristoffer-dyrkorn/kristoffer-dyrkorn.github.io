@@ -198,6 +198,7 @@ function loadTiles(eastPosition, northPosition) {
 }
 
 function gotLocation(east, north, altitude) {
+  Logger.clear()
   loadTiles(east, north)
 
   camera.position.x = east
