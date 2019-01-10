@@ -3,6 +3,6 @@ export default class Logger {
     document.getElementById("console").innerHTML += text + "<br/>"
   }
   static clear() {
-    document.getElementById("console").innerHTML = ""
+    document.getElementById("console").style = "display:none"
   }
 }
