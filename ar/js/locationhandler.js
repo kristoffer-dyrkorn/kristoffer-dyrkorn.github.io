@@ -3,7 +3,7 @@ import Readout from "./readout.js"
 
 export default class LocationHandler {
   constructor(callback) {
-    this.positionReadout = new Readout("position accuracy (m)", 25, 5000)
+    this.positionReadout = new Readout("position accuracy (m)", 25, 10000)
     this.callback = callback
 
     this.locationWatchID = navigator.geolocation.watchPosition(
