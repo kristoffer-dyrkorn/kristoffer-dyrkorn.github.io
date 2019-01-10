@@ -166,7 +166,7 @@ function loadTile(east, north, resolution) {
   const tileMaterial = new THREE.MeshPhongMaterial()
 
   const tileFile = `${east}-${north}.png`
-  const tileURL = `${tileServer}/${fileFile}`
+  const tileURL = `${tileServer}/${tileFile}`
   Logger.log(`Loading tile: ${tileFile}`)
   tileMaterial.displacementMap = new THREE.TextureLoader().load(tileURL)
   tileMaterial.displacementScale = 2550

@@ -18,7 +18,7 @@ export default class Readout {
     this.value = value
     if (value < this.threshold) {
       Logger.log(`Threshold for ${this.description} reached: ${this.threshold}`)
-      settle()
+      this.settle()
     }
   }
 
