@@ -16,21 +16,20 @@ export default class Readout {
 
   set(value) {
     this.value = value
-    if (value < this.threshold) {
+    if (value < this.threshold && !this.isSettled) {
       Logger.log(`Threshold for ${this.description} reached: ${this.threshold}`)
       this.settle()
     }
   }
 
   settle() {
+    this.isSettled = true
     // truncate float values but keep undefined values
     if (this.value) {
       this.value = this.value | 0
     }
     Logger.log(`Settled ${this.description}, value: ${this.value}`)
-    clearTimeout(this.timeoutId)
-    clearInterval(this.intervalLoggerId)
-    this.isSettled = true
+    this.stop()
   }
 
   stop() {

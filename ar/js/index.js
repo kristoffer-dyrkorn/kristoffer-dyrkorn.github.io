@@ -167,7 +167,7 @@ function loadTile(east, north, resolution) {
 
   const tileFile = `${east}-${north}.png`
   const tileURL = `${tileServer}/${tileFile}`
-  Logger.log(`Loading tile: ${tileFile}`)
+  //  Logger.log(`Loading tile: ${tileFile}`)
   tileMaterial.displacementMap = new THREE.TextureLoader().load(tileURL)
   tileMaterial.displacementScale = 2550
   tileMaterial.wireframe = true

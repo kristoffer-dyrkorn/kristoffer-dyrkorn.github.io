@@ -44,8 +44,4 @@ export default class OrientationHandler {
     finalOrientation.multiply(this.screenOrientation)
     return finalOrientation
   }
-
-  stopReadout() {
-    this.headingReadout.stop()
-  }
 }
