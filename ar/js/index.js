@@ -60,29 +60,23 @@ scene.add(lights[0])
 window.addEventListener("orientationchange", resetViewport)
 canvas.addEventListener("click", startVideo)
 
-window.addEventListener("touchstart", touchStart, false)
-window.addEventListener("touchmove", touchMove, false)
+window.addEventListener("touchstart", readTouchPosition, false)
+window.addEventListener("touchmove", calculateTouchDelta, false)
 
 let currentTouch
 
-function touchStart(event) {
+function readTouchPosition(event) {
   //  event.preventDefault()
-  currentTouch = {
-    pageX: event.changedTouches[0].pageX,
-    pageY: event.changedTouches[0].pageY
-  }
+  currentTouch = { ...event.changedTouches }
 }
 
-function touchMove(event) {
+function calculateTouchDelta(event) {
   //  event.preventDefault()
 
   // const deltaX = event.changedTouches[0].pageX - currentTouch.pageX
   // const deltaY = event.changedTouches[0].pageY - currentTouch.pageY
 
-  currentTouch = {
-    pageX: event.changedTouches[0].pageX,
-    pageY: event.changedTouches[0].pageY
-  }
+  readTouchPosition(event)
 }
 
 Logger.log("Getting GPS data.")
