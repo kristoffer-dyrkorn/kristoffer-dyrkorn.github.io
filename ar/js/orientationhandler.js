@@ -40,7 +40,7 @@ export default class OrientationHandler {
   }
 
   adjustBaseHeading(delta) {
-    this.baseHeading += delta
+    this.baseHeading -= delta
   }
 
   get() {
