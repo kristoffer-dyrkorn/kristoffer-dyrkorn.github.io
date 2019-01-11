@@ -79,7 +79,7 @@ function calculateTouchDelta(event) {
   const deltaX = event.changedTouches[0].pageX - currentTouch.pageX
   const deltaY = event.changedTouches[0].pageY - currentTouch.pageY
 
-  orientation.adjustBaseHeading((100 * deltaX) / window.innerWidth)
+  orientation.adjustBaseHeading((50 * deltaX) / window.innerWidth)
 
   readTouchPosition(event)
 }
