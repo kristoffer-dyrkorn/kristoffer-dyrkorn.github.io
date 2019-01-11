@@ -67,7 +67,7 @@ let currentTouch
 
 function readTouchPosition(event) {
   //  event.preventDefault()
-  currentTouch = { ...event.changedTouches }
+  currentTouch = { ...event.changedTouches[0] }
 }
 
 function calculateTouchDelta(event) {
