@@ -39,6 +39,10 @@ export default class OrientationHandler {
     this.screenOrientation.makeRotationZ(angle)
   }
 
+  adjustBaseHeading(delta) {
+    this.baseHeading += delta
+  }
+
   get() {
     const finalOrientation = this.deviceOrientation.clone()
     finalOrientation.multiply(this.screenOrientation)
