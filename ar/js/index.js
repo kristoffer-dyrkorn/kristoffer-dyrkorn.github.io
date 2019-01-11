@@ -63,11 +63,14 @@ canvas.addEventListener("click", startVideo)
 window.addEventListener("touchstart", readTouchPosition, false)
 window.addEventListener("touchmove", calculateTouchDelta, false)
 
-let currentTouch
+let currentTouch = null
 
 function readTouchPosition(event) {
   //  event.preventDefault()
-  currentTouch = { ...event.changedTouches[0] }
+  currentTouch = {
+    pageX: event.changedTouches[0].pageX,
+    pageY: event.changedTouches[0].pageY
+  }
 }
 
 function calculateTouchDelta(event) {
