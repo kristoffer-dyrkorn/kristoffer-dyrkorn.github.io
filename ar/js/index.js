@@ -4,7 +4,7 @@ import LocationHandler from "./locationhandler.js"
 
 // https://developer.apple.com/library/archive/documentation/DeviceInformation/Reference/iOSDeviceCompatibility/Cameras/Cameras.html#//apple_ref/doc/uid/TP40013599-CH107-SW21
 // 1280x720 X_FOV = 60.983 => Y_FOV = 34.30
-const Y_FOV_LANDSCAPE = 35
+const Y_FOV_LANDSCAPE = 40
 const PLANE_DISTANCE = 100
 
 const MIN_EAST = -100000
