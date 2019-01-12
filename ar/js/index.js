@@ -4,6 +4,8 @@ import LocationHandler from "./locationhandler.js"
 
 // https://developer.apple.com/library/archive/documentation/DeviceInformation/Reference/iOSDeviceCompatibility/Cameras/Cameras.html#//apple_ref/doc/uid/TP40013599-CH107-SW21
 // 1280x720 X_FOV = 60.983 => Y_FOV = 34.30
+
+// empirical value: 40
 const Y_FOV_LANDSCAPE = 40
 const PLANE_DISTANCE = 100
 
@@ -39,8 +41,27 @@ const videoTexture = new THREE.VideoTexture(video)
 // relative coordinates from camera to texture plane
 const planeRelativePosition = new THREE.Vector3(0, 0, -PLANE_DISTANCE)
 
+/*
 const planeGeometry = new THREE.PlaneBufferGeometry()
 const planeMaterial = new THREE.MeshBasicMaterial({ map: videoTexture })
+const plane = new THREE.Mesh(planeGeometry, planeMaterial)
+scene.add(plane)
+*/
+
+const planeGeometry = new THREE.CylinderBufferGeometry(
+  PLANE_DISTANCE, // radius top
+  PLANE_DISTANCE, // radius bottom
+  1, // height
+  5, // segments x
+  1, // segments y
+  true, // isOpen
+  0, // startangle
+  60 * THREE.Math.DEG2RAD // angular length
+)
+//const planeMaterial = new THREE.MeshBasicMaterial({ map: videoTexture })
+const planeMaterial = new THREE.MeshBasicMaterial()
+planeMaterial.wireframe = true
+
 const plane = new THREE.Mesh(planeGeometry, planeMaterial)
 scene.add(plane)
 
