@@ -54,7 +54,7 @@ const planeGeometry = new THREE.SphereBufferGeometry(
   10, // segments y
   (180 - 132 / 2) * THREE.Math.DEG2RAD, // horiz startangle, 0 = directly behind camera
   132 * THREE.Math.DEG2RAD, // horiz sweep
-  (-82 / 2) * THREE.Math.DEG2RAD, // vert startangle, 0 = directly behind camera
+  (90 - 82 / 2) * THREE.Math.DEG2RAD, // vert startangle
   82 * THREE.Math.DEG2RAD // vert sweep
 )
 
