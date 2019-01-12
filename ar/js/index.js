@@ -48,18 +48,19 @@ const plane = new THREE.Mesh(planeGeometry, planeMaterial)
 scene.add(plane)
 */
 
-const planeGeometry = new THREE.CylinderBufferGeometry(
-  PLANE_DISTANCE, // radius top
-  PLANE_DISTANCE, // radius bottom
-  120, // height
+const planeGeometry = new THREE.SphereBufferGeometry(
+  PLANE_DISTANCE, // radius
   30, // segments x
-  1, // segments y
-  true, // isOpen
-  (180 - 130 / 2) * THREE.Math.DEG2RAD, // startangle, 0 = directly behind camera
-  130 * THREE.Math.DEG2RAD // angular length, direction left as seen through the camera
+  10, // segments y
+  (180 - 132 / 2) * THREE.Math.DEG2RAD, // horiz startangle, 0 = directly behind camera
+  132 * THREE.Math.DEG2RAD, // horiz sweep
+  (180 - 82 / 2) * THREE.Math.DEG2RAD, // vert startangle, 0 = directly behind camera
+  82 * THREE.Math.DEG2RAD // vert sweep
 )
+
 const planeMaterial = new THREE.MeshBasicMaterial({ map: videoTexture })
 // planeMaterial.wireframe = true
+planeMaterial.side = THREE.BackSide
 
 const plane = new THREE.Mesh(planeGeometry, planeMaterial)
 scene.add(plane)
