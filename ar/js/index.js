@@ -9,6 +9,9 @@ import LocationHandler from "./locationhandler.js"
 const Y_FOV_LANDSCAPE = 40
 const PLANE_DISTANCE = 100
 
+const HORIZ_FOV = 132
+const VERT_FOV = 82
+
 const MIN_EAST = -100000
 const MIN_NORTH = 6400000
 const TILE_EXTENTS = 12750
@@ -49,15 +52,17 @@ scene.add(plane)
 */
 
 const planeGeometry = new THREE.SphereBufferGeometry(
-  PLANE_DISTANCE, // radius
+  200, // radius
   30, // segments x
   10, // segments y
-  (270 - 132 / 2) * THREE.Math.DEG2RAD, // horiz startangle, 0 = directly behind camera
+  (270 - HORIZ_FOV / 2) * THREE.Math.DEG2RAD, // horiz startangle, 0 = directly behind camera
   132 * THREE.Math.DEG2RAD, // horiz sweep
-  (90 - 82 / 2) * THREE.Math.DEG2RAD, // vert startangle
+  (90 - VERT_FOV / 2) * THREE.Math.DEG2RAD, // vert startangle
   82 * THREE.Math.DEG2RAD // vert sweep
 )
 
+// flip normals inward, so the inside of the sphere is visible
+// this also x-flips the texture so it becomes correct
 planeGeometry.scale(-1, 1, 1)
 
 const planeMaterial = new THREE.MeshBasicMaterial({ map: videoTexture })
