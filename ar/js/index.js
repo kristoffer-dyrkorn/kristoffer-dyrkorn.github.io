@@ -56,7 +56,7 @@ const planeGeometry = new THREE.CylinderBufferGeometry(
   1, // segments y
   true, // isOpen
   0, // startangle
-  60 * THREE.Math.DEG2RAD // angular length
+  360 * THREE.Math.DEG2RAD // angular length
 )
 //const planeMaterial = new THREE.MeshBasicMaterial({ map: videoTexture })
 const planeMaterial = new THREE.MeshBasicMaterial()
@@ -125,7 +125,7 @@ function drawScene() {
 
   // set the plane orientation to the camera orientation
   // so the plane becomes parallel to the camera
-  plane.quaternion.copy(camera.quaternion)
+  //  plane.quaternion.copy(camera.quaternion)
 
   renderer.render(scene, camera)
 }
