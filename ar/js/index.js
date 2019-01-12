@@ -52,7 +52,7 @@ scene.add(plane)
 */
 
 const planeGeometry = new THREE.SphereBufferGeometry(
-  200, // radius
+  150, // radius
   30, // segments x
   10, // segments y
   (270 - HORIZ_FOV / 2) * THREE.Math.DEG2RAD, // horiz startangle, 0 = directly behind camera
