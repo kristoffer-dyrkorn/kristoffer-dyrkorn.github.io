@@ -125,7 +125,7 @@ function drawScene() {
 
   // set the plane orientation to the camera orientation
   // so the plane becomes parallel to the camera
-  //  plane.quaternion.copy(camera.quaternion)
+  plane.quaternion.copy(camera.quaternion)
 
   renderer.render(scene, camera)
 }
