@@ -51,12 +51,12 @@ scene.add(plane)
 const planeGeometry = new THREE.CylinderBufferGeometry(
   PLANE_DISTANCE, // radius top
   PLANE_DISTANCE, // radius bottom
-  100, // height
+  120, // height
   30, // segments x
   1, // segments y
   true, // isOpen
-  (180 - 60 / 2) * THREE.Math.DEG2RAD, // startangle, 0 = directly behind camera
-  60 * THREE.Math.DEG2RAD // angular length, direction left as seen through the camera
+  (180 - 75 / 2) * THREE.Math.DEG2RAD, // startangle, 0 = directly behind camera
+  75 * THREE.Math.DEG2RAD // angular length, direction left as seen through the camera
 )
 //const planeMaterial = new THREE.MeshBasicMaterial({ map: videoTexture })
 const planeMaterial = new THREE.MeshBasicMaterial()
@@ -140,8 +140,8 @@ function resetViewport() {
   camera.updateProjectionMatrix()
 
   // resize plane according to camera y fov and aspect
-  plane.scale.y = Math.tan(camera.fov * THREE.Math.DEG2RAD)
-  plane.scale.x = plane.scale.y * camera.aspect
+  //  plane.scale.y = Math.tan(camera.fov * THREE.Math.DEG2RAD)
+  //  plane.scale.x = plane.scale.y * camera.aspect
 
   // update output window size
   renderer.setSize(window.innerWidth, window.innerHeight)
