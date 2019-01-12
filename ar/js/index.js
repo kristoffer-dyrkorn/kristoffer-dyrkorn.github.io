@@ -54,13 +54,14 @@ const planeGeometry = new THREE.SphereBufferGeometry(
   10, // segments y
   (180 - 132 / 2) * THREE.Math.DEG2RAD, // horiz startangle, 0 = directly behind camera
   132 * THREE.Math.DEG2RAD, // horiz sweep
-  (180 - 82 / 2) * THREE.Math.DEG2RAD, // vert startangle, 0 = directly behind camera
+  (-82 / 2) * THREE.Math.DEG2RAD, // vert startangle, 0 = directly behind camera
   82 * THREE.Math.DEG2RAD // vert sweep
 )
 
-const planeMaterial = new THREE.MeshBasicMaterial({ map: videoTexture })
-// planeMaterial.wireframe = true
-planeMaterial.side = THREE.BackSide
+//const planeMaterial = new THREE.MeshBasicMaterial({ map: videoTexture })
+const planeMaterial = new THREE.MeshBasicMaterial()
+planeMaterial.wireframe = true
+//planeMaterial.side = THREE.BackSide
 
 const plane = new THREE.Mesh(planeGeometry, planeMaterial)
 scene.add(plane)
