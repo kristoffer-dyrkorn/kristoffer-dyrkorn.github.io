@@ -52,7 +52,7 @@ const planeGeometry = new THREE.CylinderBufferGeometry(
   PLANE_DISTANCE, // radius top
   PLANE_DISTANCE, // radius bottom
   1, // height
-  5, // segments x
+  50, // segments x
   1, // segments y
   true, // isOpen
   0, // startangle
@@ -141,7 +141,8 @@ function resetViewport() {
   camera.updateProjectionMatrix()
 
   // resize plane according to camera y fov and aspect
-  plane.scale.y = Math.tan(camera.fov * THREE.Math.DEG2RAD) * PLANE_DISTANCE
+  //  plane.scale.y = Math.tan(camera.fov * THREE.Math.DEG2RAD) * PLANE_DISTANCE
+  plane.scale.y = Math.tan(camera.fov * THREE.Math.DEG2RAD)
   plane.scale.x = plane.scale.y * camera.aspect
 
   // update output window size
