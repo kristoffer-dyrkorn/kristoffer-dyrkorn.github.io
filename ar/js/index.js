@@ -63,7 +63,6 @@ const planeMaterial = new THREE.MeshBasicMaterial()
 planeMaterial.wireframe = true
 
 const plane = new THREE.Mesh(planeGeometry, planeMaterial)
-plane.rotateZ(90 * THREE.Math.DEG2RAD)
 scene.add(plane)
 
 const cubeGeometry = new THREE.BoxBufferGeometry(5, 5, 5)
