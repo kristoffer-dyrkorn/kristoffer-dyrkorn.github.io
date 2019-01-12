@@ -63,7 +63,7 @@ planeGeometry.scale(-1, 1, 1)
 const planeMaterial = new THREE.MeshBasicMaterial({ map: videoTexture })
 // const planeMaterial = new THREE.MeshBasicMaterial()
 // planeMaterial.wireframe = true
-planeMaterial.side = THREE.BackSide
+// planeMaterial.side = THREE.BackSide
 
 const plane = new THREE.Mesh(planeGeometry, planeMaterial)
 scene.add(plane)
