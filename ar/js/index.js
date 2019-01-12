@@ -58,6 +58,8 @@ const planeGeometry = new THREE.SphereBufferGeometry(
   82 * THREE.Math.DEG2RAD // vert sweep
 )
 
+planeGeometry.scale(-1, 1, 1)
+
 const planeMaterial = new THREE.MeshBasicMaterial({ map: videoTexture })
 // const planeMaterial = new THREE.MeshBasicMaterial()
 // planeMaterial.wireframe = true
