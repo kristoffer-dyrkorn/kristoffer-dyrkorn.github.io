@@ -51,7 +51,7 @@ scene.add(plane)
 const planeGeometry = new THREE.CylinderBufferGeometry(
   PLANE_DISTANCE, // radius top
   PLANE_DISTANCE, // radius bottom
-  1, // height
+  100, // height
   50, // segments x
   1, // segments y
   true, // isOpen
