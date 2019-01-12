@@ -58,10 +58,10 @@ const planeGeometry = new THREE.SphereBufferGeometry(
   82 * THREE.Math.DEG2RAD // vert sweep
 )
 
-//const planeMaterial = new THREE.MeshBasicMaterial({ map: videoTexture })
-const planeMaterial = new THREE.MeshBasicMaterial()
-planeMaterial.wireframe = true
-//planeMaterial.side = THREE.BackSide
+const planeMaterial = new THREE.MeshBasicMaterial({ map: videoTexture })
+// const planeMaterial = new THREE.MeshBasicMaterial()
+// planeMaterial.wireframe = true
+planeMaterial.side = THREE.BackSide
 
 const plane = new THREE.Mesh(planeGeometry, planeMaterial)
 scene.add(plane)
