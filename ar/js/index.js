@@ -59,7 +59,7 @@ const planeGeometry = new THREE.CylinderBufferGeometry(
   130 * THREE.Math.DEG2RAD // angular length, direction left as seen through the camera
 )
 const planeMaterial = new THREE.MeshBasicMaterial({ map: videoTexture })
-planeMaterial.wireframe = true
+// planeMaterial.wireframe = true
 
 const plane = new THREE.Mesh(planeGeometry, planeMaterial)
 scene.add(plane)
