@@ -58,8 +58,7 @@ const planeGeometry = new THREE.CylinderBufferGeometry(
   (180 - 130 / 2) * THREE.Math.DEG2RAD, // startangle, 0 = directly behind camera
   130 * THREE.Math.DEG2RAD // angular length, direction left as seen through the camera
 )
-//const planeMaterial = new THREE.MeshBasicMaterial({ map: videoTexture })
-const planeMaterial = new THREE.MeshBasicMaterial()
+const planeMaterial = new THREE.MeshBasicMaterial({ map: videoTexture })
 planeMaterial.wireframe = true
 
 const plane = new THREE.Mesh(planeGeometry, planeMaterial)
