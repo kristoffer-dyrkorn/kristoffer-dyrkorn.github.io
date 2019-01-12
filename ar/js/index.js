@@ -55,8 +55,8 @@ const planeGeometry = new THREE.CylinderBufferGeometry(
   50, // segments x
   1, // segments y
   true, // isOpen
-  0, // startangle
-  160 * THREE.Math.DEG2RAD // angular length
+  (180 - 40 / 2) * THREE.Math.DEG2RAD, // startangle, 0 = directly behind camera
+  40 * THREE.Math.DEG2RAD // angular length, ccw
 )
 //const planeMaterial = new THREE.MeshBasicMaterial({ map: videoTexture })
 const planeMaterial = new THREE.MeshBasicMaterial()
