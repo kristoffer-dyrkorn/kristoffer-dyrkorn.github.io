@@ -45,7 +45,6 @@ const videoTexture = new THREE.VideoTexture(video)
 const planeRelativePosition = new THREE.Vector3(0, 0, -PLANE_DISTANCE)
 
 const planeGeometry = new THREE.PlaneBufferGeometry()
-const planeMaterial = new THREE.MeshBasicMaterial({ map: videoTexture })
 
 /*
 const planeGeometry = new THREE.SphereBufferGeometry(
