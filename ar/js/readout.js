@@ -10,7 +10,7 @@ export default class Readout {
   }
 
   logValue() {
-    if (!this.value) return
+    if (!this.value || this.isSettled) return
     Logger.log(`Current ${this.description}: ${this.value | 0}`)
   }
 

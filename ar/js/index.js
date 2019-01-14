@@ -44,13 +44,10 @@ const videoTexture = new THREE.VideoTexture(video)
 // relative coordinates from camera to texture plane
 const planeRelativePosition = new THREE.Vector3(0, 0, -PLANE_DISTANCE)
 
-/*
 const planeGeometry = new THREE.PlaneBufferGeometry()
 const planeMaterial = new THREE.MeshBasicMaterial({ map: videoTexture })
-const plane = new THREE.Mesh(planeGeometry, planeMaterial)
-scene.add(plane)
-*/
 
+/*
 const planeGeometry = new THREE.SphereBufferGeometry(
   150, // radius
   30, // segments x
@@ -64,6 +61,7 @@ const planeGeometry = new THREE.SphereBufferGeometry(
 // flip normals inward, so the inside of the sphere is visible
 // this also x-flips the texture so it becomes correct
 planeGeometry.scale(-1, 1, 1)
+*/
 
 const planeMaterial = new THREE.MeshBasicMaterial({ map: videoTexture })
 // const planeMaterial = new THREE.MeshBasicMaterial()
