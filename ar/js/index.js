@@ -46,14 +46,14 @@ const video = document.getElementById("video")
 const videoTexture = new THREE.VideoTexture(video)
 
 // relative coordinates from camera to texture plane
-// const planeRelativePosition = new THREE.Vector3(0, 0, -PLANE_DISTANCE)
+const planeRelativePosition = new THREE.Vector3(0, 0, -PLANE_DISTANCE)
 
-const planeRelativePosition = new THREE.Vector3(0, 0, -8 * PLANE_DISTANCE)
+// const planeRelativePosition = new THREE.Vector3(0, 0, -8 * PLANE_DISTANCE)
 
+const planeGeometry = new THREE.PlaneGeometry(1, 1, 20, 10)
+
+// Far sphere, convex
 /*
-const planeGeometry = new THREE.PlaneBufferGeometry()
-*/
-
 const planeGeometry = new THREE.SphereBufferGeometry(
   5 * PLANE_DISTANCE, // radius
   30, // segments x
@@ -63,7 +63,9 @@ const planeGeometry = new THREE.SphereBufferGeometry(
   (90 - VERT_FOV / 2) * THREE.Math.DEG2RAD, // vert startangle
   VERT_FOV * THREE.Math.DEG2RAD // vert sweep
 )
+*/
 
+// Near sphere, concave
 /*
 const planeGeometry = new THREE.SphereBufferGeometry(
   150, // radius
@@ -80,7 +82,22 @@ const planeGeometry = new THREE.SphereBufferGeometry(
 planeGeometry.scale(-1, 1, 1)
 */
 
-const planeMaterial = new THREE.MeshBasicMaterial({ map: videoTexture })
+const displacementCanvas = document.getElementById("lenscorrection")
+displacementCanvas.width = 256
+displacementCanvas.height = 128
+const displacementCtx = displacementCanvas.getContext("2d")
+const imageData = displacementCtx.getImageData(0, 0, 256, 128)
+const imageArray = [127, 127, 127, 255]
+imageData.data.set(new Uint8Array(imageArray))
+displacementCtx.putImageData(imageData, 0, 0)
+
+const planeMaterial = new THREE.MeshPhongMaterial({ map: videoTexture })
+const lensDisplacementMap = new THREE.Texture(displacementCanvas)
+
+planeMaterial.displacementMap = lensDisplacementMap
+planeMaterial.displacementScale = 10
+
+// const planeMaterial = new THREE.MeshBasicMaterial({ map: videoTexture })
 // const planeMaterial = new THREE.MeshBasicMaterial()
 // planeMaterial.wireframe = true
 // planeMaterial.side = THREE.BackSide
@@ -163,10 +180,8 @@ function resetViewport() {
   camera.updateProjectionMatrix()
 
   // resize plane according to camera y fov and aspect
-  /*
   plane.scale.y = Math.tan(camera.fov * THREE.Math.DEG2RAD) * PLANE_DISTANCE
   plane.scale.x = plane.scale.y * camera.aspect
-  */
 
   // update output window size
   renderer.setSize(window.innerWidth, window.innerHeight)
