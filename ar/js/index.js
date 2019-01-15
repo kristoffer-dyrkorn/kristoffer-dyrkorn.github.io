@@ -91,7 +91,7 @@ let imageArray = []
 
 for (let i = 0; i < 256; i++) {
   for (let j = 0; j < 128; j++) {
-    const intensity = ((i - 127) * (i - 127) + (j - 64) * (j - 64)) / 512
+    const intensity = ((i - 127) * (i - 127) + (j - 64) * (j - 64)) / 80
     const address = 4 * (j * 256 + i)
     imageArray[address] = intensity
     imageArray[address + 1] = intensity
@@ -107,7 +107,7 @@ const planeMaterial = new THREE.MeshPhongMaterial({ map: videoTexture })
 const lensDisplacementMap = new THREE.Texture(displacementCanvas)
 
 planeMaterial.displacementMap = lensDisplacementMap
-planeMaterial.displacementScale = 10
+planeMaterial.displacementScale = 50
 
 // const planeMaterial = new THREE.MeshBasicMaterial({ map: videoTexture })
 // const planeMaterial = new THREE.MeshBasicMaterial()
