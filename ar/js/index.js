@@ -113,10 +113,12 @@ scene.add(cube)
 const ambientLight = new THREE.AmbientLight(0x888888)
 scene.add(ambientLight)
 
+/*
 const lights = []
 lights[0] = new THREE.PointLight(0xffffff, 0.8, 0)
 lights[0].position.set(20, 20, 40)
 scene.add(lights[0])
+*/
 
 window.addEventListener("orientationchange", resetViewport)
 canvas.addEventListener("click", startVideo)
