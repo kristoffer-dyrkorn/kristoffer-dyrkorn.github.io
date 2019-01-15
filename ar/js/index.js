@@ -99,7 +99,7 @@ planeMaterial.displacementScale = 10
 
 // const planeMaterial = new THREE.MeshBasicMaterial({ map: videoTexture })
 // const planeMaterial = new THREE.MeshBasicMaterial()
-// planeMaterial.wireframe = true
+planeMaterial.wireframe = true
 // planeMaterial.side = THREE.BackSide
 
 const plane = new THREE.Mesh(planeGeometry, planeMaterial)
