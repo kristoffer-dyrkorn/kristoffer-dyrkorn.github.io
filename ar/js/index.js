@@ -103,8 +103,10 @@ for (let i = 0; i < 256; i++) {
 imageData.data.set(new Uint8Array(imageArray))
 displacementCtx.putImageData(imageData, 0, 0)
 
+const dataURL = displacementCanvas.toDataURL()
+
 const planeMaterial = new THREE.MeshPhongMaterial({ map: videoTexture })
-const lensDisplacementMap = new THREE.Texture(displacementCanvas)
+const lensDisplacementMap = new THREE.TextureLoader().load(dataURL)
 
 planeMaterial.displacementMap = lensDisplacementMap
 planeMaterial.displacementScale = 50
