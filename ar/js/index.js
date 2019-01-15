@@ -48,14 +48,14 @@ const videoTexture = new THREE.VideoTexture(video)
 // relative coordinates from camera to texture plane
 // const planeRelativePosition = new THREE.Vector3(0, 0, -PLANE_DISTANCE)
 
-const planeRelativePosition = new THREE.Vector3(0, 0, -5 * PLANE_DISTANCE)
+const planeRelativePosition = new THREE.Vector3(0, 0, -8 * PLANE_DISTANCE)
 
 /*
 const planeGeometry = new THREE.PlaneBufferGeometry()
 */
 
 const planeGeometry = new THREE.SphereBufferGeometry(
-  3 * PLANE_DISTANCE, // radius
+  5 * PLANE_DISTANCE, // radius
   30, // segments x
   10, // segments y
   (90 - HORIZ_FOV / 2) * THREE.Math.DEG2RAD, // horiz startangle, 0 = directly behind camera
@@ -80,9 +80,9 @@ const planeGeometry = new THREE.SphereBufferGeometry(
 planeGeometry.scale(-1, 1, 1)
 */
 
-// const planeMaterial = new THREE.MeshBasicMaterial({ map: videoTexture })
-const planeMaterial = new THREE.MeshBasicMaterial()
-planeMaterial.wireframe = true
+const planeMaterial = new THREE.MeshBasicMaterial({ map: videoTexture })
+// const planeMaterial = new THREE.MeshBasicMaterial()
+// planeMaterial.wireframe = true
 // planeMaterial.side = THREE.BackSide
 
 const plane = new THREE.Mesh(planeGeometry, planeMaterial)
