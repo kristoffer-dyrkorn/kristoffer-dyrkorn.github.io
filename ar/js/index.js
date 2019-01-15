@@ -87,7 +87,19 @@ displacementCanvas.width = 256
 displacementCanvas.height = 128
 const displacementCtx = displacementCanvas.getContext("2d")
 const imageData = displacementCtx.getImageData(0, 0, 256, 128)
-const imageArray = [127, 127, 127, 255]
+let imageArray = []
+
+for (let i = 0; i < 256; i++) {
+  for (let j = 0; j < 128; j++) {
+    const intensity = ((i - 127) * (i - 127) + (j - 64) * (j - 64)) / 512
+    const address = 4 * (j * 256 + i)
+    imageArray[address] = intensity
+    imageArray[address + 1] = intensity
+    imageArray[address + 2] = intensity
+    imageArray[address + 3] = 255
+  }
+}
+
 imageData.data.set(new Uint8Array(imageArray))
 displacementCtx.putImageData(imageData, 0, 0)
 
