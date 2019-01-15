@@ -91,7 +91,7 @@ let imageArray = []
 
 for (let i = 0; i < 256; i++) {
   for (let j = 0; j < 128; j++) {
-    const intensity = ((i - 127) * (i - 127) + (j - 64) * (j - 64)) / 80
+    const intensity = 255 - ((i - 127) * (i - 127) + (j - 64) * (j - 64)) / 80
     const address = 4 * (j * 256 + i)
     imageArray[address] = intensity
     imageArray[address + 1] = intensity
