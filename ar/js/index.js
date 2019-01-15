@@ -9,8 +9,12 @@ import LocationHandler from "./locationhandler.js"
 const Y_FOV_LANDSCAPE = 40
 const PLANE_DISTANCE = 100
 
+/*
 const HORIZ_FOV = 132
 const VERT_FOV = 82
+*/
+const HORIZ_FOV = 66
+const VERT_FOV = 41
 
 const MIN_EAST = -100000
 const MIN_NORTH = 6400000
@@ -51,7 +55,7 @@ const planeGeometry = new THREE.PlaneBufferGeometry()
 */
 
 const planeGeometry = new THREE.SphereBufferGeometry(
-  PLANE_DISTANCE, // radius
+  3 * PLANE_DISTANCE, // radius
   30, // segments x
   10, // segments y
   (90 - HORIZ_FOV / 2) * THREE.Math.DEG2RAD, // horiz startangle, 0 = directly behind camera
