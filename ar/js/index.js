@@ -109,11 +109,11 @@ const planeMaterial = new THREE.MeshPhongMaterial({ map: videoTexture })
 const lensDisplacementMap = new THREE.TextureLoader().load(dataURL)
 
 planeMaterial.displacementMap = lensDisplacementMap
-planeMaterial.displacementScale = 50
+planeMaterial.displacementScale = 10
 
 // const planeMaterial = new THREE.MeshBasicMaterial({ map: videoTexture })
 // const planeMaterial = new THREE.MeshBasicMaterial()
-planeMaterial.wireframe = true
+// planeMaterial.wireframe = true
 // planeMaterial.side = THREE.BackSide
 
 const plane = new THREE.Mesh(planeGeometry, planeMaterial)
