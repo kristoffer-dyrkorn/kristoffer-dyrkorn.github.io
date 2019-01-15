@@ -42,9 +42,23 @@ const video = document.getElementById("video")
 const videoTexture = new THREE.VideoTexture(video)
 
 // relative coordinates from camera to texture plane
-const planeRelativePosition = new THREE.Vector3(0, 0, -PLANE_DISTANCE)
+// const planeRelativePosition = new THREE.Vector3(0, 0, -PLANE_DISTANCE)
 
+const planeRelativePosition = new THREE.Vector3(0, 0, -2 * PLANE_DISTANCE)
+
+/*
 const planeGeometry = new THREE.PlaneBufferGeometry()
+*/
+
+const planeGeometry = new THREE.SphereBufferGeometry(
+  PLANE_DISTANCE, // radius
+  30, // segments x
+  10, // segments y
+  (90 - HORIZ_FOV / 2) * THREE.Math.DEG2RAD, // horiz startangle, 0 = directly behind camera
+  HORIZ_FOV * THREE.Math.DEG2RAD, // horiz sweep
+  (90 - VERT_FOV / 2) * THREE.Math.DEG2RAD, // vert startangle
+  VERT_FOV * THREE.Math.DEG2RAD // vert sweep
+)
 
 /*
 const planeGeometry = new THREE.SphereBufferGeometry(
@@ -145,8 +159,10 @@ function resetViewport() {
   camera.updateProjectionMatrix()
 
   // resize plane according to camera y fov and aspect
+  /*
   plane.scale.y = Math.tan(camera.fov * THREE.Math.DEG2RAD) * PLANE_DISTANCE
   plane.scale.x = plane.scale.y * camera.aspect
+  */
 
   // update output window size
   renderer.setSize(window.innerWidth, window.innerHeight)
