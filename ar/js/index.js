@@ -59,7 +59,6 @@ const planeGeometry = new THREE.SphereBufferGeometry(
   (90 - VERT_FOV / 2) * THREE.Math.DEG2RAD, // vert startangle
   VERT_FOV * THREE.Math.DEG2RAD // vert sweep
 )
-planeMaterial.wireframe = true
 
 /*
 const planeGeometry = new THREE.SphereBufferGeometry(
@@ -79,7 +78,7 @@ planeGeometry.scale(-1, 1, 1)
 
 // const planeMaterial = new THREE.MeshBasicMaterial({ map: videoTexture })
 const planeMaterial = new THREE.MeshBasicMaterial()
-// planeMaterial.wireframe = true
+planeMaterial.wireframe = true
 // planeMaterial.side = THREE.BackSide
 
 const plane = new THREE.Mesh(planeGeometry, planeMaterial)
