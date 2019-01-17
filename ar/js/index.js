@@ -50,8 +50,6 @@ const planeRelativePosition = new THREE.Vector3(0, 0, -PLANE_DISTANCE)
 
 // const planeRelativePosition = new THREE.Vector3(0, 0, -8 * PLANE_DISTANCE)
 
-const planeGeometry = new THREE.PlaneGeometry(1, 1, 20, 10)
-
 // Far sphere, convex
 /*
 const planeGeometry = new THREE.SphereBufferGeometry(
@@ -105,16 +103,19 @@ displacementCtx.putImageData(imageData, 0, 0)
 
 const dataURL = displacementCanvas.toDataURL()
 
-const planeMaterial = new THREE.MeshPhongMaterial({ map: videoTexture })
-const lensDisplacementMap = new THREE.TextureLoader().load(dataURL)
+// const planeMaterial = new THREE.MeshPhongMaterial({ map: videoTexture })
+// const lensDisplacementMap = new THREE.TextureLoader().load(dataURL)
 
-planeMaterial.displacementMap = lensDisplacementMap
-planeMaterial.displacementScale = 16
+// planeMaterial.displacementMap = lensDisplacementMap
+// planeMaterial.displacementScale = 16
 
 // const planeMaterial = new THREE.MeshBasicMaterial({ map: videoTexture })
-// const planeMaterial = new THREE.MeshBasicMaterial()
+const planeMaterial = new THREE.MeshBasicMaterial()
 // planeMaterial.wireframe = true
 // planeMaterial.side = THREE.BackSide
+
+// const planeGeometry = new THREE.PlaneGeometry(1, 1, 20, 10)
+const planeGeometry = new THREE.PlaneGeometry()
 
 const plane = new THREE.Mesh(planeGeometry, planeMaterial)
 scene.add(plane)
@@ -196,7 +197,7 @@ function resetViewport() {
   camera.updateProjectionMatrix()
 
   // resize plane according to camera y fov and aspect
-  plane.scale.y = Math.tan(camera.fov * THREE.Math.DEG2RAD) * PLANE_DISTANCE * 0.95
+  plane.scale.y = 2 * Math.tan((camera.fov / 2) * THREE.Math.DEG2RAD) * PLANE_DISTANCE
   plane.scale.x = plane.scale.y * camera.aspect
 
   // update output window size
