@@ -115,7 +115,7 @@ const planeMaterial = new THREE.MeshBasicMaterial()
 // planeMaterial.side = THREE.BackSide
 
 // const planeGeometry = new THREE.PlaneGeometry(1, 1, 20, 10)
-const planeGeometry = new THREE.PlaneGeometry()
+const planeGeometry = new THREE.PlaneGeometry({ map: videoTexture })
 
 const plane = new THREE.Mesh(planeGeometry, planeMaterial)
 scene.add(plane)
@@ -197,7 +197,7 @@ function resetViewport() {
   camera.updateProjectionMatrix()
 
   // resize plane according to camera y fov and aspect
-  plane.scale.y = 2 * Math.tan((camera.fov / 2) * THREE.Math.DEG2RAD) * PLANE_DISTANCE
+  plane.scale.y = 2 * Math.tan((camera.fov / 2) * THREE.Math.DEG2RAD) * PLANE_DISTANCE * 0.98
   plane.scale.x = plane.scale.y * camera.aspect
 
   // update output window size
