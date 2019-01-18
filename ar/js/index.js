@@ -118,7 +118,7 @@ function resetViewport() {
   camera.updateProjectionMatrix()
 
   // resize plane according to camera y fov and aspect
-  plane.scale.y = 2 * Math.tan((camera.fov / 2) * THREE.Math.DEG2RAD) * PLANE_DISTANCE
+  plane.scale.y = 2 * Math.tan((camera.fov / 2) * THREE.Math.DEG2RAD) * PLANE_DISTANCE * 0.97
   plane.scale.x = plane.scale.y * camera.aspect
 
   // update output window size
