@@ -5,7 +5,8 @@ import LocationHandler from "./locationhandler.js"
 // https://developer.apple.com/library/archive/documentation/DeviceInformation/Reference/iOSDeviceCompatibility/Cameras/Cameras.html#//apple_ref/doc/uid/TP40013599-CH107-SW21
 // 1280x720 X_FOV = 60.983 => Y_FOV = 34.30
 
-// empirical value: 40
+// empirical value: 40 degrees gives same horizontal fov
+// into video and virtual world - at standstill
 const Y_FOV_LANDSCAPE = 40
 const PLANE_DISTANCE = 100
 
@@ -118,6 +119,9 @@ function resetViewport() {
   camera.updateProjectionMatrix()
 
   // resize plane according to camera y fov and aspect
+  // 0.97 is a nudging/scaling factor,
+  // if omitted artifacts in video move quicker than virtual artifacts
+  // when orientation changes so screen placement goes from center to the edge
   plane.scale.y = 2 * Math.tan((camera.fov / 2) * THREE.Math.DEG2RAD) * PLANE_DISTANCE * 0.97
   plane.scale.x = plane.scale.y * camera.aspect
 
