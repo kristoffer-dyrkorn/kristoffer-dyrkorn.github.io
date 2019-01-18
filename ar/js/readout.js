@@ -11,7 +11,7 @@ export default class Readout {
 
   logValue() {
     if (!this.value || this.isSettled) return
-    Logger.log(`Current ${this.description}: ${this.value | 0}`)
+    Logger.log(`${this.description}: ${this.value | 0}`)
   }
 
   set(value) {
