@@ -9,19 +9,12 @@ import LocationHandler from "./locationhandler.js"
 const Y_FOV_LANDSCAPE = 40
 const PLANE_DISTANCE = 100
 
-/*
-const HORIZ_FOV = 132
-const VERT_FOV = 82
-*/
-const HORIZ_FOV = 66
-const VERT_FOV = 41
-
 const MIN_EAST = -100000
 const MIN_NORTH = 6400000
 const TILE_EXTENTS = 12750
 
 const NEAR_CLIP = 50
-const FAR_CLIP = TILE_EXTENTS * 2
+const FAR_CLIP = 2 * TILE_EXTENTS
 
 const tileServer = "https://s3-eu-west-1.amazonaws.com/kd-flightsim/topography"
 
@@ -48,75 +41,10 @@ const videoTexture = new THREE.VideoTexture(video)
 // relative coordinates from camera to texture plane
 const planeRelativePosition = new THREE.Vector3(0, 0, -PLANE_DISTANCE)
 
-// const planeRelativePosition = new THREE.Vector3(0, 0, -8 * PLANE_DISTANCE)
-
-// Far sphere, convex
-/*
-const planeGeometry = new THREE.SphereBufferGeometry(
-  5 * PLANE_DISTANCE, // radius
-  30, // segments x
-  10, // segments y
-  (90 - HORIZ_FOV / 2) * THREE.Math.DEG2RAD, // horiz startangle, 0 = directly behind camera
-  HORIZ_FOV * THREE.Math.DEG2RAD, // horiz sweep
-  (90 - VERT_FOV / 2) * THREE.Math.DEG2RAD, // vert startangle
-  VERT_FOV * THREE.Math.DEG2RAD // vert sweep
-)
-*/
-
-// Near sphere, concave
-/*
-const planeGeometry = new THREE.SphereBufferGeometry(
-  150, // radius
-  30, // segments x
-  10, // segments y
-  (270 - HORIZ_FOV / 2) * THREE.Math.DEG2RAD, // horiz startangle, 0 = directly behind camera
-  132 * THREE.Math.DEG2RAD, // horiz sweep
-  (90 - VERT_FOV / 2) * THREE.Math.DEG2RAD, // vert startangle
-  82 * THREE.Math.DEG2RAD // vert sweep
-)
-
-// flip normals inward, so the inside of the sphere is visible
-// this also x-flips the texture so it becomes correct
-planeGeometry.scale(-1, 1, 1)
-*/
-
-const displacementCanvas = document.getElementById("lenscorrection")
-displacementCanvas.width = 256
-displacementCanvas.height = 128
-const displacementCtx = displacementCanvas.getContext("2d")
-const imageData = displacementCtx.getImageData(0, 0, 256, 128)
-let imageArray = []
-
-for (let i = 0; i < 256; i++) {
-  for (let j = 0; j < 128; j++) {
-    const intensity = 255 - ((i - 127) * (i - 127) + (j - 64) * (j - 64)) / 81
-    const address = 4 * (j * 256 + i)
-    imageArray[address] = intensity
-    imageArray[address + 1] = intensity
-    imageArray[address + 2] = intensity
-    imageArray[address + 3] = 255
-  }
-}
-
-imageData.data.set(new Uint8Array(imageArray))
-displacementCtx.putImageData(imageData, 0, 0)
-
-const dataURL = displacementCanvas.toDataURL()
-
-// const planeMaterial = new THREE.MeshPhongMaterial({ map: videoTexture })
-// const lensDisplacementMap = new THREE.TextureLoader().load(dataURL)
-
-// planeMaterial.displacementMap = lensDisplacementMap
-// planeMaterial.displacementScale = 16
-
-// const planeMaterial = new THREE.MeshBasicMaterial({ map: videoTexture })
 const planeMaterial = new THREE.MeshBasicMaterial({ map: videoTexture })
 // planeMaterial.wireframe = true
-// planeMaterial.side = THREE.BackSide
 
-// const planeGeometry = new THREE.PlaneGeometry(1, 1, 20, 10)
 const planeGeometry = new THREE.PlaneGeometry()
-
 const plane = new THREE.Mesh(planeGeometry, planeMaterial)
 scene.add(plane)
 
@@ -127,13 +55,6 @@ scene.add(cube)
 
 const ambientLight = new THREE.AmbientLight(0x888888)
 scene.add(ambientLight)
-
-/*
-const lights = []
-lights[0] = new THREE.PointLight(0xffffff, 0.8, 0)
-lights[0].position.set(20, 20, 40)
-scene.add(lights[0])
-*/
 
 window.addEventListener("orientationchange", resetViewport)
 canvas.addEventListener("click", startVideo)
@@ -197,7 +118,7 @@ function resetViewport() {
   camera.updateProjectionMatrix()
 
   // resize plane according to camera y fov and aspect
-  plane.scale.y = 2 * Math.tan((camera.fov / 2) * THREE.Math.DEG2RAD) * PLANE_DISTANCE * 0.98
+  plane.scale.y = 2 * Math.tan((camera.fov / 2) * THREE.Math.DEG2RAD) * PLANE_DISTANCE
   plane.scale.x = plane.scale.y * camera.aspect
 
   // update output window size
