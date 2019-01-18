@@ -110,12 +110,12 @@ const dataURL = displacementCanvas.toDataURL()
 // planeMaterial.displacementScale = 16
 
 // const planeMaterial = new THREE.MeshBasicMaterial({ map: videoTexture })
-const planeMaterial = new THREE.MeshBasicMaterial()
+const planeMaterial = new THREE.MeshBasicMaterial({ map: videoTexture })
 // planeMaterial.wireframe = true
 // planeMaterial.side = THREE.BackSide
 
 // const planeGeometry = new THREE.PlaneGeometry(1, 1, 20, 10)
-const planeGeometry = new THREE.PlaneGeometry({ map: videoTexture })
+const planeGeometry = new THREE.PlaneGeometry()
 
 const plane = new THREE.Mesh(planeGeometry, planeMaterial)
 scene.add(plane)
