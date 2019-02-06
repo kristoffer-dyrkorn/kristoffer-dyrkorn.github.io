@@ -135,10 +135,12 @@ function resetViewport() {
   }
   virtualCamera.updateProjectionMatrix()
 
-  screenCamera.left = -1.0
-  screenCamera.right = 1.0
-  screenCamera.top = 1.0
-  screenCamera.bottom = -1.0
+  screenCamera.left = -window.innerWidth / 2
+  screenCamera.right = window.innerWidth / 2
+  screenCamera.top = window.innerHeight / 2
+  screenCamera.bottom = -window.innerHeight / 2
+
+  plane.scale.set(window.innerWidth, window.innerHeight)
 
   // update renderTarget size
   renderTarget.setSize(window.innerWidth, window.innerHeight)
