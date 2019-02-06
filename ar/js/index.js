@@ -140,7 +140,8 @@ function resetViewport() {
   screenCamera.top = window.innerHeight / 2
   screenCamera.bottom = -window.innerHeight / 2
 
-  plane.scale.set(window.innerWidth, window.innerHeight)
+  plane.scale.x = window.innerWidth
+  plane.scale.y = window.innerHeight
 
   // update renderTarget size
   renderTarget.setSize(window.innerWidth, window.innerHeight)
