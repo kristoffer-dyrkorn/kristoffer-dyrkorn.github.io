@@ -67,7 +67,6 @@ screenCamera.position.z = 100
 
 const planeGeometry = new THREE.PlaneBufferGeometry()
 const plane = new THREE.Mesh(planeGeometry, screenMaterial)
-plane.position.z = -100
 
 screenScene.add(plane)
 
@@ -136,10 +135,10 @@ function resetViewport() {
   }
   virtualCamera.updateProjectionMatrix()
 
-  screenCamera.left = -window.innerWidth / 2
-  screenCamera.right = window.innerWidth / 2
-  screenCamera.top = window.innerHeight / 2
-  screenCamera.bottom = -window.innerHeight / 2
+  screenCamera.left = -0.5
+  screenCamera.right = 0.5
+  screenCamera.top = 0.5
+  screenCamera.bottom = -0.5
 
   // update renderTarget size
   renderTarget.setSize(window.innerWidth, window.innerHeight)
