@@ -144,7 +144,7 @@ function resetViewport() {
 
   screenCamera.updateProjectionMatrix()
 
-  //  plane.scale.set(window.innerWidth, window.innerHeight, 1)
+  plane.scale.set(window.innerWidth, window.innerHeight, 1)
 
   // update renderTarget size
   renderTarget.setSize(window.innerWidth, window.innerHeight)
