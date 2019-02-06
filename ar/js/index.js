@@ -61,11 +61,10 @@ const screenScene = new THREE.Scene()
 const virtualCamera = new THREE.PerspectiveCamera()
 virtualCamera.near = NEAR_CLIP
 virtualCamera.far = FAR_CLIP
+virtualScene.add(virtualCamera)
 
 const screenCamera = new THREE.OrthographicCamera()
-screenCamera.near = -10000
-screenCamera.far = 10000
-screenCamera.position.z = 100
+screenScene.add(screenCamera)
 
 const planeGeometry = new THREE.PlaneBufferGeometry()
 const plane = new THREE.Mesh(planeGeometry, screenMaterial)
@@ -142,6 +141,8 @@ function resetViewport() {
   screenCamera.right = window.innerWidth / 2
   screenCamera.top = window.innerHeight / 2
   screenCamera.bottom = -window.innerHeight / 2
+
+  screenCamera.updateProjectionMatrix()
 
   //  plane.scale.set(window.innerWidth, window.innerHeight, 1)
 
