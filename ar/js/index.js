@@ -122,7 +122,7 @@ function drawScene() {
   renderer.clear()
 
   // render virtual scene into renderTarget (a texture)
-  renderer.render(virtualScene, virtualCamera, renderTarget)
+  renderer.render(virtualScene, virtualCamera, renderTarget, true)
 
   // render texture on screen
   renderer.render(screenScene, screenCamera)
