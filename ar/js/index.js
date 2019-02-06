@@ -6,9 +6,8 @@ import LocationHandler from "./locationhandler.js"
 // 1280x720 X_FOV = 60.983 => Y_FOV = 34.30
 
 // empirical value: 40 degrees gives same horizontal fov
-// into video and virtual world - at standstill
+// for video and virtual world - at standstill
 const Y_FOV_LANDSCAPE = 40
-const PLANE_DISTANCE = 100
 
 const MIN_EAST = -100000
 const MIN_NORTH = 6400000
@@ -28,34 +27,59 @@ const deviceObject = new THREE.Object3D()
 const canvas = document.getElementById("canvas")
 const renderer = new THREE.WebGLRenderer({ canvas: canvas })
 renderer.setPixelRatio(window.devicePixelRatio)
-renderer.context.disable(renderer.context.DEPTH_TEST)
-
-const camera = new THREE.PerspectiveCamera()
-camera.near = NEAR_CLIP
-camera.far = FAR_CLIP
-
-const scene = new THREE.Scene()
+renderer.autoClear = false
 
 const video = document.getElementById("video")
 const videoTexture = new THREE.VideoTexture(video)
 
-// relative coordinates from camera to texture plane
-const planeRelativePosition = new THREE.Vector3(0, 0, -PLANE_DISTANCE)
+const renderTarget = new THREE.WebGLRenderTarget(window.innerWidth, window.innerHeight, {
+  minFilter: THREE.LinearFilter,
+  magFilter: THREE.NearestFilter,
+  format: THREE.RGBFormat
+})
 
-const planeMaterial = new THREE.MeshBasicMaterial({ map: videoTexture })
-// planeMaterial.wireframe = true
+const screenMaterial = new THREE.ShaderMaterial({
+  uniforms: { renderTexture: { value: renderTarget.texture } },
+  vertexShader: `
+  varying vec2 vUv;
+  void main() {
+    vUv = uv;
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+  }`,
+  fragmentShader: `
+  varying vec2 vUv;
+  uniform sampler2D renderTexture;
+  void main() {
+    gl_FragColor = texture2D(renderTexture, vUv);
+  }`,
+  depthWrite: false
+})
 
-const planeGeometry = new THREE.PlaneGeometry()
-const plane = new THREE.Mesh(planeGeometry, planeMaterial)
-scene.add(plane)
+const virtualScene = new THREE.Scene()
+const screenScene = new THREE.Scene()
+
+const virtualCamera = new THREE.PerspectiveCamera()
+virtualCamera.near = NEAR_CLIP
+virtualCamera.far = FAR_CLIP
+
+const screenCamera = new THREE.OrthographicCamera()
+screenCamera.position.z = 100
+
+const planeGeometry = new THREE.PlaneBufferGeometry()
+const plane = new THREE.Mesh(planeGeometry, screenMaterial)
+plane.position.z = -100
+
+screenScene.add(plane)
+
+// const planeMaterial = new THREE.MeshBasicMaterial({ map: videoTexture })
 
 const cubeGeometry = new THREE.BoxBufferGeometry(5, 5, 5)
 const cubeMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00 })
 const cube = new THREE.Mesh(cubeGeometry, cubeMaterial)
-scene.add(cube)
+virtualScene.add(cube)
 
 const ambientLight = new THREE.AmbientLight(0x888888)
-scene.add(ambientLight)
+virtualScene.add(ambientLight)
 
 window.addEventListener("orientationchange", resetViewport)
 canvas.addEventListener("click", startVideo)
@@ -93,37 +117,32 @@ function drawScene() {
   deviceObject.setRotationFromMatrix(orientation.get())
 
   // interpolate camera orientation towards this orientation
-  camera.quaternion.slerp(deviceObject.quaternion, 0.5)
+  virtualCamera.quaternion.slerp(deviceObject.quaternion, 0.5)
 
-  // reset the plane location, place it relative to the camera
-  plane.position.copy(planeRelativePosition)
+  renderer.clear()
 
-  // overwrite plane.position with the world coordinates for the plane,
-  // based on current camera position and orientation
-  camera.localToWorld(plane.position)
+  // render virtual scene into renderTarget (a texture)
+  renderer.render(virtualScene, virtualCamera, renderTarget)
 
-  // set the plane orientation to the camera orientation
-  // so the plane becomes parallel to the camera
-  plane.quaternion.copy(camera.quaternion)
-
-  renderer.render(scene, camera)
+  // render texture on screen
+  renderer.render(screenScene, screenCamera)
 }
 
 function resetViewport() {
-  camera.aspect = window.innerWidth / window.innerHeight
-  camera.fov = Y_FOV_LANDSCAPE
+  virtualCamera.aspect = window.innerWidth / window.innerHeight
+  virtualCamera.fov = Y_FOV_LANDSCAPE
   if (window.orientation == 0) {
-    camera.fov = camera.fov / camera.aspect
+    virtualCamera.fov = virtualCamera.fov / virtualCamera.aspect
   }
+  virtualCamera.updateProjectionMatrix()
 
-  camera.updateProjectionMatrix()
+  screenCamera.left = -window.innerWidth / 2
+  screenCamera.right = window.innerWidth / 2
+  screenCamera.top = window.innerHeight / 2
+  screenCamera.bottom = -window.innerHeight / 2
 
-  // resize plane according to camera y fov and aspect
-  // 0.97 is a nudging/scaling factor,
-  // if omitted artifacts in video move quicker than virtual artifacts
-  // when orientation changes so screen placement goes from center to the edge
-  plane.scale.y = 2 * Math.tan((camera.fov / 2) * THREE.Math.DEG2RAD) * PLANE_DISTANCE * 0.97
-  plane.scale.x = plane.scale.y * camera.aspect
+  // update renderTarget size
+  renderTarget.setSize(window.innerWidth, window.innerHeight)
 
   // update output window size
   renderer.setSize(window.innerWidth, window.innerHeight)
@@ -174,7 +193,7 @@ function loadTile(east, north, resolution) {
   const tile = new THREE.Mesh(tileGeometry, tileMaterial)
   tile.position.x = east + TILE_EXTENTS / 2
   tile.position.y = north + TILE_EXTENTS / 2
-  scene.add(tile)
+  virtualScene.add(tile)
 }
 
 function loadTiles(eastPosition, northPosition) {
@@ -200,11 +219,11 @@ function gotLocation(east, north, altitude) {
   Logger.clear()
   loadTiles(east, north)
 
-  camera.position.x = east
-  camera.position.y = north
-  camera.position.z = altitude + 15
+  virtualCamera.position.x = east
+  virtualCamera.position.y = north
+  virtualCamera.position.z = altitude + 15
 
-  cube.position.x = camera.position.x
-  cube.position.y = camera.position.y + 75
-  cube.position.z = camera.position.z
+  cube.position.x = virtualCamera.position.x
+  cube.position.y = virtualCamera.position.y + 75
+  cube.position.z = virtualCamera.position.z
 }
