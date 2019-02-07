@@ -39,7 +39,7 @@ const renderTarget = new THREE.WebGLRenderTarget(window.innerWidth, window.inner
 })
 
 const screenMaterial = new THREE.ShaderMaterial({
-  uniforms: { renderTexture: { value: renderTarget.texture } },
+  uniforms: { renderTexture: { value: renderTarget.texture }, videoTexture: { value: videoTexture } },
   vertexShader: `
   varying vec2 vUv;
   void main() {
@@ -49,8 +49,9 @@ const screenMaterial = new THREE.ShaderMaterial({
   fragmentShader: `
   varying vec2 vUv;
   uniform sampler2D renderTexture;
+  uniform sampler2D videoTexture;
   void main() {
-    gl_FragColor = texture2D(renderTexture, vUv);
+    gl_FragColor = texture2D(renderTexture, vUv) * texture2D(videoTexture, vUv);
   }`,
   depthWrite: false
 })
