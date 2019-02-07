@@ -51,7 +51,9 @@ const screenMaterial = new THREE.ShaderMaterial({
   uniform sampler2D renderTexture;
   uniform sampler2D videoTexture;
   void main() {
-    gl_FragColor = texture2D(renderTexture, vUv) * texture2D(videoTexture, vUv);
+    vec4 renderColor = texture2D(renderTexture, vUv);
+    vec4 videoColor = texture2D(videoTexture, vUv);
+    gl_FragColor = 0.5 * renderColor + 0.5 * videoColor;
   }`,
   depthWrite: false
 })
