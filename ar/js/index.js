@@ -147,7 +147,7 @@ function resetViewport() {
   plane.scale.set(window.innerWidth, window.innerHeight, 1)
 
   // update renderTarget size
-  renderTarget.setSize(window.innerWidth, window.innerHeight)
+  renderTarget.setSize(window.innerWidth * window.devicePixelRatio, window.innerHeight * window.devicePixelRatio)
 
   // update output window size
   renderer.setSize(window.innerWidth, window.innerHeight)
