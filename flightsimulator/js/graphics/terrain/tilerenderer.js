@@ -160,7 +160,7 @@ export default class TileRenderer {
 
   getFragmentShader() {
     return `
-    precision mediump float;
+    precision highp float;
 
     uniform sampler2D photoTexture;
     
