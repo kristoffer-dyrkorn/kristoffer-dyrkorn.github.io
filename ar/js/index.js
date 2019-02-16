@@ -32,11 +32,7 @@ renderer.autoClear = false
 const video = document.getElementById("video")
 const videoTexture = new THREE.VideoTexture(video)
 
-const renderTarget = new THREE.WebGLRenderTarget(window.innerWidth, window.innerHeight, {
-  minFilter: THREE.LinearFilter,
-  magFilter: THREE.NearestFilter,
-  format: THREE.RGBFormat
-})
+const renderTarget = new THREE.WebGLRenderTarget()
 
 const screenMaterial = new THREE.ShaderMaterial({
   uniforms: { renderTexture: { value: renderTarget.texture }, videoTexture: { value: videoTexture } },
@@ -75,8 +71,6 @@ plane.position.z = -100
 
 screenScene.add(plane)
 
-// const planeMaterial = new THREE.MeshBasicMaterial({ map: videoTexture })
-
 const cubeGeometry = new THREE.BoxBufferGeometry(5, 5, 5)
 const cubeMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00 })
 const cube = new THREE.Mesh(cubeGeometry, cubeMaterial)
@@ -103,8 +97,10 @@ function readTouchPosition(event) {
 
 function calculateTouchDelta(event) {
   event.preventDefault()
-  const delta = (20 * (event.changedTouches[0].pageX - currentTouch.pageX)) / window.innerWidth
-  orientation.adjustBaseHeading(delta)
+  const deltaHeading = (20 * (event.changedTouches[0].pageX - currentTouch.pageX)) / window.innerWidth
+  const deltaPitch = (20 * (event.changedTouches[0].pageY - currentTouch.pageY)) / window.innerHeight
+  orientation.adjustBaseHeading(deltaHeading)
+  orientation.adjustBasePitch(deltaPitch)
 
   readTouchPosition(event)
 }
@@ -128,34 +124,34 @@ function drawScene() {
   // render virtual scene into renderTarget (a texture)
   renderer.render(virtualScene, virtualCamera, renderTarget, true)
 
-  // render texture on screen
+  // render texture, mixed with video stream, onto screen
   renderer.render(screenScene, screenCamera)
 }
 
 function resetViewport() {
-  virtualCamera.aspect = window.innerWidth / window.innerHeight
-  virtualCamera.fov = Y_FOV_LANDSCAPE
+  const width = window.innerWidth
+  const height = window.innerHeight
+
+  virtualCamera.aspect = width / height
   if (window.orientation == 0) {
-    virtualCamera.fov = virtualCamera.fov / virtualCamera.aspect
+    virtualCamera.fov = Y_FOV_LANDSCAPE / virtualCamera.aspect
+  } else {
+    virtualCamera.fov = Y_FOV_LANDSCAPE
   }
   virtualCamera.updateProjectionMatrix()
 
-  screenCamera.left = -window.innerWidth / 2
-  screenCamera.right = window.innerWidth / 2
-  screenCamera.top = window.innerHeight / 2
-  screenCamera.bottom = -window.innerHeight / 2
+  screenCamera.left = -width / 2
+  screenCamera.right = width / 2
+  screenCamera.top = height / 2
+  screenCamera.bottom = -height / 2
 
   screenCamera.updateProjectionMatrix()
 
-  plane.scale.set(window.innerWidth, window.innerHeight, 1)
+  plane.scale.set(width, height, 1)
 
-  // update renderTarget size
-  renderTarget.setSize(window.innerWidth * window.devicePixelRatio, window.innerHeight * window.devicePixelRatio)
+  renderTarget.setSize(width * window.devicePixelRatio, height * window.devicePixelRatio)
+  renderer.setSize(width, height)
 
-  // update output window size
-  renderer.setSize(window.innerWidth, window.innerHeight)
-
-  // update landscape/portrait rendering adjustment
   orientation.setViewportRotation(-window.orientation * THREE.Math.DEG2RAD)
 }
 
@@ -187,51 +183,49 @@ function startVideo() {
   }
 }
 
-function loadTile(east, north, resolution) {
+function loadTile(x, y, resolution) {
   const tileGeometry = new THREE.PlaneGeometry(TILE_EXTENTS, TILE_EXTENTS, resolution, resolution)
   const tileMaterial = new THREE.MeshPhongMaterial()
 
-  const tileFile = `${east}-${north}.png`
+  const tileFile = `${x}-${y}.png`
   const tileURL = `${tileServer}/${tileFile}`
-  //  Logger.log(`Loading tile: ${tileFile}`)
+
   tileMaterial.displacementMap = new THREE.TextureLoader().load(tileURL)
   tileMaterial.displacementScale = 2550
   tileMaterial.wireframe = true
 
   const tile = new THREE.Mesh(tileGeometry, tileMaterial)
-  tile.position.x = east + TILE_EXTENTS / 2
-  tile.position.y = north + TILE_EXTENTS / 2
+  tile.position.set(x + TILE_EXTENTS / 2, y + TILE_EXTENTS / 2, 0)
   virtualScene.add(tile)
 }
 
-function loadTiles(eastPosition, northPosition) {
+function loadTiles(position) {
   // coords of lower left point of center tile
-  const centerEast = Math.trunc((eastPosition - MIN_EAST) / TILE_EXTENTS) * TILE_EXTENTS + MIN_EAST
-  const centerNorth = Math.trunc((northPosition - MIN_NORTH) / TILE_EXTENTS) * TILE_EXTENTS + MIN_NORTH
+  const center = new THREE.Vector3()
 
-  loadTile(centerEast, centerNorth, 256)
+  center.x = Math.trunc((position.x - MIN_EAST) / TILE_EXTENTS) * TILE_EXTENTS + MIN_EAST
+  center.y = Math.trunc((position.y - MIN_NORTH) / TILE_EXTENTS) * TILE_EXTENTS + MIN_NORTH
 
-  loadTile(centerEast - TILE_EXTENTS, centerNorth - TILE_EXTENTS, 128)
-  loadTile(centerEast, centerNorth - TILE_EXTENTS, 128)
-  loadTile(centerEast + TILE_EXTENTS, centerNorth - TILE_EXTENTS, 128)
+  loadTile(center, 256)
 
-  loadTile(centerEast - TILE_EXTENTS, centerNorth, 128)
-  loadTile(centerEast + TILE_EXTENTS, centerNorth, 128)
+  loadTile(center.x - TILE_EXTENTS, center.y - TILE_EXTENTS, 128)
+  loadTile(center.x, center.y - TILE_EXTENTS, 128)
+  loadTile(center.x + TILE_EXTENTS, center.y - TILE_EXTENTS, 128)
 
-  loadTile(centerEast - TILE_EXTENTS, centerNorth + TILE_EXTENTS, 128)
-  loadTile(centerEast, centerNorth + TILE_EXTENTS, 128)
-  loadTile(centerEast + TILE_EXTENTS, centerNorth + TILE_EXTENTS, 128)
+  loadTile(center.x - TILE_EXTENTS, center.y, 128)
+  loadTile(center.x + TILE_EXTENTS, center.y, 128)
+
+  loadTile(center.x - TILE_EXTENTS, center.y + TILE_EXTENTS, 128)
+  loadTile(center.x, center.y + TILE_EXTENTS, 128)
+  loadTile(center.x + TILE_EXTENTS, center.y + TILE_EXTENTS, 128)
 }
 
 function gotLocation(east, north, altitude) {
   Logger.clear()
-  loadTiles(east, north)
 
-  virtualCamera.position.x = east
-  virtualCamera.position.y = north
-  virtualCamera.position.z = altitude + 15
+  const position = new THREE.Vector3(east, north, altitude)
+  loadTiles(position)
 
-  cube.position.x = virtualCamera.position.x
-  cube.position.y = virtualCamera.position.y + 75
-  cube.position.z = virtualCamera.position.z
+  virtualCamera.position.set(position.x, position.y, position.z + 15)
+  cube.position.set(position.x, position.y + 75, position.z + 15)
 }
