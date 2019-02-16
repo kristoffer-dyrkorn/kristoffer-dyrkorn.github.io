@@ -160,7 +160,7 @@ export default class TileRenderer {
 
   getFragmentShader() {
     return `
-    precision highp float;
+    precision mediump float;
 
     uniform sampler2D photoTexture;
     
@@ -174,7 +174,8 @@ export default class TileRenderer {
       float fogFactor = 1.0 - 0.00002 * gl_FragCoord.z / gl_FragCoord.w;
       fogFactor = clamp(fogFactor, 0.0, 1.0);
 
-      gl_FragColor = mix(fogColor, color, fogFactor);
+//      gl_FragColor = mix(fogColor, color, fogFactor);
+      gl_FragColor = color;
     }
     `
   }
