@@ -14,7 +14,7 @@ const MIN_NORTH = 6400000
 const TILE_EXTENTS = 12750
 
 const NEAR_CLIP = 50
-const FAR_CLIP = 2 * TILE_EXTENTS
+const FAR_CLIP = 3 * TILE_EXTENTS
 
 const tileServer = "https://s3-eu-west-1.amazonaws.com/kd-flightsim/topography"
 
@@ -150,7 +150,7 @@ function resetViewport() {
   plane.scale.set(width, height, 1)
 
   renderTarget.setSize(width * window.devicePixelRatio, height * window.devicePixelRatio)
-  renderer.setSize(width, height)
+  renderer.setSize(width * window.devicePixelRatio, height * window.devicePixelRatio)
 
   orientation.setViewportRotation(-window.orientation * THREE.Math.DEG2RAD)
 }
@@ -206,7 +206,7 @@ function loadTiles(position) {
   center.x = Math.trunc((position.x - MIN_EAST) / TILE_EXTENTS) * TILE_EXTENTS + MIN_EAST
   center.y = Math.trunc((position.y - MIN_NORTH) / TILE_EXTENTS) * TILE_EXTENTS + MIN_NORTH
 
-  loadTile(center, 256)
+  loadTile(center.x, center.y, 256)
 
   loadTile(center.x - TILE_EXTENTS, center.y - TILE_EXTENTS, 128)
   loadTile(center.x, center.y - TILE_EXTENTS, 128)
