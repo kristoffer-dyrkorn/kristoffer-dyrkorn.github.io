@@ -82,8 +82,8 @@ virtualScene.add(ambientLight)
 window.addEventListener("orientationchange", resetViewport)
 canvas.addEventListener("click", startVideo)
 
-window.addEventListener("touchstart", readTouchPosition, false)
-window.addEventListener("touchmove", calculateTouchDelta, false)
+window.addEventListener("touchstart", readTouchPosition)
+window.addEventListener("touchmove", calculateTouchDelta)
 
 let currentTouch = null
 
