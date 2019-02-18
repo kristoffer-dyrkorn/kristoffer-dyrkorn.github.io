@@ -104,7 +104,6 @@ function calculateTouchDelta(event) {
   orientation.adjustBasePitch(deltaPitch)
 
   readTouchPosition(event)
-  return false
 }
 
 Logger.log("Getting GPS data.")
