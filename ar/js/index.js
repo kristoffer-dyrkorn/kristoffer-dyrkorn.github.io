@@ -97,12 +97,14 @@ function readTouchPosition(event) {
 
 function calculateTouchDelta(event) {
   event.preventDefault()
+  event.stopPropagation()
   const deltaHeading = (20 * (event.changedTouches[0].pageX - currentTouch.pageX)) / window.innerWidth
   const deltaPitch = (20 * (event.changedTouches[0].pageY - currentTouch.pageY)) / window.innerHeight
   orientation.adjustBaseHeading(deltaHeading)
   orientation.adjustBasePitch(deltaPitch)
 
   readTouchPosition(event)
+  return false
 }
 
 Logger.log("Getting GPS data.")
