@@ -45,7 +45,7 @@ export default class OrientationHandler {
   }
 
   adjustBasePitch(delta) {
-    this.basePitch += delta
+    this.basePitch -= delta
   }
 
   get() {
