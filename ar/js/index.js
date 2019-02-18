@@ -152,7 +152,7 @@ function resetViewport() {
   plane.scale.set(width, height, 1)
 
   renderTarget.setSize(width * window.devicePixelRatio, height * window.devicePixelRatio)
-  renderer.setSize(width * window.devicePixelRatio, height * window.devicePixelRatio)
+  renderer.setSize(width, height)
 
   orientation.setViewportRotation(-window.orientation * THREE.Math.DEG2RAD)
 }
