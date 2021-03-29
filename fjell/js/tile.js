@@ -54,7 +54,7 @@ export default class Tile {
         const wireframeLines = new THREE.LineSegments(wireframeGeometry)
         wireframeLines.position.set(this.x, this.y, 0)
 
-        this.scene.add(wireframeLines)
+        this.scene.add(this.tileMesh)
         this.loadPois()
       })
     })
