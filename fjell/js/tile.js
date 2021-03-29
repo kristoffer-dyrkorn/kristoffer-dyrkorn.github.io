@@ -2,8 +2,8 @@ import * as THREE from "./three.module.js"
 import Logger from "./logger.js"
 import { OBJLoader } from "./OBJLoader.js"
 
-const tileServer = "fjell/meshes"
-const poiServer = "fjell/poi"
+const tileServer = "meshes"
+const poiServer = "poi"
 
 export default class Tile {
   constructor(x, y, camera, scene, font) {
