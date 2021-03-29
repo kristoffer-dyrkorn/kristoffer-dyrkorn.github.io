@@ -1,9 +1,10 @@
 import * as THREE from "./three.module.js"
 import Logger from "./logger.js"
-import { OBJLoader } from "./OBJLoader.js"
 
-const tileServer = "meshes"
-const poiServer = "poi"
+// const serverRoot = "https://s3-eu-west-1.amazonaws.com/kd-flightsim/topography";
+
+const tileDir = "meshes"
+const poiDir = "poi"
 
 export default class Tile {
   constructor(x, y, camera, scene, font) {
@@ -16,18 +17,38 @@ export default class Tile {
 
     this.poiData = []
     this.poiCollection = new THREE.Group()
+
+    this.tileMesh = new THREE.Mesh()
+    this.tileMesh.geometry = new THREE.BufferGeometry()
   }
 
   load() {
-    const tileFile = `${this.x}-${this.y}.obj`
-    const tileURL = `${tileServer}/${tileFile}`
+    const tileFile = `${this.x}-${this.y}.msh`
+    const tileURL = `${tileDir}/${tileFile}`
 
     console.log("Loading " + tileURL)
 
-    Tile.objLoader.load(
-      tileURL,
-      (object) => {
-        this.tileMesh = object.children[0]
+    fetch(tileURL).then((response) => {
+      response.arrayBuffer().then((buffer) => {
+        let offset = 0
+        const stride = Uint16Array.BYTES_PER_ELEMENT
+
+        const vertexCount = new Uint16Array(buffer, offset, 1)[0]
+        offset += stride * 1 // read 1 uint16
+
+        const vertices = new Uint16Array(buffer, offset, 3 * vertexCount)
+        offset += stride * 3 * vertexCount // 1 vertex = 3 coordinates
+
+        const triangleCount = new Uint16Array(buffer, offset, 1)[0]
+        offset += stride * 1 // read 1 uint16
+
+        const triangles = new Uint16Array(buffer, offset, 3 * triangleCount) // 1 triangle = 3 indices
+
+        const posAttribute = new THREE.BufferAttribute(vertices, 3)
+        const indexAttribute = new THREE.BufferAttribute(triangles, 1)
+
+        this.tileMesh.geometry.setAttribute("position", posAttribute)
+        this.tileMesh.geometry.index = indexAttribute
 
         const wireframeGeometry = new THREE.WireframeGeometry(this.tileMesh.geometry)
         const wireframeLines = new THREE.LineSegments(wireframeGeometry)
@@ -35,19 +56,15 @@ export default class Tile {
 
         this.scene.add(wireframeLines)
         this.loadPois()
-      },
-      (xhr) => {},
-      (error) => {
-        console.log("Could not load tile " + tileURL + ", " + error)
-      }
-    )
+      })
+    })
   }
 
   // read all pois for the tile
   // and store poi xy location info in the this.poiData array
   async loadPois() {
     const poiFile = `${this.x}-${this.y}.json`
-    const poiURL = `${poiServer}/${poiFile}`
+    const poiURL = `${poiDir}/${poiFile}`
 
     console.log("Loading " + poiFile)
 
@@ -171,5 +188,3 @@ export default class Tile {
     return poi
   }
 }
-
-Tile.objLoader = new OBJLoader()
