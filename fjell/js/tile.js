@@ -22,7 +22,7 @@ export default class Tile {
     const tileFile = `${this.x}-${this.y}.obj`
     const tileURL = `${tileServer}/${tileFile}`
 
-    console.log("Loading " + tileFile)
+    console.log("Loading " + tileURL)
 
     Tile.objLoader.load(
       tileURL,
