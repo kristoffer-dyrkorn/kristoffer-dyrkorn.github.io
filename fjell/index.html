@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title></title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, user-scalable=no" />
+  </head>
+  <body style="margin: 0; background-color: black; color: white; font-family: sans-serif;">
+    <div id="buttoncontainer" style="display: flex; justify-content: center; align-items: center; height: 80vh;">
+      <button id="start" style="background-color: black ;color:grey; font-size: 40px; padding: 10px 20px">START</button>
+    </div>
+    <canvas id="glcanvas" style="position:relative;"></canvas>
+    <div id="console" style="position: relative; left: 3px; bottom: 25px"></div>
+    <!--
+      don't use autoplay as it makes the stream stop when the video element is hidden or outside of viewport
+      https://webkit.org/blog/6784/new-video-policies-for-ios/
+    -->
+    <video id="video" playsinline style="display: none"></video>
+    <script src="./js/inobounce.js"></script>
+    <script src="./js/proj4.js"></script>
+    <script type="module" src="./js/index.js"></script>
+  </body>
+</html>
