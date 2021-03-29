@@ -8,7 +8,7 @@ const MIN_NORTH = 6400000
 const TILE_EXTENTS = 12750
 
 // const tileServer = "https://s3-eu-west-1.amazonaws.com/kd-flightsim/topography";
-const tileServer = "./fjell/meshes"
+const tileServer = "meshes"
 
 export default class Terrain {
   constructor(scene) {
