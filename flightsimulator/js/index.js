@@ -38,7 +38,7 @@ if (north < 72 && east < 33) {
 
 const startPoint = [east, north, alt]
 
-let updateResources = false
+let updateResources = true
 let showWireFrame = false
 
 const canvas = document.getElementById("webgl")
