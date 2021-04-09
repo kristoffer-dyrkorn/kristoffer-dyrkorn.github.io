@@ -24,7 +24,7 @@ let previousFrameTime = 0
 const url = new URL(document.location)
 const urlParams = url.searchParams
 let east = urlParams.get("e") || 105000
-let north = urlParams.get("n") || 6948000
+let north = urlParams.get("n") || 6950000
 const alt = urlParams.get("a") || 3000
 const startDirection = urlParams.get("c") || 0
 
