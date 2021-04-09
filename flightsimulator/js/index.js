@@ -122,7 +122,7 @@ renderer.setSize(window.innerWidth, window.innerHeight)
 renderer.outputEncoding = THREE.sRGBEncoding
 
 let gamepad = null
-const engineAudio = new EngineAudio()
+// const engineAudio = new EngineAudio()
 
 window.addEventListener("resize", () => {
   resetViewport()
@@ -228,13 +228,13 @@ function drawScene(currentFrametime) {
   }
 
   if (updateResources) terrain.update(camera, showWireFrame)
-  engineAudio.setOutput(airplaneState.pow)
+  //  engineAudio.setOutput(airplaneState.pow)
 
   renderer.render(scene, cameras[cameraIndex])
 }
 
 function keyboardHandler(keyboardEvent) {
-  engineAudio.resume()
+  //  engineAudio.resume()
 
   switch (keyboardEvent.key) {
     case "ArrowDown": // elevator up
