@@ -28,9 +28,9 @@ export default class Terrain {
     setInterval(() => {
       const tile = this.fetchQueue.shift()
       if (tile) {
-        tile.load()
+        //        tile.load()
       }
-    }, 10)
+    }, 100)
   }
 
   update(camera, showWireFrame) {
