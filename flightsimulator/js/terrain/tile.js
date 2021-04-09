@@ -72,7 +72,7 @@ export default class Tile {
   }
 
   load() {
-    fetch(`${SERVER}/meshes/${this.tileName}.msh`).then((response) => {
+    fetch(`${SERVER}/meshes/${this.tileName}.msh`, { mode: "cors" }).then((response) => {
       response.arrayBuffer().then((buffer) => {
         let offset = 0
         const stride = Uint16Array.BYTES_PER_ELEMENT
@@ -128,3 +128,4 @@ export default class Tile {
 Tile.loadCount = 0
 Tile.basisLoader = new BasisTextureLoader()
 Tile.basisLoader.setTranscoderPath("js/graphics/basis/")
+Tile.basisLoader.setCrossOrigin("anonymous")
