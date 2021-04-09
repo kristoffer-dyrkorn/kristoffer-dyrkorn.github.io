@@ -26,7 +26,7 @@ const urlParams = url.searchParams
 let east = urlParams.get("e") || 95000
 let north = urlParams.get("n") || 6980000
 const alt = urlParams.get("a") || 500
-const startDirection = urlParams.get("c") || 180
+const startDirection = urlParams.get("c") || 0
 
 // if input coordinates are GPS lat/lon, convert to utm33
 if (north < 72 && east < 33) {
