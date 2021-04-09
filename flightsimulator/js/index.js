@@ -23,9 +23,9 @@ let previousFrameTime = 0
 // set start point: UTM EAST, UTM NORTH, altitude (meters) and compass direction
 const url = new URL(document.location)
 const urlParams = url.searchParams
-let east = urlParams.get("e") || 95000
-let north = urlParams.get("n") || 6980000
-const alt = urlParams.get("a") || 500
+let east = urlParams.get("e") || 105000
+let north = urlParams.get("n") || 6947000
+const alt = urlParams.get("a") || 3000
 const startDirection = urlParams.get("c") || 0
 
 // if input coordinates are GPS lat/lon, convert to utm33
