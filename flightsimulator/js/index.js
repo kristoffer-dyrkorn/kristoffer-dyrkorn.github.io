@@ -87,7 +87,6 @@ scene.add(f16)
 
 const objectChaser = new ObjectChaser(f16)
 
-/*
 const manager = new THREE.LoadingManager()
 new MTLLoader(manager).setPath("f16/").load("f16.mtl", (materials) => {
   materials.preload()
@@ -114,7 +113,6 @@ new MTLLoader(manager).setPath("f16/").load("f16.mtl", (materials) => {
       }
     )
 })
-*/
 
 const renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true })
 renderer.setPixelRatio(window.devicePixelRatio)
