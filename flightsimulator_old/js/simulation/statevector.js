@@ -1,3 +1,5 @@
+import GraphicsConstants from "../graphics/graphicsconstants.js"
+
 /**
  * State vector for F16 simulator.
  */
@@ -49,5 +51,11 @@ export default class StateVector {
     this.xe += dt * afterburnerFactor * v.xe
     this.h += dt * afterburnerFactor * v.h
     this.pow += dt * v.pow
+  }
+
+  toString() {
+    return `Speed: ${this.vt} feet/sec, altitude: ${this.h}, orientation: ${this.phi *
+      GraphicsConstants.RADIANS_TO_DEGREES} ${this.theta * GraphicsConstants.RADIANS_TO_DEGREES} ${this.psi *
+      GraphicsConstants.RADIANS_TO_DEGREES}, alpha: ${this.alpha * GraphicsConstants.RADIANS_TO_DEGREES}`
   }
 }
