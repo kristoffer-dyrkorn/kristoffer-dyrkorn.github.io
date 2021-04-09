@@ -49,9 +49,7 @@ export default class Tile {
       // this tile needs to be loaded
       this.loading = true
       // add to fetch queue - loading is spread across frames to avoid stuttering
-      //      this.terrain.fetchQueue.push(this)
-
-      this.load()
+      this.terrain.fetchQueue.push(this)
     }
 
     if (!visible && !this.loading && this.loaded) {

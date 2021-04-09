@@ -30,7 +30,7 @@ export default class Terrain {
       if (tile) {
         tile.load()
       }
-    }, 100)
+    }, 10)
   }
 
   update(camera, showWireFrame) {
