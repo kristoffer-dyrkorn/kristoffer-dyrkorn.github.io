@@ -13,9 +13,9 @@ import EngineAudio from "./audio/enginesound.js"
 
 // terrain boundaries, in UTM33 coordinates
 const MINX = -100000
-const MAXX = 461750
+const MAXX = 1137000
 const MINY = 6400000
-const MAXY = 7200000
+const MAXY = 7970000
 
 let frameTime = 0
 let previousFrameTime = 0
