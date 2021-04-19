@@ -275,7 +275,7 @@ function drawScene(currentFrametime) {
 
 function readDeviceOrientation(event) {
   airplaneControlInput.aileron = event.beta * 0.15
-  airplaneControlInput.elevator = (45 + event.gamma) * 0.15
+  airplaneControlInput.elevator = (45 - event.gamma) * 0.15
 }
 
 function nextCamera() {
