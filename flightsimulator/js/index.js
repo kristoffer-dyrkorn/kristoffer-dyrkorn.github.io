@@ -254,7 +254,7 @@ function drawScene(currentFrametime) {
       cameras[cameraIndex].quaternion.copy(cameraData.quaternion)
       cameras[cameraIndex].rotateX(90 * THREE.MathUtils.DEG2RAD)
       cameras[cameraIndex].updateMatrixWorld()
-      breakb
+      break
     case 2:
       cameras[cameraIndex] = camera.clone()
       cameras[cameraIndex].lookAt(f16.position)
@@ -275,7 +275,7 @@ function drawScene(currentFrametime) {
 
 function readDeviceOrientation(event) {
   airplaneControlInput.aileron = event.beta * 0.15
-  airplaneControlInput.elevator = (-event.gamma + 50) * 0.15
+  airplaneControlInput.elevator = (-event.gamma + 30) * 0.15
 }
 
 function nextCamera() {
