@@ -30,7 +30,10 @@ export default class Tile {
     const tileURL = `${SERVER}meshes/${this.x}-${this.y}.msh`;
     console.log("Loading " + tileURL);
 
-    const response = await fetch(tileURL);
+    const response = await fetch(tileURL, {
+      mode: "cors",
+      credentials: "include",
+    });
     const buffer = await response.arrayBuffer();
 
     let offset = 0;
