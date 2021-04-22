@@ -97,7 +97,7 @@ export default class Tile {
     );
 
     // show pois using default values
-    this.showPois(1000, 5000, 0, 3000, "ås");
+    this.showPois(1000, 10000, 0, 3000, "ås");
   }
 
   setVisible(visible) {
