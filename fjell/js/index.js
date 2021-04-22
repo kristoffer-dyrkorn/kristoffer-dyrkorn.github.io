@@ -110,7 +110,7 @@ async function start() {
   //// these need to be called in an interaction handler
 
   // get video from camera
-  await video.start()
+  video.start()
 
   // set up orientation handler
   orientation.getOrientation()
