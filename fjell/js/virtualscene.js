@@ -7,7 +7,7 @@ const FAR_CLIP = 36000 // when rendering 9 tiles: TILE_EXTENTS * SQRT(8)
 // 1280x720 X_FOV = 60.983 => Y_FOV = 34.30
 
 // empirical value
-const Y_FOV_LANDSCAPE = 34
+const Y_FOV_LANDSCAPE = 38
 
 export default class VirtualScene {
   constructor(canvasElement) {
