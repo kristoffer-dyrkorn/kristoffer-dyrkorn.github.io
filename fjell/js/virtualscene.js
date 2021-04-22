@@ -6,9 +6,8 @@ const FAR_CLIP = 36000 // when rendering 9 tiles: TILE_EXTENTS * SQRT(8)
 // https://developer.apple.com/library/archive/documentation/DeviceInformation/Reference/iOSDeviceCompatibility/Cameras/Cameras.html#//apple_ref/doc/uid/TP40013599-CH107-SW21
 // 1280x720 X_FOV = 60.983 => Y_FOV = 34.30
 
-// empirical value:
-// 35 degrees gives best match for video and virtual world
-const Y_FOV_LANDSCAPE = 35
+// empirical value
+const Y_FOV_LANDSCAPE = 34
 
 export default class VirtualScene {
   constructor(canvasElement) {
