@@ -1,4 +1,3 @@
-import Logger from "./logger.js";
 import * as THREE from "./three.module.js";
 
 const utm33NProjection = "+proj=utm +zone=33 +datum=WGS84 +units=m +no_defs";
@@ -16,8 +15,8 @@ export default class LocationHandler {
           const lat = location.coords.latitude;
           const alt = location.coords.altitude;
 
-          Logger.log(
-            "Received location data. Accuracy: " +
+          console.log(
+            "Got location. Accuracy: " +
               location.coords.accuracy.toFixed(0) +
               " m."
           );

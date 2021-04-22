@@ -1,11 +1,7 @@
 import * as THREE from "./three.module.js"
-import Logger from "./logger.js"
 
 const SERVER = "https://s3-eu-west-1.amazonaws.com/kd-flightsim/"
 // const SERVER = "";
-
-const tileDir = "meshes"
-const poiDir = "poi"
 
 export default class Tile {
   constructor(x, y, camera, scene, font) {
@@ -34,6 +30,8 @@ export default class Tile {
       mode: "cors",
       credentials: "omit",
     })
+    console.log("Done reading " + tileURL)
+
     const buffer = await response.arrayBuffer()
 
     let offset = 0
@@ -61,25 +59,31 @@ export default class Tile {
     this.tileMesh.geometry.setAttribute("uv", uvAttribute)
     this.tileMesh.geometry.index = indexAttribute
 
+    console.log("Converting " + tileURL + " to wireframe geometry")
+
     const wireframeGeometry = new THREE.WireframeGeometry(this.tileMesh.geometry)
     this.wireframeLines = new THREE.LineSegments(wireframeGeometry)
     this.wireframeLines.position.set(this.x, this.y, 0)
 
     this.scene.add(this.wireframeLines)
-    this.loadPois()
+    console.log("Added " + tileURL + " to scene")
+
+    //this.loadPois();
   }
 
   // read all pois for the tile
   // and store poi xy location info in the this.poiData array
   async loadPois() {
-    const poiFile = `${this.x}-${this.y}.json`
-    const poiURL = `${poiDir}/${poiFile}`
+    const poiURL = `poi/${this.x}-${this.y}.json`
 
     console.log("Loading " + poiURL)
-
     const features = await fetch(poiURL).then((response) => response.json())
+    console.log("Loaded " + poiURL)
+    console.log("Storing pois from " + poiURL)
     features.forEach((feature) => {
+      // read xy coords
       const position = feature.position
+      // add dummy z coord, set elevation to be 0
       position.push(0)
 
       // note: here, the absolute location is stored
@@ -90,10 +94,10 @@ export default class Tile {
       })
     })
 
-    console.log("Done loading " + poiFile + ", " + this.poiData.length + " features.")
+    console.log(`Done storing ${this.x}-${this.y}, ${this.poiData.length} features.`)
 
     // show pois using default values
-    this.showPois(2000, 7000, 200, 3000, "ås")
+    //   this.showPois(2000, 7000, 200, 3000, "ås");
   }
 
   setVisible(visible) {
@@ -102,8 +106,21 @@ export default class Tile {
 
   // using filters, create pois, add them to this.poiCollection and to the scene
   showPois(minDist, maxDist, minElev, maxElev, poiType) {
-    // todo: traverse all pois inside this.poiCollection
-    // and remove them from scene and from memory
+    // remove all pois from the scene
+    this.scene.remove(this.poiCollection)
+
+    // dispose all geometry that was generated in the old poi set
+    this.poiCollection.children.forEach((poi) => {
+      // a poi is a group of mesh elements, so traverse them
+      poi.children.forEach((element) => {
+        element.material.dispose()
+        element.geometry.dispose()
+      })
+      poi.dispose()
+    })
+    //    this.poiCollection.dispose();
+
+    this.poiCollection = new THREE.Group()
 
     this.poiData.forEach((feature) => {
       // scan all pois for this tile, applying specified filters
@@ -147,6 +164,7 @@ export default class Tile {
       }
     })
 
+    console.log("Added pois: " + this.poiCollection.children.length)
     this.scene.add(this.poiCollection)
   }
 
@@ -169,6 +187,7 @@ export default class Tile {
     const pole = new THREE.Mesh(poleGeometry, poleMaterial)
 
     // make pole end at the base
+    // yay! pole position!
     pole.position.set(0, 0, poleLength / 2)
 
     poi.add(pole)
