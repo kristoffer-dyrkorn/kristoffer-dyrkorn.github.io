@@ -1,8 +1,8 @@
 import * as THREE from "./three.module.js";
 import Logger from "./logger.js";
 
-// const SERVER = "https://s3-eu-west-1.amazonaws.com/kd-flightsim/";
-const SERVER = "";
+const SERVER = "https://s3-eu-west-1.amazonaws.com/kd-flightsim/";
+// const SERVER = "";
 
 const tileDir = "meshes";
 const poiDir = "poi";
