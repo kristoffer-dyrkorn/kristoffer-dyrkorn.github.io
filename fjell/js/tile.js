@@ -32,7 +32,7 @@ export default class Tile {
 
     const response = await fetch(tileURL, {
       mode: "cors",
-      credentials: "include",
+      credentials: "omit",
     });
     const buffer = await response.arrayBuffer();
 
