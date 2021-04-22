@@ -19,7 +19,9 @@ export default class VirtualScene {
     this.renderer.autoClear = false;
 
     // the virtual scene will be rendered into this texture
-    this.renderTexture = new THREE.WebGLRenderTarget();
+    this.renderTexture = new THREE.WebGLMultisampleRenderTarget(0, 0, {
+      format: THREE.RGBFormat,
+    });
 
     this.scene = new THREE.Scene();
 
@@ -54,12 +56,12 @@ export default class VirtualScene {
     }
     this.camera.updateProjectionMatrix();
 
+    this.renderer.setSize(width, height);
+
     this.renderTexture.setSize(
       width * window.devicePixelRatio,
       height * window.devicePixelRatio
     );
-
-    this.renderer.setSize(width, height);
   }
 
   setCameraOrientation(matrix) {

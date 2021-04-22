@@ -3,7 +3,6 @@ import * as THREE from "./three.module.js";
 
 export default class OrientationHandler {
   constructor() {
-    this.hasBaseheading = false;
     this.baseHeading = 0;
     this.basePitch = 0;
     this.gyroSample = new THREE.Euler(0, 0, 0, "ZXY");
@@ -13,6 +12,7 @@ export default class OrientationHandler {
   }
 
   getOrientation() {
+    this.hasBaseheading = false;
     if (
       window.DeviceOrientationEvent !== undefined &&
       typeof window.DeviceOrientationEvent.requestPermission === "function"

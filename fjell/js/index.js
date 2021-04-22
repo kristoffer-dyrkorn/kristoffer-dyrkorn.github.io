@@ -5,6 +5,7 @@ import VirtualScene from "./virtualscene.js";
 import ScreenScene from "./screenscene.js";
 import Terrain from "./terrain.js";
 import VideoHandler from "./videohandler.js";
+import Logger from "./logger.js";
 
 const canvasElement = document.getElementById("glcanvas");
 const videoElement = document.getElementById("video");
@@ -34,8 +35,9 @@ window.addEventListener("orientationchange", () => {
   orientationChangeID = setTimeout(() => resetViewport(), 500);
 });
 
-window.addEventListener("touchstart", resetTouch);
-window.addEventListener("touchmove", tuneOrientation);
+canvasElement.addEventListener("touchstart", resetTouch);
+canvasElement.addEventListener("touchmove", readMove);
+canvasElement.addEventListener("touchend", endTouch);
 
 window.addEventListener("visibilitychange", async () => {
   // if the app (the tab) has become visible
@@ -43,6 +45,10 @@ window.addEventListener("visibilitychange", async () => {
     // update the location, but for now, do not load tiles
     const utmLocation = await location.getPosition();
     virtualScene.setCameraPosition(utmLocation);
+
+    // re-read orientation so we get an updated compass direction
+    // TODO: fix event handler leak (we register duplicate event handlers here)
+    orientation.getOrientation();
   }
 });
 
@@ -55,19 +61,30 @@ function resetTouch(event) {
   lastTouch = {
     pageX: event.changedTouches[0].pageX,
     pageY: event.changedTouches[0].pageY,
+    deltaHeading: 0,
+    deltaPitch: 0,
   };
 }
 
-function tuneOrientation(event) {
-  const deltaHeading =
+function readMove(event) {
+  lastTouch.deltaHeading =
     (40 * (event.changedTouches[0].pageX - lastTouch.pageX)) /
     window.innerWidth;
-  const deltaPitch =
+  lastTouch.deltaPitch =
     (25 * (event.changedTouches[0].pageY - lastTouch.pageY)) /
     window.innerHeight;
-  orientation.adjustBaseHeading(deltaHeading);
-  orientation.adjustBasePitch(deltaPitch);
 
+  // adjust virtual camera to better match actual orientation of physical device
+  orientation.adjustBaseHeading(lastTouch.deltaHeading);
+  orientation.adjustBasePitch(lastTouch.deltaPitch);
+  resetTouch(event);
+}
+
+function endTouch(event) {
+  if (lastTouch.deltaHeading < 5 && lastTouch.deltaPitch < 5) {
+    // if this was a tap, toggle terrain visibility
+    terrain.toggleVisibility();
+  }
   resetTouch(event);
 }
 
@@ -110,4 +127,6 @@ async function start() {
   // position the virtual camera and load tiles
   virtualScene.setCameraPosition(utmLocation);
   terrain.loadTiles(utmLocation);
+
+  Logger.clear();
 }
