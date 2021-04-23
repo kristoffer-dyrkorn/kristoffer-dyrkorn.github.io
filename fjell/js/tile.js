@@ -96,7 +96,7 @@ export default class Tile {
 
     console.log(`Done storing ${this.x}-${this.y}, ${this.poiData.length} features.`)
     // show pois using default values
-    this.showPois(2000, 7000, 200, 3000, "ås")
+    this.showPois(2000, 7000, 200, 3000, "Ås")
   }
 
   setVisible(visible) {
@@ -128,7 +128,7 @@ export default class Tile {
       // scan all pois in the current tile while applying filters
 
       // first, apply the criterion requiring the least amount of calculations
-      if (feature.type === poiType) {
+      if (feature.type === poiType.toLowerCase()) {
         const position = feature.position
 
         // then, apply the distance criterion

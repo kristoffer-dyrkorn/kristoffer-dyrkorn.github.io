@@ -28,7 +28,7 @@ const controller = new (function () {
   this.maxDist = 7000;
   this.minElev = 200;
   this.maxElev = 3000;
-  this.poiType = "ås";
+  this.poiType = "Ås";
 })();
 
 const gui = new GUI();
@@ -71,7 +71,7 @@ gui
   });
 gui
   .add(controller, "minElev", 0, 3000, 100)
-  .name("Min elev")
+  .name("Min elevation")
   .onFinishChange(function () {
     terrain.updatePois(
       controller.minDist,
@@ -83,7 +83,7 @@ gui
   });
 gui
   .add(controller, "maxElev", 0, 3000, 100)
-  .name("Max elev")
+  .name("Max elevation")
   .onFinishChange(function () {
     terrain.updatePois(
       controller.minDist,
@@ -94,7 +94,7 @@ gui
     );
   });
 gui
-  .add(controller, "poiType", ["ås", "fjell", "turisthytte"])
+  .add(controller, "poiType", ["Ås", "Fjell", "Turisthytte"])
   .name("Poi type")
   .onChange(function () {
     terrain.updatePois(
