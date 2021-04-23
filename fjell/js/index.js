@@ -4,6 +4,7 @@ import * as THREE from "./three.module.js";
 import Renderer from "./renderer.js";
 import Terrain from "./terrain.js";
 import VideoHandler from "./videohandler.js";
+import { GUI } from "./dat.gui.module.js";
 
 const canvasElement = document.getElementById("glcanvas");
 const videoElement = document.getElementById("video");
@@ -19,6 +20,72 @@ let orientationChangeID;
 
 const startButton = document.getElementById("start");
 startButton.addEventListener("click", start);
+
+const controller = new (function () {
+  this.fov = 38;
+  this.showMesh = true;
+  this.minDist = 2000;
+  this.maxDist = 7000;
+  this.minElev = 200;
+  this.maxElev = 3000;
+  this.poiType = "ås";
+})();
+
+const gui = new GUI();
+gui.add(controller, "fov", 35, 45, 1).onChange(function () {
+  renderer.yFovLandscape = controller.fov;
+  resetViewport();
+});
+gui.add(controller, "showMesh", true).onChange(function () {
+  terrain.setVisibility(controller.showMesh);
+});
+gui.add(controller, "minDist", 100, 30000, 100).onFinishChange(function () {
+  terrain.updatePois(
+    controller.minDist,
+    controller.maxDist,
+    controller.minElev,
+    controller.maxElev,
+    controller.poiType
+  );
+});
+gui.add(controller, "maxDist", 100, 30000, 100).onFinishChange(function () {
+  terrain.updatePois(
+    controller.minDist,
+    controller.maxDist,
+    controller.minElev,
+    controller.maxElev,
+    controller.poiType
+  );
+});
+gui.add(controller, "minElev", 0, 3000, 100).onFinishChange(function () {
+  terrain.updatePois(
+    controller.minDist,
+    controller.maxDist,
+    controller.minElev,
+    controller.maxElev,
+    controller.poiType
+  );
+});
+gui.add(controller, "maxElev", 0, 3000, 100).onFinishChange(function () {
+  terrain.updatePois(
+    controller.minDist,
+    controller.maxDist,
+    controller.minElev,
+    controller.maxElev,
+    controller.poiType
+  );
+});
+gui
+  .add(controller, "poiType", ["ås", "fjell", "turisthytte"])
+  .onChange(function () {
+    terrain.updatePois(
+      controller.minDist,
+      controller.maxDist,
+      controller.minElev,
+      controller.maxElev,
+      controller.poiType
+    );
+  });
 
 window.addEventListener("orientationchange", () => {
   // Safari bug: window sizes are NOT immediately updated as orientations change
@@ -60,11 +127,7 @@ function readMove(event) {
 }
 
 function endTouch(event) {
-  if (lastTouch.deltaHeading < 5 && lastTouch.deltaPitch < 5) {
-    // if this was a tap, toggle terrain visibility
-    terrain.toggleVisibility();
-  }
-  resetTouch(event);
+  //  resetTouch(event);
 }
 
 function drawScene() {

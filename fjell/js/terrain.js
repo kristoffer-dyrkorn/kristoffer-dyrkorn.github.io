@@ -49,8 +49,14 @@ export default class Terrain {
     }
   }
 
-  toggleVisibility() {
-    this.visible = !this.visible;
+  setVisibility(visibility) {
+    this.visible = visibility;
     this.tiles.forEach((tile) => tile.setVisible(this.visible));
+  }
+
+  updatePois(minDist, maxDist, minElev, maxElev, poiType) {
+    this.tiles.forEach((tile) => {
+      tile.showPois(minDist, maxDist, minElev, maxElev, poiType);
+    });
   }
 }

@@ -3,16 +3,10 @@ import * as THREE from "./three.module.js";
 const NEAR_CLIP = 20;
 const FAR_CLIP = 36000; // when rendering 9 tiles: TILE_EXTENTS * SQRT(8)
 
-// https://developer.apple.com/library/archive/documentation/DeviceInformation/Reference/iOSDeviceCompatibility/Cameras/Cameras.html#//apple_ref/doc/uid/TP40013599-CH107-SW21
-// 1280x720 X_FOV = 60.983 => Y_FOV = 34.30
-
-// empirical value
-const Y_FOV_LANDSCAPE = 38;
-
 export default class Renderer {
-  constructor(webglElement, videoElement) {
+  constructor(canvasElement, videoElement) {
     this.renderer = new THREE.WebGLRenderer({
-      canvas: webglElement,
+      canvas: canvasElement,
     });
     this.renderer.setPixelRatio(window.devicePixelRatio);
     this.renderer.autoClear = false;
@@ -27,6 +21,12 @@ export default class Renderer {
     this.virtualCamera = new THREE.PerspectiveCamera();
     this.virtualCamera.near = NEAR_CLIP;
     this.virtualCamera.far = FAR_CLIP;
+
+    // https://developer.apple.com/library/archive/documentation/DeviceInformation/Reference/iOSDeviceCompatibility/Cameras/Cameras.html#//apple_ref/doc/uid/TP40013599-CH107-SW21
+    // 1280x720 X_FOV = 60.983 => Y_FOV = 34.30
+
+    // empirical value
+    this.yFovLandscape = 38;
 
     this.virtualScene.add(this.virtualCamera);
 
@@ -86,9 +86,9 @@ export default class Renderer {
   updateViewport(width, height) {
     this.virtualCamera.aspect = width / height;
     if (window.orientation == 0) {
-      this.virtualCamera.fov = Y_FOV_LANDSCAPE / this.virtualCamera.aspect;
+      this.virtualCamera.fov = this.yFovLandscape / this.virtualCamera.aspect;
     } else {
-      this.virtualCamera.fov = Y_FOV_LANDSCAPE;
+      this.virtualCamera.fov = this.yFovLandscape;
     }
     this.virtualCamera.updateProjectionMatrix();
 
@@ -119,6 +119,8 @@ export default class Renderer {
   setCameraPosition(position) {
     // set the pointer position 75 meters to the north
     this.northPointer.position.set(position.x, position.y + 75, position.z);
+
+    // use GPS elevation, not mesh elevation. assumes the two are in sync
     this.virtualCamera.position.set(position.x, position.y, position.z);
   }
 
@@ -133,8 +135,8 @@ export default class Renderer {
     // set webgl canvas as render target
     this.renderer.setRenderTarget(null);
 
-    // render the screen scene to the device screen
-    // it consists of a quad textured with a
+    // render the screen scene to the the WebGL canvas element
+    // the screen scene consists of a quad textured with a
     // blend of the virtual scene and the video stream
     this.renderer.clear();
     this.renderer.render(this.screenScene, this.screenCamera);

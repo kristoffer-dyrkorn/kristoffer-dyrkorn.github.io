@@ -68,7 +68,7 @@ export default class Tile {
     this.scene.add(this.wireframeLines)
     console.log("Added " + tileURL + " to scene")
 
-    //this.loadPois();
+    this.loadPois()
   }
 
   // read all pois for the tile
@@ -95,9 +95,8 @@ export default class Tile {
     })
 
     console.log(`Done storing ${this.x}-${this.y}, ${this.poiData.length} features.`)
-
     // show pois using default values
-    //   this.showPois(2000, 7000, 200, 3000, "ås");
+    this.showPois(2000, 7000, 200, 3000, "ås")
   }
 
   setVisible(visible) {
@@ -106,65 +105,79 @@ export default class Tile {
 
   // using filters, create pois, add them to this.poiCollection and to the scene
   showPois(minDist, maxDist, minElev, maxElev, poiType) {
-    // remove all pois from the scene
+    console.log(`Removing current pois`)
+
+    // first: remove all current pois from the scene
     this.scene.remove(this.poiCollection)
 
-    // dispose all geometry that was generated in the old poi set
+    // then, dispose all meshes generated from the old poi set
     this.poiCollection.children.forEach((poi) => {
       // a poi is a group of mesh elements, so traverse them
       poi.children.forEach((element) => {
         element.material.dispose()
         element.geometry.dispose()
       })
-      poi.dispose()
     })
-    //    this.poiCollection.dispose();
 
+    console.log(`Setting up new pois`)
+
+    // set up a new poi collection
     this.poiCollection = new THREE.Group()
 
     this.poiData.forEach((feature) => {
-      // scan all pois for this tile, applying specified filters
-      // first, use the most easily calculated criterion
+      // scan all pois in the current tile while applying filters
+
+      // first, apply the criterion requiring the least amount of calculations
       if (feature.type === poiType) {
         const position = feature.position
 
-        // then calculate poi distance to camera and use as criterion
+        // then, apply the distance criterion
         const distance =
           (position[0] - this.camera.position.x) * (position[0] - this.camera.position.x) +
           (position[1] - this.camera.position.y) * (position[1] - this.camera.position.y)
 
         if (distance > minDist * minDist && distance < maxDist * maxDist) {
-          // now, perform the costly elevation calculation
+          // if we are within the requested distances,
+          // perform the *very* costly elevation calculation
 
           // mesh triangles use coordinates relative to tile corner
           // so also use that here for ray casting
-          const poiPosition = new THREE.Vector3(position[0] - this.x, position[1] - this.y, 10000)
+          const poiPosition = new THREE.Vector3(
+            position[0] - this.x,
+            position[1] - this.y,
+            // use a dummy (high elevation) point as start point for downwards ray casting
+            10000
+          )
 
-          // find poi elevation by raycasting from above at poi xy location and down against mesh
+          console.log(`Finding poi elevation`)
+
+          // find actual poi elevation by raycasting from above and down against mesh
+          // ray-mesh intersection point = poi elevation
           const raycaster = new THREE.Raycaster()
           raycaster.set(poiPosition, new THREE.Vector3(0, 0, -1))
           const intersection = raycaster.intersectObject(this.tileMesh)
           position[2] = intersection[0].point.z
 
-          // if elevation is inside bounds, create and add poi
+          // if poi elevation is inside the filter criterion, create and add poi
           if (position[2] > minElev && position[2] < maxElev) {
             const poi = this.buildPoi(feature.name)
             // note: here we use absolute coordinates
             poi.position.set(position[0], position[1], position[2])
 
-            // rotate the poi towards the camera
+            // rotate the poi so it faces the camera
             poi.rotateZ(
               270 * THREE.Math.DEG2RAD +
                 Math.atan2(poi.position.y - this.camera.position.y, poi.position.x - this.camera.position.x)
             )
 
+            console.log(`Adding poi`)
             this.poiCollection.add(poi)
           }
         }
       }
     })
 
-    console.log("Added pois: " + this.poiCollection.children.length)
+    console.log(`Added ${this.poiCollection.children.length} pois`)
     this.scene.add(this.poiCollection)
   }
 

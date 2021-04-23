@@ -33,9 +33,9 @@ export default class OrientationHandler {
   }
 
   set(event) {
-    // when compass heading accuracy reaches 16 degrees (the best we can hope for)
+    // when compass heading accuracy reaches 20 degrees (the best we can hope for)
     // use that heading as a fixed reference
-    if (event.webkitCompassAccuracy < 16) {
+    if (event.webkitCompassAccuracy < 20) {
       if (!this.hasBaseheading) {
         this.baseHeading = event.webkitCompassHeading;
         this.hasBaseheading = true;
