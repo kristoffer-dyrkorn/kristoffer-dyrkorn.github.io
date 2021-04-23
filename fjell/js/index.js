@@ -32,51 +32,70 @@ const controller = new (function () {
 })();
 
 const gui = new GUI();
-gui.add(controller, "fov", 35, 45, 1).onChange(function () {
-  renderer.yFovLandscape = controller.fov;
-  resetViewport();
-});
-gui.add(controller, "showMesh", true).onChange(function () {
-  terrain.setVisibility(controller.showMesh);
-});
-gui.add(controller, "minDist", 100, 30000, 100).onFinishChange(function () {
-  terrain.updatePois(
-    controller.minDist,
-    controller.maxDist,
-    controller.minElev,
-    controller.maxElev,
-    controller.poiType
-  );
-});
-gui.add(controller, "maxDist", 100, 30000, 100).onFinishChange(function () {
-  terrain.updatePois(
-    controller.minDist,
-    controller.maxDist,
-    controller.minElev,
-    controller.maxElev,
-    controller.poiType
-  );
-});
-gui.add(controller, "minElev", 0, 3000, 100).onFinishChange(function () {
-  terrain.updatePois(
-    controller.minDist,
-    controller.maxDist,
-    controller.minElev,
-    controller.maxElev,
-    controller.poiType
-  );
-});
-gui.add(controller, "maxElev", 0, 3000, 100).onFinishChange(function () {
-  terrain.updatePois(
-    controller.minDist,
-    controller.maxDist,
-    controller.minElev,
-    controller.maxElev,
-    controller.poiType
-  );
-});
+gui
+  .add(controller, "fov", 35, 45, 1)
+  .name("FOV")
+  .onChange(function () {
+    renderer.yFovLandscape = controller.fov;
+    resetViewport();
+  });
+gui
+  .add(controller, "showMesh", true)
+  .name("Show mesh")
+  .onChange(function () {
+    terrain.setVisibility(controller.showMesh);
+  });
+gui
+  .add(controller, "minDist", 100, 30000, 100)
+  .name("Near limit")
+  .onFinishChange(function () {
+    terrain.updatePois(
+      controller.minDist,
+      controller.maxDist,
+      controller.minElev,
+      controller.maxElev,
+      controller.poiType
+    );
+  });
+gui
+  .add(controller, "maxDist", 100, 30000, 100)
+  .name("Far limit")
+  .onFinishChange(function () {
+    terrain.updatePois(
+      controller.minDist,
+      controller.maxDist,
+      controller.minElev,
+      controller.maxElev,
+      controller.poiType
+    );
+  });
+gui
+  .add(controller, "minElev", 0, 3000, 100)
+  .name("Min elev")
+  .onFinishChange(function () {
+    terrain.updatePois(
+      controller.minDist,
+      controller.maxDist,
+      controller.minElev,
+      controller.maxElev,
+      controller.poiType
+    );
+  });
+gui
+  .add(controller, "maxElev", 0, 3000, 100)
+  .name("Max elev")
+  .onFinishChange(function () {
+    terrain.updatePois(
+      controller.minDist,
+      controller.maxDist,
+      controller.minElev,
+      controller.maxElev,
+      controller.poiType
+    );
+  });
 gui
   .add(controller, "poiType", ["ås", "fjell", "turisthytte"])
+  .name("Poi type")
   .onChange(function () {
     terrain.updatePois(
       controller.minDist,
