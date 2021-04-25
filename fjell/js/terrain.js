@@ -55,8 +55,12 @@ export default class Terrain {
   }
 
   updatePois(minDist, maxDist, minElev, maxElev, poiType) {
+    Tile.totalPois = 0;
+
     this.tiles.forEach((tile) => {
       tile.showPois(minDist, maxDist, minElev, maxElev, poiType);
     });
+
+    console.log("Showing " + Tile.totalPois + " pois.");
   }
 }

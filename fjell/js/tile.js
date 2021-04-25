@@ -3,6 +3,8 @@ import * as THREE from "./three.module.js"
 const SERVER = "https://s3-eu-west-1.amazonaws.com/kd-flightsim/"
 // const SERVER = "";
 
+const TILE_EXTENTS = 12750
+
 export default class Tile {
   constructor(x, y, camera, scene, font) {
     this.x = x
@@ -16,10 +18,11 @@ export default class Tile {
     this.poiCollection = new THREE.Group()
 
     this.tileMesh = new THREE.Mesh()
+    this.tileMesh.position.set(this.x, this.y, 0)
+
     this.tileMesh.geometry = new THREE.BufferGeometry()
     this.tileMesh.material = new THREE.MeshBasicMaterial()
-
-    this.wireframeLines = new THREE.LineSegments()
+    this.tileMesh.material.wireframe = true
   }
 
   async load() {
@@ -59,20 +62,14 @@ export default class Tile {
     this.tileMesh.geometry.setAttribute("uv", uvAttribute)
     this.tileMesh.geometry.index = indexAttribute
 
-    console.log("Converting " + tileURL + " to wireframe geometry")
-
-    const wireframeGeometry = new THREE.WireframeGeometry(this.tileMesh.geometry)
-    this.wireframeLines = new THREE.LineSegments(wireframeGeometry)
-    this.wireframeLines.position.set(this.x, this.y, 0)
-
-    this.scene.add(this.wireframeLines)
+    this.scene.add(this.tileMesh)
     console.log("Added " + tileURL + " to scene")
 
     this.loadPois()
   }
 
   // read all pois for the tile
-  // and store poi xy location info in the this.poiData array
+  // and store poi position info in the this.poiData array
   async loadPois() {
     const poiURL = `poi/${this.x}-${this.y}.json`
 
@@ -81,16 +78,11 @@ export default class Tile {
     console.log("Loaded " + poiURL)
     console.log("Storing pois from " + poiURL)
     features.forEach((feature) => {
-      // read xy coords
-      const position = feature.position
-      // add dummy z coord, set elevation to be 0
-      position.push(0)
-
       // note: here, the absolute location is stored
       this.poiData.push({
         type: feature.type,
         name: feature.name,
-        position: position,
+        position: feature.position,
       })
     })
 
@@ -100,7 +92,7 @@ export default class Tile {
   }
 
   setVisible(visible) {
-    this.wireframeLines.visible = visible
+    this.tileMesh.visible = visible
   }
 
   // using filters, create pois, add them to this.poiCollection and to the scene
@@ -127,41 +119,23 @@ export default class Tile {
     this.poiData.forEach((feature) => {
       // scan all pois in the current tile while applying filters
 
-      // first, apply the criterion requiring the least amount of calculations
+      // check for poi type first
       if (feature.type === poiType.toLowerCase()) {
         const position = feature.position
 
-        // then, apply the distance criterion
+        // then, check the distance
         const distance =
           (position[0] - this.camera.position.x) * (position[0] - this.camera.position.x) +
-          (position[1] - this.camera.position.y) * (position[1] - this.camera.position.y)
+          (position[1] - this.camera.position.y) * (position[1] - this.camera.position.y) +
+          (position[2] - this.camera.position.z) * (position[2] - this.camera.position.z)
 
         if (distance > minDist * minDist && distance < maxDist * maxDist) {
           // if we are within the requested distances,
-          // perform the *very* costly elevation calculation
 
-          // mesh triangles use coordinates relative to tile corner
-          // so also use that here for ray casting
-          const poiPosition = new THREE.Vector3(
-            position[0] - this.x,
-            position[1] - this.y,
-            // use a dummy (high elevation) point as start point for downwards ray casting
-            10000
-          )
-
-          console.log(`Finding poi elevation`)
-
-          // find actual poi elevation by raycasting from above and down against mesh
-          // ray-mesh intersection point = poi elevation
-          const raycaster = new THREE.Raycaster()
-          raycaster.set(poiPosition, new THREE.Vector3(0, 0, -1))
-          const intersection = raycaster.intersectObject(this.tileMesh)
-          position[2] = intersection[0].point.z
-
-          // if poi elevation is inside the filter criterion, create and add poi
+          // check if poi elevation is inside the filter criterion
+          // if so, create and add poi
           if (position[2] > minElev && position[2] < maxElev) {
             const poi = this.buildPoi(feature.name)
-            // note: here we use absolute coordinates
             poi.position.set(position[0], position[1], position[2])
 
             // rotate the poi so it faces the camera
@@ -170,8 +144,8 @@ export default class Tile {
                 Math.atan2(poi.position.y - this.camera.position.y, poi.position.x - this.camera.position.x)
             )
 
-            console.log(`Adding poi`)
             this.poiCollection.add(poi)
+            Tile.totalPois++
           }
         }
       }
@@ -233,3 +207,5 @@ export default class Tile {
     return poi
   }
 }
+
+Tile.totalPois = 0
