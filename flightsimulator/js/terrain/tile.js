@@ -22,7 +22,7 @@ export default class Tile {
     this.tileMesh.updateMatrixWorld()
 
     this.tileMesh.geometry = new THREE.BufferGeometry()
-    // use a very simple material, all light and shading info is baked into the texture
+    // use a very simple material, all light and shading of terrain is baked into the texture
     this.tileMesh.material = new THREE.MeshBasicMaterial()
   }
 
@@ -57,12 +57,12 @@ export default class Tile {
       this.scene.remove(this.tileMesh)
 
       // dispose, ie empty, the geometry and material data
-      // but do not null the objects
+      // but do not null the geometry and material objects
       this.tileMesh.material.map.dispose()
       this.tileMesh.material.map = null
 
-      // since, when we load a tile we re-populate the existing objects
-      // this way we save object removal, GC and re-allocation
+      // when we load a tile we re-populate the existing objects
+      // this way we reduce GC and re-allocation of memory
       this.tileMesh.material.dispose()
       this.tileMesh.geometry.dispose()
 
