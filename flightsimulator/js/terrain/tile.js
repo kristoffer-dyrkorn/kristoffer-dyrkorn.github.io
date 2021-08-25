@@ -1,8 +1,7 @@
 import * as THREE from "../graphics/three.module.js"
 import { BasisTextureLoader } from "../graphics/BasisTextureLoader.js"
 
-// const SERVER = "https://s3-eu-west-1.amazonaws.com/kd-flightsim"
-const SERVER = ""
+const SERVER = "https://s3-eu-west-1.amazonaws.com/kd-flightsim"
 
 export default class Tile {
   constructor(scene, terrain, tileExtents, lowerLeft) {
