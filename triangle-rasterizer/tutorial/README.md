@@ -198,7 +198,7 @@ Note: In the canvas coordinate system, (0, 0) is the top left pixel. The x-axis 
 
 When drawing, we will actually not write values directly to the canvas array. Instead, we create a separate array (often called a buffer), draw on that, and then copy the buffer contents over to the canvas array. This way of doing things eliminates flicker that might otherwise appear if we draw directly to the screen while it is being refreshed. The screen refreshes 60 times per second and although we already synchronise our drawing with the screen refresh rate, we will use an intermediate buffer. The reason is that it is more efficient to draw into a buffer in RAM, and then send the full buffer to the GPU in one go, rather than sending lots of small updates directly to the GPU.
 
-How do we create this buffer? First, we need get the so-called `drawing context` for the canvas element:
+How do we create this buffer? First, we need to get the so-called `drawing context` for the canvas element:
 
 ```JavaScript
 const ctx = canvas.getContext("2d");
