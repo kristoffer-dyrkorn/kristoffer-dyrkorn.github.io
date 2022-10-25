@@ -1,5 +1,5 @@
 markdown: kramdown
 kramdown:
-  highlighter: rouge
-    input: GFM
+  syntax_highlighter_opts:
+    disable: true
 google_analytics: G-R83Q8MQXT4
