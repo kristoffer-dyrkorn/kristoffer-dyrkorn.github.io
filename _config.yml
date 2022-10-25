@@ -1,1 +1,4 @@
+markdown: kramdown
+highlighter: rouge
+  input: GFM
 google_analytics: G-R83Q8MQXT4
