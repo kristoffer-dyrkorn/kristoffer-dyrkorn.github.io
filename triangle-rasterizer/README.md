@@ -12,7 +12,7 @@ However, on a computer screen we cannot draw lines directly, instead we need to 
 <img src="images/0-rasterization.png" width="75%">
 </p>
 
-This tutorial is structured as follows: First, you will get to know the principles behind triangle rasterization and the approach we will use here. Then we will make a simple, first version of a rasterizer. Then we will gradually refine it as we see needs for improvements. The focus here will be on correctness - ie that the rasterizer draws exactly those pixels it should, so that there will be no gaps and no overlaps. The final section in the tutorial looks at performance optimizations - and as you will see, the changes we make there will give the rasterizer a tenfold performance boost!
+This tutorial is structured as follows: First, you will get to know the principles behind triangle rasterization and the approach we will use here. Then we will make a simple, first version of a rasterizer. Then we will gradually refine it as we see needs for improvements. The focus here will be on correctness - ie that the rasterizer draws exactly those pixels it should, so that there will be no gaps and no overlaps. We will also look at performance optimizations - and as you will see, the changes we make in section 9 will make the rasterizer ten times as fast!
 
 ## Sections
 
@@ -27,6 +27,6 @@ This tutorial is structured as follows: First, you will get to know the principl
 9. [Time to go incremental](9)
 10. [Epilogue](10)
 
-If you want to test out, modify and run the example code locally, clone this repository, start a local web server in the root directory (for example, using `python3 -m http.server`) and open the web page (at `http://localhost:8000` or similar). Each subfolder in the directory list has a running application you can look at.
+If you want to test out, modify and run the example code locally, clone [this repository](https://github.com/kristoffer-dyrkorn/triangle-rasterizer), start a local web server in the root directory (for example, using `python3 -m http.server`) and open the web page (at `http://localhost:8000` or similar). Each subfolder has a running application you can look at, and the folder name matches the section number.
 
-I you would prefer to just look at the example apps, follow the links at the end of each section.
+I you would prefer to just run the example apps, follow the links at the bottom of each section.
