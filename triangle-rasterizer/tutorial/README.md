@@ -935,10 +935,30 @@ Here, we have also rephrased the expression for evaluating `w`: The values in `w
 
 Looking at the code now, we see that the innermost loop only consists of copying values from one variable to another - or adding/subtracting values. There is no obvious way to further simplify how we evaluate `w` for each pixel. Also note that we take care to instantiate all objects before we enter the loops that draw pixels. This way we don't need to spend time allocating (or garbage collecting) memory, and the overhead of memory management in the inner loops is eliminated.
 
-We now call it a day. Drawing a single triangle takes 0.23 ms on my machine. That is 10% of the time the previous version needed! We have made this version has become ten times as fast as the previous, just by doing the candidate pixel calculations incrementally - instead of from scratch.
+We now call it a day. Drawing a single triangle takes 0.23 ms on my machine. We have made this version ten times as fast as the previous! All thanks to incrementally evaluating candidate pixels. There is likely a lot more optimzations that can be done, but we will stop here now.
 
-The result is a fast, smooth and correct triangle rasterizer. Not bad!
+Anyway, the result is a fast, smooth and correct triangle rasterizer. Not bad!
 
 Here you can look at the final version [of the code](9) and the [utility classes](lib). There is also [the final example app](https://kristoffer-dyrkorn.github.io/triangle-rasterizer/9/). As before, press `space` to show/hide the blue triangle, and `p` to turn the animation on/off.
 
 # 10. Epilogue
+
+I hope the tutorial has brought you some new ideas and insights! It is the result of some time spent reading and exploring the concepts, and of testing them out in code. My main sources have been:
+
+- [This article series](https://fgiesen.wordpress.com/2013/02/06/the-barycentric-conspirac/) by Fabian Giesen (ryg)
+- Scratchapixel's [article](https://www.scratchapixel.com/lessons/3d-basic-rendering/rasterization-practical-implementation) on rasterization
+
+In the series here I've tried to shed some light on topics that are rarely explained in detail. Hopefully this will have made it easier to learn the entire process behind triangle rasterization.
+
+Did you miss anything? Where some things hard to understand? Or simply not correct? Feel free to [give me feedback](https://github.com/kristoffer-dyrkorn/triangle-rasterizer/issues)!
+
+## What next?
+
+There are endless ways to continue on the work here. Some ideas:
+
+- modifying the rasterizer so it works on tiles (squares of, for example, 8x8 pixels)
+- making the rasterizer run on tiles, and in parallel (just like GPUs do)
+- adding support for more advanced triangle filling:
+  -- interpolated vertex colors (linear interpolation is fast, but not correct)
+  -- perspective correct interpolation of vertex colors or textures
+  -- shading (interpolation of vertex normals and light calculations for each pixel)
