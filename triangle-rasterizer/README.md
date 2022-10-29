@@ -16,15 +16,16 @@ This tutorial is structured as follows: First, you will get to know the principl
 
 ## Sections
 
-1. [A walkthrough of the method](#1-a-walkthrough-of-the-method)
-2. [Setting up the browser to draw pixels](#2-setting-up-the-browser-to-draw-pixels)
-3. [The first, basic rasterizer](#3-the-first-basic-rasterizer)
-4. [Moar triangles, moar problems](#4-moar-triangles-moar-problems)
-5. [We've got to move it](#5-weve-got-to-move-it)
-6. [Let's go continuous!](#6-lets-go-continuous)
-7. [One solution, but two new problems](#7-one-solution-but-two-new-problems)
-8. [Let's fix this](#8-lets-fix-this)
-9. [Time to go incremental](#9-time-to-go-incremental)
+1. [A walkthrough of the method](1)
+2. [Setting up the browser to draw pixels](2)
+3. [The first, basic rasterizer](3)
+4. [Moar triangles, moar problems](4)
+5. [We've got to move it](5)
+6. [Let's go continuous!](6)
+7. [One solution, but two new problems](7)
+8. [Let's fix this](8)
+9. [Time to go incremental](9)
+10. [Epilogue](10)
 
 If you want to test out, modify and run the example code locally, clone this repository, start a local web server in the root directory (for example, using `python3 -m http.server`) and open the web page (at `http://localhost:8000` or similar). Each subfolder in the directory list has a running application you can look at.
 
