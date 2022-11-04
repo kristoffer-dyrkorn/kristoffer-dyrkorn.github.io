@@ -1,3 +1,5 @@
+<div style="text-align:right; color:#aaa">November 4, 2022</div>
+
 # A fast and precise triangle rasterizer
 
 In this article series, you will get to learn how a computer draws a triangle on the screen. This may look like a strange thing to study, but if you go through the series you will likely discover that there are surprising complexity, details and tradeoffs involved in drawing triangles.
@@ -10,7 +12,7 @@ To begin with, let's have a look at what it means to draw a triangle on the scre
 <img src="images/0-rasterization.png" width="75%">
 </p>
 
-The article series is structured as follows: First, you will get to know the principles behind triangle rasterization and the spesific approach we will use. Then we will make a simple, first version of a rasterizer. Then we will gradually refine it as we see needs for improvement. We will first prioritize correctness - ie that the rasterizer draws exactly those pixels it should, so that there will be no gaps and no overlaps. We will then look at performance optimizations. As you will see, the improvements we make near the final section will make the rasterizer ten times as fast!
+The article series is structured as follows: First, you will get to know the principles behind triangle rasterization and the specific approach we will use. Then we will make a simple, first version of a rasterizer. Then we will gradually refine it as we see needs for improvement. We will first prioritize correctness - ie that the rasterizer draws exactly those pixels it should, so that there will be no gaps and no overlaps. We will then look at performance optimizations. As you will see, the improvements we make near the final section will make the rasterizer ten times as fast!
 
 ## Sections
 
