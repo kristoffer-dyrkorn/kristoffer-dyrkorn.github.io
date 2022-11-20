@@ -2,17 +2,28 @@
 
 # A fast and precise triangle rasterizer
 
-In this article series, you will get to learn how a computer draws a triangle on the screen. This may look like a strange thing to study, but if you go through the series you will likely discover that there are surprising complexity, details and tradeoffs involved in drawing triangles.
+In this article series, you will get to learn how a computer draws a triangle on the screen. We will go through a software implementation of the method GPUs use when they draw (single-colored) triangles, and through example code and small demo apps you can run yourself you will get to know the challenges - and solutions - involved in making a fast and precise software rasterizer.
 
-That experience is not unusual in the field of computer graphics - or even computer science itself: If you stumble upon a problem and ask yourself: "Can it be that hard" - then well, yes, sometimes it can! Drawing a triangle on screen correctly and efficiently is certainly not trivial. At the same time, this is at times considered an "old" and "already solved" problem. However, that should not stop us from learning more. Depending on your experience and skill level there are likely some unexpected tricks that can be learned, tricks that can be applied in other contexts - such as maths, numerics, computer graphics or performance optimization.
+We will use JavaScript as the implementation language, and build everything from scratch. The code will run standalone in any modern browser and should be fairly easy to port to other languages or runtime environments.
 
-To begin with, let's have a look at what it means to draw a triangle on the screen. The process is often called triangle rasterization. The word _rasterization_ can be explained this way: A triangle is defined by three points (vertices). By drawing lines between each of them the triangle appears. However, a computer cannot just draw an ideal triangle defined by lines. On a computer screen we instead have to draw pixels. Put differently: We have to tell the computer to change the colors for a certain set of pixels - that make the triangle - on the screen. The screen pixels are organized in a regular grid, a _raster_, and this is what gives us the meaning: By rasterization we mean the process of figuring out how to draw some geometry, typically defined by lines or mathematical functions, on a pixel screen.
+This tutorial will work best if you have basic knowledge of maths and programming, but you will not need much more than that.
+
+The main topics are:
+
+- an outline of the most common rasterization method
+- the problems floating point number representations can introduce
+- an intro to the fixed point number representation and how it relates to subpixels
+- achieving a 10x performance gain by using incremental calculations
+
+But now, let's get started.
+
+Let's have a look at what it means to draw a triangle on the screen - to _rasterize_ a triangle. The word _rasterization_ can be explained this way: A triangle is defined by three points (vertices). If you draw lines between each of them, you get to see the triangle. However, a computer cannot do that - a computer needs to draw pixels. Put differently: To make the computer draw a triangle, we have to tell it to change the colors for a certain set of pixels - that together make up the triangle - on screen. Screen pixels are organized in a regular grid, a _raster_, and this is what gives us the name: Rasterization is the process of drawing geometry, typically defined by lines or mathematical functions, on a pixel screen.
 
 <p align="center">
 <img src="images/0-rasterization.png" width="75%">
 </p>
 
-The article series is structured as follows: First, you will get to know the principles behind triangle rasterization and the specific approach we will use. Then we will make a simple, first version of a rasterizer. Then we will gradually refine it as we see needs for improvement. We will first prioritize correctness - ie that the rasterizer draws exactly those pixels it should, so that there will be no gaps and no overlaps. We will then look at performance optimizations. As you will see, the improvements we make near the final section will make the rasterizer ten times as fast!
+The article series is structured as follows: First, you will get to know the principles behind triangle rasterization and the specific approach we will use. We will then make a simple, first version of a rasterizer. It will gradually be refined as we test it out and discover needs for improvement. We will first prioritize correctness - ie that the rasterizer draws exactly those pixels it should. We will then look at performance optimizations. As you will see, the improvements we make will make the final version ten times as fast as the previous!
 
 ## Sections
 
@@ -27,6 +38,6 @@ The article series is structured as follows: First, you will get to know the pri
 9. [Time to go incremental](9)
 10. [Epilogue](10)
 
-If you want to test out, modify and run the example code locally, clone [this repository](https://github.com/kristoffer-dyrkorn/triangle-rasterizer), start a local web server in the root directory (for example, using `python3 -m http.server`) and open the web page (at `http://localhost:8000` or similar). Each subfolder there has a running application you can look at. The folder names match the section numbers used here.
+If you want to test out, modify and run the example code locally, clone [this repository](https://github.com/kristoffer-dyrkorn/triangle-rasterizer), start a local web server in the root directory (for example, using `python3 -m http.server`) and open the web page (at `http://localhost:8000` or similar). Each subfolder has a small demo application you can look at.
 
 If you prefer to just run the example apps, use the links at the bottom of each section.
