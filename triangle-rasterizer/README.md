@@ -8,12 +8,12 @@ We will use JavaScript as the implementation language, and build everything from
 
 This tutorial will work best if you have some knowledge of maths, programming and binary numbers, but otherwise no particular background or skill set is needed.
 
-The main topics are:
+The main takeaways are:
 
 - an outline of the most common rasterization method
 - the problems floating point number representations can introduce
 - an intro to the fixed point number representation, and how it relates to subpixels
-- using incremental calculations to get a 10x performance gain
+- incremental calculations in the rasterizer can give a 10x performance gain
 
 But now, let's get started!
 
