@@ -23,7 +23,7 @@ First, let's have a look at what it means to draw a triangle on the screen - to 
 <img src="images/0-rasterization.png" width="75%">
 </p>
 
-The article series is structured as follows: First, you will get to know the principles behind triangle rasterization and the specific approach we will use. We will then make a simple, first version of a rasterizer. It will gradually be refined as we test it out and discover needs for improvement. We will first prioritize correctness - ie that the rasterizer draws exactly those pixels it should. We will then look at performance optimizations. As you will see, the improvements will give us a tenfold performance boost!
+The article series is structured as follows: First, you will get to know the principles behind triangle rasterization and the specific approach we will use. We will then make a simple, first version of a rasterizer. It will gradually be refined as we test it out and discover needs for improvement. We will first prioritize correctness - ie that the rasterizer draws exactly the pixels it should. We will then look at performance optimizations. As you will see, the improvements will give us a tenfold performance boost!
 
 ## Sections
 
