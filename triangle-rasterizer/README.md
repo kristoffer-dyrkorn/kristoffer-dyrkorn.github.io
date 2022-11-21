@@ -4,9 +4,9 @@
 
 In this article series, you will get to learn how a computer draws a triangle on the screen. We will create a simplified software implementation of the method GPUs use when they draw (single-colored) triangles, and through example code and small demo apps you will gain insights in the challenges - and solutions - involved in making a fast and precise software rasterizer.
 
-We will use JavaScript as the implementation language, and build everything from scratch. The code will run standalone in any modern browser and should be fairly easy to port to other languages or runtime environments.
+We will use JavaScript as the implementation language, and build everything from scratch. The code will run standalone in any modern browser and should be fairly easy to port to other languages and runtime environments.
 
-This tutorial will work best if you have some knowledge of maths, programming and binary numbers, but otherwise no particular background or skill set is needed.
+The tutorial will work best if you have some knowledge of maths, programming and binary numbers, but otherwise no particular background or skill set is needed.
 
 The main takeaways are:
 
