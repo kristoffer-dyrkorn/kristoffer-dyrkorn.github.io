@@ -1,6 +1,6 @@
 <div style="text-align:right; color:#aaa">Kristoffer Dyrkorn, November 4, 2022</div>
 
-## A fast and precise triangle rasterizer
+# A fast and precise triangle rasterizer
 
 <p align="center">
 <img src="images/4-two-triangles.png" width="90%">
