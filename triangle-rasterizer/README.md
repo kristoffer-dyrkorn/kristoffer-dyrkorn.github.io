@@ -1,5 +1,7 @@
 <div style="text-align:right; color:#aaa">Kristoffer Dyrkorn, November 4, 2022</div>
 
+<hr/>
+
 <p align="center">
 <img src="images/4-two-triangles.png">
 </p>
