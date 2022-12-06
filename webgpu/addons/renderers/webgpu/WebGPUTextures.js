@@ -18,7 +18,7 @@ import {
   FloatType,
   HalfFloatType,
   sRGBEncoding,
-} from "../../three.module.js"
+} from "../../../three.module.js"
 import WebGPUTextureUtils from "./WebGPUTextureUtils.js"
 
 class WebGPUTextures {

@@ -6,7 +6,7 @@ import {
   BackSide,
   EquirectangularReflectionMapping,
   EquirectangularRefractionMapping,
-} from "../../three.module.js"
+} from "../../../three.module.js"
 import {
   context,
   vec2,
@@ -19,7 +19,7 @@ import {
   viewportBottomLeft,
   equirectUV,
   MeshBasicNodeMaterial,
-} from "three/nodes"
+} from "../../nodes/Nodes.js"
 
 let _clearAlpha
 const _clearColor = new Color()
