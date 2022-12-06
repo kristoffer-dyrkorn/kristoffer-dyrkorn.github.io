@@ -1,51 +1,39 @@
-import TempNode from '../core/Node.js';
-import { ShaderNode, mul, float } from '../shadernode/ShaderNodeBaseElements.js';
+import TempNode from "../core/Node.js"
+import { ShaderNode, mul, float } from "../shadernode/ShaderNodeBaseElements.js"
 
-import { LinearToneMapping } from 'three';
+import { LinearToneMapping } from "../../three.module.js"
 
 // exposure only
-export const LinearToneMappingNode = new ShaderNode( ( { color, exposure } ) => {
-
-	return mul( color, exposure );
-
-} );
+export const LinearToneMappingNode = new ShaderNode(({ color, exposure }) => {
+  return mul(color, exposure)
+})
 
 class ToneMappingNode extends TempNode {
+  constructor(toneMapping, exposureNode = float(1), colorNode = null) {
+    super("vec3")
 
-	constructor( toneMapping, exposureNode = float( 1 ), colorNode = null ) {
+    this.toneMapping = toneMapping
 
-		super( 'vec3' );
+    this.exposureNode = exposureNode
+    this.colorNode = colorNode
+  }
 
-		this.toneMapping = toneMapping;
+  construct(builder) {
+    const colorNode = this.colorNode || builder.context.color
 
-		this.exposureNode = exposureNode;
-		this.colorNode = colorNode;
+    const toneMapping = this.toneMapping
+    const toneMappingParams = { exposure: this.exposureNode, color: colorNode }
 
-	}
+    let outputNode = null
 
-	construct( builder ) {
+    if (toneMapping === LinearToneMapping) {
+      outputNode = LinearToneMappingNode.call(toneMappingParams)
+    } else {
+      outputNode = colorNode
+    }
 
-		const colorNode = this.colorNode || builder.context.color;
-
-		const toneMapping = this.toneMapping;
-		const toneMappingParams = { exposure: this.exposureNode, color: colorNode };
-
-		let outputNode = null;
-
-		if ( toneMapping === LinearToneMapping ) {
-
-			outputNode = LinearToneMappingNode.call( toneMappingParams );
-
-		} else {
-
-			outputNode = colorNode;
-
-		}
-
-		return outputNode;
-
-	}
-
+    return outputNode
+  }
 }
 
-export default ToneMappingNode;
+export default ToneMappingNode

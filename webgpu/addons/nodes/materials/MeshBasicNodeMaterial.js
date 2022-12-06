@@ -1,48 +1,42 @@
-import NodeMaterial from './NodeMaterial.js';
-import { MeshBasicMaterial } from 'three';
+import NodeMaterial from "./NodeMaterial.js"
+import { MeshBasicMaterial } from "../../three.module.js"
 
-const defaultValues = new MeshBasicMaterial();
+const defaultValues = new MeshBasicMaterial()
 
 class MeshBasicNodeMaterial extends NodeMaterial {
+  constructor(parameters) {
+    super()
 
-	constructor( parameters ) {
+    this.isMeshBasicNodeMaterial = true
 
-		super();
+    this.lights = true
 
-		this.isMeshBasicNodeMaterial = true;
+    this.colorNode = null
+    this.opacityNode = null
 
-		this.lights = true;
+    this.alphaTestNode = null
 
-		this.colorNode = null;
-		this.opacityNode = null;
+    this.lightNode = null
 
-		this.alphaTestNode = null;
+    this.positionNode = null
 
-		this.lightNode = null;
+    this.setDefaultValues(defaultValues)
 
-		this.positionNode = null;
+    this.setValues(parameters)
+  }
 
-		this.setDefaultValues( defaultValues );
+  copy(source) {
+    this.colorNode = source.colorNode
+    this.opacityNode = source.opacityNode
 
-		this.setValues( parameters );
+    this.alphaTestNode = source.alphaTestNode
 
-	}
+    this.lightNode = source.lightNode
 
-	copy( source ) {
+    this.positionNode = source.positionNode
 
-		this.colorNode = source.colorNode;
-		this.opacityNode = source.opacityNode;
-
-		this.alphaTestNode = source.alphaTestNode;
-
-		this.lightNode = source.lightNode;
-
-		this.positionNode = source.positionNode;
-
-		return super.copy( source );
-
-	}
-
+    return super.copy(source)
+  }
 }
 
-export default MeshBasicNodeMaterial;
+export default MeshBasicNodeMaterial

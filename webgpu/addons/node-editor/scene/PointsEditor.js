@@ -1,99 +1,75 @@
-import { LabelElement } from '../../libs/flow.module.js';
-import { Object3DEditor } from './Object3DEditor.js';
-import { Points } from 'three';
+import { LabelElement } from "../../libs/flow.module.js"
+import { Object3DEditor } from "./Object3DEditor.js"
+import { Points } from "../../three.module.js"
 
 export class PointsEditor extends Object3DEditor {
+  constructor(points = null) {
+    if (points === null) {
+      points = new Points()
+    }
 
-	constructor( points = null ) {
+    super(points, "Points")
 
-		if ( points === null ) {
+    this.material = null
 
-			points = new Points();
+    this.defaultMaterial = null
 
-		}
+    this._initMaterial()
 
-		super( points, 'Points' );
+    this.updateDefault()
+    this.restoreDefault()
+    this.update()
+  }
 
-		this.material = null;
+  get points() {
+    return this.value
+  }
 
-		this.defaultMaterial = null;
+  _initMaterial() {
+    const materialElement = new LabelElement("Material").setInputColor("forestgreen").setInput(1)
 
-		this._initMaterial();
+    materialElement
+      .onValid((source, target, stage) => {
+        const object = target.getObject()
 
-		this.updateDefault();
-		this.restoreDefault();
-		this.update();
+        if (object && object.isMaterial !== true) {
+          if (stage === "dragged") {
+            const name = target.node.getName()
 
-	}
+            this.editor.tips.error(`"${name}" is not a Material.`)
+          }
 
-	get points() {
+          return false
+        }
+      })
+      .onConnect(() => {
+        this.material = materialElement.getLinkedObject() || this.defaultMaterial
 
-		return this.value;
+        this.update()
+      })
 
-	}
+    this.add(materialElement)
+  }
 
-	_initMaterial() {
+  update() {
+    super.update()
 
-		const materialElement = new LabelElement( 'Material' ).setInputColor( 'forestgreen' ).setInput( 1 );
+    const points = this.points
 
-		materialElement.onValid( ( source, target, stage ) => {
+    if (points) {
+      points.material = this.material || this.defaultMaterial
+    }
+  }
 
-			const object = target.getObject();
+  updateDefault() {
+    super.updateDefault()
 
-			if ( object && object.isMaterial !== true ) {
+    this.defaultMaterial = this.points.material
+  }
 
-				if ( stage === 'dragged' ) {
+  restoreDefault() {
+    super.restoreDefault()
 
-					const name = target.node.getName();
-
-					this.editor.tips.error( `"${name}" is not a Material.` );
-
-				}
-
-				return false;
-
-			}
-
-		} ).onConnect( () => {
-
-			this.material = materialElement.getLinkedObject() || this.defaultMaterial;
-
-			this.update();
-
-		} );
-
-		this.add( materialElement );
-
-	}
-
-	update() {
-
-		super.update();
-
-		const points = this.points;
-
-		if ( points ) {
-
-			points.material = this.material || this.defaultMaterial;
-
-		}
-
-	}
-
-	updateDefault() {
-
-		super.updateDefault();
-
-		this.defaultMaterial = this.points.material;
-
-	}
-
-	restoreDefault() {
-
-		super.restoreDefault();
-
-		this.points.material = this.defaultMaterial;
-
-	}
-
+    this.points.material = this.defaultMaterial
+  }
 }

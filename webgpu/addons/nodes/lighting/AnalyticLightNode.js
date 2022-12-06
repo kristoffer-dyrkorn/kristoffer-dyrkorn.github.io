@@ -1,37 +1,29 @@
-import LightingNode from './LightingNode.js';
-import { NodeUpdateType } from '../core/constants.js';
-import { uniform } from '../shadernode/ShaderNodeElements.js';
+import LightingNode from "./LightingNode.js"
+import { NodeUpdateType } from "../core/constants.js"
+import { uniform } from "../shadernode/ShaderNodeElements.js"
 
-import { Color } from 'three';
+import { Color } from "../../three.module.js"
 
 class AnalyticLightNode extends LightingNode {
+  constructor(light = null) {
+    super()
 
-	constructor( light = null ) {
+    this.updateType = NodeUpdateType.OBJECT
 
-		super();
+    this.light = light
 
-		this.updateType = NodeUpdateType.OBJECT;
+    this.colorNode = uniform(new Color())
+  }
 
-		this.light = light;
+  getHash(/*builder*/) {
+    return this.light.uuid
+  }
 
-		this.colorNode = uniform( new Color() );
+  update(/*frame*/) {
+    const { light } = this
 
-	}
-
-	getHash( /*builder*/ ) {
-
-		return this.light.uuid;
-
-	}
-
-	update( /*frame*/ ) {
-
-		const { light } = this;
-
-		this.colorNode.value.copy( light.color ).multiplyScalar( light.intensity );
-
-	}
-
+    this.colorNode.value.copy(light.color).multiplyScalar(light.intensity)
+  }
 }
 
-export default AnalyticLightNode;
+export default AnalyticLightNode

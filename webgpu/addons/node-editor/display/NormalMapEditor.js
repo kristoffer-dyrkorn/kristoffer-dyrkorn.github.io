@@ -1,49 +1,40 @@
-import { SelectInput, Element, LabelElement } from '../../libs/flow.module.js';
-import { BaseNode } from '../core/BaseNode.js';
-import { NormalMapNode, ConstNode } from 'three/nodes';
-import { TangentSpaceNormalMap, ObjectSpaceNormalMap } from 'three';
+import { SelectInput, Element, LabelElement } from "../../libs/flow.module.js"
+import { BaseNode } from "../core/BaseNode.js"
+import { NormalMapNode, ConstNode } from "three/nodes"
+import { TangentSpaceNormalMap, ObjectSpaceNormalMap } from "../../three.module.js"
 
-const nullValue = new ConstNode( 0 );
+const nullValue = new ConstNode(0)
 
 export class NormalMapEditor extends BaseNode {
+  constructor() {
+    const node = new NormalMapNode(nullValue)
 
-	constructor() {
+    super("Normal Map", 3, node, 175)
 
-		const node = new NormalMapNode( nullValue );
+    const source = new LabelElement("Source").setInput(3).onConnect(() => {
+      node.node = source.getLinkedObject() || nullValue
 
-		super( 'Normal Map', 3, node, 175 );
+      this.invalidate()
+    })
 
-		const source = new LabelElement( 'Source' ).setInput( 3 ).onConnect( () => {
+    const scale = new LabelElement("Scale").setInput(3).onConnect(() => {
+      node.scaleNode = scale.getLinkedObject()
 
-			node.node = source.getLinkedObject() || nullValue;
+      this.invalidate()
+    })
 
-			this.invalidate();
+    const optionsField = new SelectInput(
+      [
+        { name: "Tangent Space", value: TangentSpaceNormalMap },
+        { name: "Object Space", value: ObjectSpaceNormalMap },
+      ],
+      TangentSpaceNormalMap
+    ).onChange(() => {
+      node.normalMapType = Number(optionsField.getValue())
 
-		} );
+      this.invalidate()
+    })
 
-		const scale = new LabelElement( 'Scale' ).setInput( 3 ).onConnect( () => {
-
-			node.scaleNode = scale.getLinkedObject();
-
-			this.invalidate();
-
-		} );
-
-		const optionsField = new SelectInput( [
-			{ name: 'Tangent Space', value: TangentSpaceNormalMap },
-			{ name: 'Object Space', value: ObjectSpaceNormalMap }
-		], TangentSpaceNormalMap ).onChange( () => {
-
-			node.normalMapType = Number( optionsField.getValue() );
-
-			this.invalidate();
-
-		} );
-
-		this.add( new Element().add( optionsField ) )
-			.add( source )
-			.add( scale );
-
-	}
-
+    this.add(new Element().add(optionsField)).add(source).add(scale)
+  }
 }

@@ -1,116 +1,99 @@
-import {
-	Group,
-	Matrix4,
-	Raycaster,
-	Vector2
-} from 'three';
+import { Group, Matrix4, Raycaster, Vector2 } from "../../three.module.js"
 
-const _pointer = new Vector2();
-const _event = { type: '', data: _pointer };
+const _pointer = new Vector2()
+const _event = { type: "", data: _pointer }
 
 class InteractiveGroup extends Group {
+  constructor(renderer, camera) {
+    super()
 
-	constructor( renderer, camera ) {
+    const scope = this
 
-		super();
+    const raycaster = new Raycaster()
+    const tempMatrix = new Matrix4()
 
-		const scope = this;
+    // Pointer Events
 
-		const raycaster = new Raycaster();
-		const tempMatrix = new Matrix4();
+    const element = renderer.domElement
 
-		// Pointer Events
+    function onPointerEvent(event) {
+      event.stopPropagation()
 
-		const element = renderer.domElement;
+      const rect = renderer.domElement.getBoundingClientRect()
 
-		function onPointerEvent( event ) {
+      _pointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1
+      _pointer.y = (-(event.clientY - rect.top) / rect.height) * 2 + 1
 
-			event.stopPropagation();
+      raycaster.setFromCamera(_pointer, camera)
 
-			const rect = renderer.domElement.getBoundingClientRect();
-			
-			_pointer.x = ( event.clientX - rect.left ) / rect.width * 2 - 1;
-			_pointer.y = - ( event.clientY - rect.top ) / rect.height * 2 + 1;
+      const intersects = raycaster.intersectObjects(scope.children, false)
 
-			raycaster.setFromCamera( _pointer, camera );
+      if (intersects.length > 0) {
+        const intersection = intersects[0]
 
-			const intersects = raycaster.intersectObjects( scope.children, false );
+        const object = intersection.object
+        const uv = intersection.uv
 
-			if ( intersects.length > 0 ) {
+        _event.type = event.type
+        _event.data.set(uv.x, 1 - uv.y)
 
-				const intersection = intersects[ 0 ];
+        object.dispatchEvent(_event)
+      }
+    }
 
-				const object = intersection.object;
-				const uv = intersection.uv;
+    element.addEventListener("pointerdown", onPointerEvent)
+    element.addEventListener("pointerup", onPointerEvent)
+    element.addEventListener("pointermove", onPointerEvent)
+    element.addEventListener("mousedown", onPointerEvent)
+    element.addEventListener("mouseup", onPointerEvent)
+    element.addEventListener("mousemove", onPointerEvent)
+    element.addEventListener("click", onPointerEvent)
 
-				_event.type = event.type;
-				_event.data.set( uv.x, 1 - uv.y );
+    // WebXR Controller Events
+    // TODO: Dispatch pointerevents too
 
-				object.dispatchEvent( _event );
+    const events = {
+      move: "mousemove",
+      select: "click",
+      selectstart: "mousedown",
+      selectend: "mouseup",
+    }
 
-			}
+    function onXRControllerEvent(event) {
+      const controller = event.target
 
-		}
+      tempMatrix.identity().extractRotation(controller.matrixWorld)
 
-		element.addEventListener( 'pointerdown', onPointerEvent );
-		element.addEventListener( 'pointerup', onPointerEvent );
-		element.addEventListener( 'pointermove', onPointerEvent );
-		element.addEventListener( 'mousedown', onPointerEvent );
-		element.addEventListener( 'mouseup', onPointerEvent );
-		element.addEventListener( 'mousemove', onPointerEvent );
-		element.addEventListener( 'click', onPointerEvent );
+      raycaster.ray.origin.setFromMatrixPosition(controller.matrixWorld)
+      raycaster.ray.direction.set(0, 0, -1).applyMatrix4(tempMatrix)
 
-		// WebXR Controller Events
-		// TODO: Dispatch pointerevents too
+      const intersections = raycaster.intersectObjects(scope.children, false)
 
-		const events = {
-			'move': 'mousemove',
-			'select': 'click',
-			'selectstart': 'mousedown',
-			'selectend': 'mouseup'
-		};
+      if (intersections.length > 0) {
+        const intersection = intersections[0]
 
-		function onXRControllerEvent( event ) {
+        const object = intersection.object
+        const uv = intersection.uv
 
-			const controller = event.target;
+        _event.type = events[event.type]
+        _event.data.set(uv.x, 1 - uv.y)
 
-			tempMatrix.identity().extractRotation( controller.matrixWorld );
+        object.dispatchEvent(_event)
+      }
+    }
 
-			raycaster.ray.origin.setFromMatrixPosition( controller.matrixWorld );
-			raycaster.ray.direction.set( 0, 0, - 1 ).applyMatrix4( tempMatrix );
+    const controller1 = renderer.xr.getController(0)
+    controller1.addEventListener("move", onXRControllerEvent)
+    controller1.addEventListener("select", onXRControllerEvent)
+    controller1.addEventListener("selectstart", onXRControllerEvent)
+    controller1.addEventListener("selectend", onXRControllerEvent)
 
-			const intersections = raycaster.intersectObjects( scope.children, false );
-
-			if ( intersections.length > 0 ) {
-
-				const intersection = intersections[ 0 ];
-
-				const object = intersection.object;
-				const uv = intersection.uv;
-
-				_event.type = events[ event.type ];
-				_event.data.set( uv.x, 1 - uv.y );
-
-				object.dispatchEvent( _event );
-
-			}
-
-		}
-
-		const controller1 = renderer.xr.getController( 0 );
-		controller1.addEventListener( 'move', onXRControllerEvent );
-		controller1.addEventListener( 'select', onXRControllerEvent );
-		controller1.addEventListener( 'selectstart', onXRControllerEvent );
-		controller1.addEventListener( 'selectend', onXRControllerEvent );
-
-		const controller2 = renderer.xr.getController( 1 );
-		controller2.addEventListener( 'move', onXRControllerEvent );
-		controller2.addEventListener( 'select', onXRControllerEvent );
-		controller2.addEventListener( 'selectstart', onXRControllerEvent );
-		controller2.addEventListener( 'selectend', onXRControllerEvent );
-
-	}
-
+    const controller2 = renderer.xr.getController(1)
+    controller2.addEventListener("move", onXRControllerEvent)
+    controller2.addEventListener("select", onXRControllerEvent)
+    controller2.addEventListener("selectstart", onXRControllerEvent)
+    controller2.addEventListener("selectend", onXRControllerEvent)
+  }
 }
 
-export { InteractiveGroup };
+export { InteractiveGroup }

@@ -5,406 +5,346 @@
  * 	https://www.openexr.com/documentation/openexrfilelayout.pdf
  */
 
-import {
-	FloatType,
-	HalfFloatType,
-	RGBAFormat,
-	DataUtils,
-} from 'three';
-import * as fflate from '../libs/fflate.module.js';
+import { FloatType, HalfFloatType, RGBAFormat, DataUtils } from "../../three.module.js"
+import * as fflate from "../libs/fflate.module.js"
 
-const textEncoder = new TextEncoder();
+const textEncoder = new TextEncoder()
 
-const NO_COMPRESSION = 0;
-const ZIPS_COMPRESSION = 2;
-const ZIP_COMPRESSION = 3;
+const NO_COMPRESSION = 0
+const ZIPS_COMPRESSION = 2
+const ZIP_COMPRESSION = 3
 
 class EXRExporter {
+  parse(renderer, renderTarget, options) {
+    if (!supported(renderer, renderTarget)) return undefined
 
-	parse( renderer, renderTarget, options ) {
+    const info = buildInfo(renderTarget, options),
+      dataBuffer = getPixelData(renderer, renderTarget, info),
+      rawContentBuffer = reorganizeDataBuffer(dataBuffer, info),
+      chunks = compressData(rawContentBuffer, info)
 
-		if ( ! supported( renderer, renderTarget ) ) return undefined;
-
-		const info = buildInfo( renderTarget, options ),
-			dataBuffer = getPixelData( renderer, renderTarget, info ),
-			rawContentBuffer = reorganizeDataBuffer( dataBuffer, info ),
-			chunks = compressData( rawContentBuffer, info );
-
-		return fillData( chunks, info );
-
-	}
-
+    return fillData(chunks, info)
+  }
 }
 
-function supported( renderer, renderTarget ) {
+function supported(renderer, renderTarget) {
+  if (!renderer || !renderer.isWebGLRenderer) {
+    console.error("EXRExporter.parse: Unsupported first parameter, expected instance of WebGLRenderer.")
 
-	if ( ! renderer || ! renderer.isWebGLRenderer ) {
+    return false
+  }
 
-		console.error( 'EXRExporter.parse: Unsupported first parameter, expected instance of WebGLRenderer.' );
+  if (!renderTarget || !renderTarget.isWebGLRenderTarget) {
+    console.error("EXRExporter.parse: Unsupported second parameter, expected instance of WebGLRenderTarget.")
 
-		return false;
+    return false
+  }
 
-	}
+  if (renderTarget.texture.type !== FloatType && renderTarget.texture.type !== HalfFloatType) {
+    console.error("EXRExporter.parse: Unsupported WebGLRenderTarget texture type.")
 
-	if ( ! renderTarget || ! renderTarget.isWebGLRenderTarget ) {
+    return false
+  }
 
-		console.error( 'EXRExporter.parse: Unsupported second parameter, expected instance of WebGLRenderTarget.' );
+  if (renderTarget.texture.format !== RGBAFormat) {
+    console.error("EXRExporter.parse: Unsupported WebGLRenderTarget texture format, expected RGBAFormat.")
 
-		return false;
+    return false
+  }
 
-	}
-
-	if ( renderTarget.texture.type !== FloatType && renderTarget.texture.type !== HalfFloatType ) {
-
-		console.error( 'EXRExporter.parse: Unsupported WebGLRenderTarget texture type.' );
-
-		return false;
-
-	}
-
-	if ( renderTarget.texture.format !== RGBAFormat ) {
-
-		console.error( 'EXRExporter.parse: Unsupported WebGLRenderTarget texture format, expected RGBAFormat.' );
-
-		return false;
-
-	}
-
-
-	return true;
-
+  return true
 }
 
-function buildInfo( renderTarget, options = {} ) {
+function buildInfo(renderTarget, options = {}) {
+  const compressionSizes = {
+    0: 1,
+    2: 1,
+    3: 16,
+  }
 
-	const compressionSizes = {
-		0: 1,
-		2: 1,
-		3: 16
-	};
+  const WIDTH = renderTarget.width,
+    HEIGHT = renderTarget.height,
+    TYPE = renderTarget.texture.type,
+    FORMAT = renderTarget.texture.format,
+    ENCODING = renderTarget.texture.encoding,
+    COMPRESSION = options.compression !== undefined ? options.compression : ZIP_COMPRESSION,
+    EXPORTER_TYPE = options.type !== undefined ? options.type : HalfFloatType,
+    OUT_TYPE = EXPORTER_TYPE === FloatType ? 2 : 1,
+    COMPRESSION_SIZE = compressionSizes[COMPRESSION],
+    NUM_CHANNELS = 4
 
-	const WIDTH = renderTarget.width,
-		HEIGHT = renderTarget.height,
-		TYPE = renderTarget.texture.type,
-		FORMAT = renderTarget.texture.format,
-		ENCODING = renderTarget.texture.encoding,
-		COMPRESSION = ( options.compression !== undefined ) ? options.compression : ZIP_COMPRESSION,
-		EXPORTER_TYPE = ( options.type !== undefined ) ? options.type : HalfFloatType,
-		OUT_TYPE = ( EXPORTER_TYPE === FloatType ) ? 2 : 1,
-		COMPRESSION_SIZE = compressionSizes[ COMPRESSION ],
-		NUM_CHANNELS = 4;
-
-	return {
-		width: WIDTH,
-		height: HEIGHT,
-		type: TYPE,
-		format: FORMAT,
-		encoding: ENCODING,
-		compression: COMPRESSION,
-		blockLines: COMPRESSION_SIZE,
-		dataType: OUT_TYPE,
-		dataSize: 2 * OUT_TYPE,
-		numBlocks: Math.ceil( HEIGHT / COMPRESSION_SIZE ),
-		numInputChannels: 4,
-		numOutputChannels: NUM_CHANNELS,
-	};
-
+  return {
+    width: WIDTH,
+    height: HEIGHT,
+    type: TYPE,
+    format: FORMAT,
+    encoding: ENCODING,
+    compression: COMPRESSION,
+    blockLines: COMPRESSION_SIZE,
+    dataType: OUT_TYPE,
+    dataSize: 2 * OUT_TYPE,
+    numBlocks: Math.ceil(HEIGHT / COMPRESSION_SIZE),
+    numInputChannels: 4,
+    numOutputChannels: NUM_CHANNELS,
+  }
 }
 
-function getPixelData( renderer, rtt, info ) {
+function getPixelData(renderer, rtt, info) {
+  let dataBuffer
 
-	let dataBuffer;
+  if (info.type === FloatType) {
+    dataBuffer = new Float32Array(info.width * info.height * info.numInputChannels)
+  } else {
+    dataBuffer = new Uint16Array(info.width * info.height * info.numInputChannels)
+  }
 
-	if ( info.type === FloatType ) {
+  renderer.readRenderTargetPixels(rtt, 0, 0, info.width, info.height, dataBuffer)
 
-		dataBuffer = new Float32Array( info.width * info.height * info.numInputChannels );
-
-	} else {
-
-		dataBuffer = new Uint16Array( info.width * info.height * info.numInputChannels );
-
-	}
-
-	renderer.readRenderTargetPixels( rtt, 0, 0, info.width, info.height, dataBuffer );
-
-	return dataBuffer;
-
+  return dataBuffer
 }
 
-function reorganizeDataBuffer( inBuffer, info ) {
+function reorganizeDataBuffer(inBuffer, info) {
+  const w = info.width,
+    h = info.height,
+    dec = { r: 0, g: 0, b: 0, a: 0 },
+    offset = { value: 0 },
+    cOffset = info.numOutputChannels == 4 ? 1 : 0,
+    getValue = info.type == FloatType ? getFloat32 : getFloat16,
+    setValue = info.dataType == 1 ? setFloat16 : setFloat32,
+    outBuffer = new Uint8Array(info.width * info.height * info.numOutputChannels * info.dataSize),
+    dv = new DataView(outBuffer.buffer)
 
-	const w = info.width,
-		h = info.height,
-		dec = { r: 0, g: 0, b: 0, a: 0 },
-		offset = { value: 0 },
-		cOffset = ( info.numOutputChannels == 4 ) ? 1 : 0,
-		getValue = ( info.type == FloatType ) ? getFloat32 : getFloat16,
-		setValue = ( info.dataType == 1 ) ? setFloat16 : setFloat32,
-		outBuffer = new Uint8Array( info.width * info.height * info.numOutputChannels * info.dataSize ),
-		dv = new DataView( outBuffer.buffer );
+  for (let y = 0; y < h; ++y) {
+    for (let x = 0; x < w; ++x) {
+      const i = y * w * 4 + x * 4
 
-	for ( let y = 0; y < h; ++ y ) {
+      const r = getValue(inBuffer, i)
+      const g = getValue(inBuffer, i + 1)
+      const b = getValue(inBuffer, i + 2)
+      const a = getValue(inBuffer, i + 3)
 
-		for ( let x = 0; x < w; ++ x ) {
+      const line = (h - y - 1) * w * (3 + cOffset) * info.dataSize
 
-			const i = y * w * 4 + x * 4;
+      decodeLinear(dec, r, g, b, a)
 
-			const r = getValue( inBuffer, i );
-			const g = getValue( inBuffer, i + 1 );
-			const b = getValue( inBuffer, i + 2 );
-			const a = getValue( inBuffer, i + 3 );
+      offset.value = line + x * info.dataSize
+      setValue(dv, dec.a, offset)
 
-			const line = ( h - y - 1 ) * w * ( 3 + cOffset ) * info.dataSize;
+      offset.value = line + cOffset * w * info.dataSize + x * info.dataSize
+      setValue(dv, dec.b, offset)
 
-			decodeLinear( dec, r, g, b, a );
+      offset.value = line + (1 + cOffset) * w * info.dataSize + x * info.dataSize
+      setValue(dv, dec.g, offset)
 
-			offset.value = line + x * info.dataSize;
-			setValue( dv, dec.a, offset );
+      offset.value = line + (2 + cOffset) * w * info.dataSize + x * info.dataSize
+      setValue(dv, dec.r, offset)
+    }
+  }
 
-			offset.value = line + ( cOffset ) * w * info.dataSize + x * info.dataSize;
-			setValue( dv, dec.b, offset );
-
-			offset.value = line + ( 1 + cOffset ) * w * info.dataSize + x * info.dataSize;
-			setValue( dv, dec.g, offset );
-
-			offset.value = line + ( 2 + cOffset ) * w * info.dataSize + x * info.dataSize;
-			setValue( dv, dec.r, offset );
-
-		}
-
-	}
-
-	return outBuffer;
-
+  return outBuffer
 }
 
-function compressData( inBuffer, info ) {
+function compressData(inBuffer, info) {
+  let compress,
+    tmpBuffer,
+    sum = 0
 
-	let compress,
-		tmpBuffer,
-		sum = 0;
+  const chunks = { data: new Array(), totalSize: 0 },
+    size = info.width * info.numOutputChannels * info.blockLines * info.dataSize
 
-	const chunks = { data: new Array(), totalSize: 0 },
-		size = info.width * info.numOutputChannels * info.blockLines * info.dataSize;
+  switch (info.compression) {
+    case 0:
+      compress = compressNONE
+      break
 
-	switch ( info.compression ) {
+    case 2:
+    case 3:
+      compress = compressZIP
+      break
+  }
 
-		case 0:
-			compress = compressNONE;
-			break;
+  if (info.compression !== 0) {
+    tmpBuffer = new Uint8Array(size)
+  }
 
-		case 2:
-		case 3:
-			compress = compressZIP;
-			break;
+  for (let i = 0; i < info.numBlocks; ++i) {
+    const arr = inBuffer.subarray(size * i, size * (i + 1))
 
-	}
+    const block = compress(arr, tmpBuffer)
 
-	if ( info.compression !== 0 ) {
+    sum += block.length
 
-		tmpBuffer = new Uint8Array( size );
+    chunks.data.push({ dataChunk: block, size: block.length })
+  }
 
-	}
+  chunks.totalSize = sum
 
-	for ( let i = 0; i < info.numBlocks; ++ i ) {
-
-		const arr = inBuffer.subarray( size * i, size * ( i + 1 ) );
-
-		const block = compress( arr, tmpBuffer );
-
-		sum += block.length;
-
-		chunks.data.push( { dataChunk: block, size: block.length } );
-
-	}
-
-	chunks.totalSize = sum;
-
-	return chunks;
-
+  return chunks
 }
 
-function compressNONE( data ) {
-
-	return data;
-
+function compressNONE(data) {
+  return data
 }
 
-function compressZIP( data, tmpBuffer ) {
+function compressZIP(data, tmpBuffer) {
+  //
+  // Reorder the pixel data.
+  //
 
-	//
-	// Reorder the pixel data.
-	//
+  let t1 = 0,
+    t2 = Math.floor((data.length + 1) / 2),
+    s = 0
 
-	let t1 = 0,
-		t2 = Math.floor( ( data.length + 1 ) / 2 ),
-		s = 0;
+  const stop = data.length - 1
 
-	const stop = data.length - 1;
+  while (true) {
+    if (s > stop) break
+    tmpBuffer[t1++] = data[s++]
 
-	while ( true ) {
+    if (s > stop) break
+    tmpBuffer[t2++] = data[s++]
+  }
 
-		if ( s > stop ) break;
-		tmpBuffer[ t1 ++ ] = data[ s ++ ];
+  //
+  // Predictor.
+  //
 
-		if ( s > stop ) break;
-		tmpBuffer[ t2 ++ ] = data[ s ++ ];
+  let p = tmpBuffer[0]
 
-	}
+  for (let t = 1; t < tmpBuffer.length; t++) {
+    const d = tmpBuffer[t] - p + (128 + 256)
+    p = tmpBuffer[t]
+    tmpBuffer[t] = d
+  }
 
-	//
-	// Predictor.
-	//
+  const deflate = fflate.zlibSync(tmpBuffer)
 
-	let p = tmpBuffer[ 0 ];
-
-	for ( let t = 1; t < tmpBuffer.length; t ++ ) {
-
-		const d = tmpBuffer[ t ] - p + ( 128 + 256 );
-		p = tmpBuffer[ t ];
-		tmpBuffer[ t ] = d;
-
-	}
-
-	const deflate = fflate.zlibSync( tmpBuffer );
-
-	return deflate;
-
+  return deflate
 }
 
-function fillHeader( outBuffer, chunks, info ) {
+function fillHeader(outBuffer, chunks, info) {
+  const offset = { value: 0 }
+  const dv = new DataView(outBuffer.buffer)
 
-	const offset = { value: 0 };
-	const dv = new DataView( outBuffer.buffer );
+  setUint32(dv, 20000630, offset) // magic
+  setUint32(dv, 2, offset) // mask
 
-	setUint32( dv, 20000630, offset ); // magic
-	setUint32( dv, 2, offset ); // mask
+  // = HEADER =
 
-	// = HEADER =
+  setString(dv, "compression", offset)
+  setString(dv, "compression", offset)
+  setUint32(dv, 1, offset)
+  setUint8(dv, info.compression, offset)
 
-	setString( dv, 'compression', offset );
-	setString( dv, 'compression', offset );
-	setUint32( dv, 1, offset );
-	setUint8( dv, info.compression, offset );
+  setString(dv, "screenWindowCenter", offset)
+  setString(dv, "v2f", offset)
+  setUint32(dv, 8, offset)
+  setUint32(dv, 0, offset)
+  setUint32(dv, 0, offset)
 
-	setString( dv, 'screenWindowCenter', offset );
-	setString( dv, 'v2f', offset );
-	setUint32( dv, 8, offset );
-	setUint32( dv, 0, offset );
-	setUint32( dv, 0, offset );
+  setString(dv, "screenWindowWidth", offset)
+  setString(dv, "float", offset)
+  setUint32(dv, 4, offset)
+  setFloat32(dv, 1.0, offset)
 
-	setString( dv, 'screenWindowWidth', offset );
-	setString( dv, 'float', offset );
-	setUint32( dv, 4, offset );
-	setFloat32( dv, 1.0, offset );
+  setString(dv, "pixelAspectRatio", offset)
+  setString(dv, "float", offset)
+  setUint32(dv, 4, offset)
+  setFloat32(dv, 1.0, offset)
 
-	setString( dv, 'pixelAspectRatio', offset );
-	setString( dv, 'float', offset );
-	setUint32( dv, 4, offset );
-	setFloat32( dv, 1.0, offset );
+  setString(dv, "lineOrder", offset)
+  setString(dv, "lineOrder", offset)
+  setUint32(dv, 1, offset)
+  setUint8(dv, 0, offset)
 
-	setString( dv, 'lineOrder', offset );
-	setString( dv, 'lineOrder', offset );
-	setUint32( dv, 1, offset );
-	setUint8( dv, 0, offset );
+  setString(dv, "dataWindow", offset)
+  setString(dv, "box2i", offset)
+  setUint32(dv, 16, offset)
+  setUint32(dv, 0, offset)
+  setUint32(dv, 0, offset)
+  setUint32(dv, info.width - 1, offset)
+  setUint32(dv, info.height - 1, offset)
 
-	setString( dv, 'dataWindow', offset );
-	setString( dv, 'box2i', offset );
-	setUint32( dv, 16, offset );
-	setUint32( dv, 0, offset );
-	setUint32( dv, 0, offset );
-	setUint32( dv, info.width - 1, offset );
-	setUint32( dv, info.height - 1, offset );
+  setString(dv, "displayWindow", offset)
+  setString(dv, "box2i", offset)
+  setUint32(dv, 16, offset)
+  setUint32(dv, 0, offset)
+  setUint32(dv, 0, offset)
+  setUint32(dv, info.width - 1, offset)
+  setUint32(dv, info.height - 1, offset)
 
-	setString( dv, 'displayWindow', offset );
-	setString( dv, 'box2i', offset );
-	setUint32( dv, 16, offset );
-	setUint32( dv, 0, offset );
-	setUint32( dv, 0, offset );
-	setUint32( dv, info.width - 1, offset );
-	setUint32( dv, info.height - 1, offset );
+  setString(dv, "channels", offset)
+  setString(dv, "chlist", offset)
+  setUint32(dv, info.numOutputChannels * 18 + 1, offset)
 
-	setString( dv, 'channels', offset );
-	setString( dv, 'chlist', offset );
-	setUint32( dv, info.numOutputChannels * 18 + 1, offset );
+  setString(dv, "A", offset)
+  setUint32(dv, info.dataType, offset)
+  offset.value += 4
+  setUint32(dv, 1, offset)
+  setUint32(dv, 1, offset)
 
-	setString( dv, 'A', offset );
-	setUint32( dv, info.dataType, offset );
-	offset.value += 4;
-	setUint32( dv, 1, offset );
-	setUint32( dv, 1, offset );
+  setString(dv, "B", offset)
+  setUint32(dv, info.dataType, offset)
+  offset.value += 4
+  setUint32(dv, 1, offset)
+  setUint32(dv, 1, offset)
 
-	setString( dv, 'B', offset );
-	setUint32( dv, info.dataType, offset );
-	offset.value += 4;
-	setUint32( dv, 1, offset );
-	setUint32( dv, 1, offset );
+  setString(dv, "G", offset)
+  setUint32(dv, info.dataType, offset)
+  offset.value += 4
+  setUint32(dv, 1, offset)
+  setUint32(dv, 1, offset)
 
-	setString( dv, 'G', offset );
-	setUint32( dv, info.dataType, offset );
-	offset.value += 4;
-	setUint32( dv, 1, offset );
-	setUint32( dv, 1, offset );
+  setString(dv, "R", offset)
+  setUint32(dv, info.dataType, offset)
+  offset.value += 4
+  setUint32(dv, 1, offset)
+  setUint32(dv, 1, offset)
 
-	setString( dv, 'R', offset );
-	setUint32( dv, info.dataType, offset );
-	offset.value += 4;
-	setUint32( dv, 1, offset );
-	setUint32( dv, 1, offset );
+  setUint8(dv, 0, offset)
 
-	setUint8( dv, 0, offset );
+  // null-byte
+  setUint8(dv, 0, offset)
 
-	// null-byte
-	setUint8( dv, 0, offset );
+  // = OFFSET TABLE =
 
-	// = OFFSET TABLE =
+  let sum = offset.value + info.numBlocks * 8
 
-	let sum = offset.value + info.numBlocks * 8;
+  for (let i = 0; i < chunks.data.length; ++i) {
+    setUint64(dv, sum, offset)
 
-	for ( let i = 0; i < chunks.data.length; ++ i ) {
-
-		setUint64( dv, sum, offset );
-
-		sum += chunks.data[ i ].size + 8;
-
-	}
-
+    sum += chunks.data[i].size + 8
+  }
 }
 
-function fillData( chunks, info ) {
+function fillData(chunks, info) {
+  const TableSize = info.numBlocks * 8,
+    HeaderSize = 259 + 18 * info.numOutputChannels, // 259 + 18 * chlist
+    offset = { value: HeaderSize + TableSize },
+    outBuffer = new Uint8Array(HeaderSize + TableSize + chunks.totalSize + info.numBlocks * 8),
+    dv = new DataView(outBuffer.buffer)
 
-	const TableSize = info.numBlocks * 8,
-		HeaderSize = 259 + ( 18 * info.numOutputChannels ), // 259 + 18 * chlist
-		offset = { value: HeaderSize + TableSize },
-		outBuffer = new Uint8Array( HeaderSize + TableSize + chunks.totalSize + info.numBlocks * 8 ),
-		dv = new DataView( outBuffer.buffer );
+  fillHeader(outBuffer, chunks, info)
 
-	fillHeader( outBuffer, chunks, info );
+  for (let i = 0; i < chunks.data.length; ++i) {
+    const data = chunks.data[i].dataChunk
+    const size = chunks.data[i].size
 
-	for ( let i = 0; i < chunks.data.length; ++ i ) {
+    setUint32(dv, i * info.blockLines, offset)
+    setUint32(dv, size, offset)
 
-		const data = chunks.data[ i ].dataChunk;
-		const size = chunks.data[ i ].size;
+    outBuffer.set(data, offset.value)
+    offset.value += size
+  }
 
-		setUint32( dv, i * info.blockLines, offset );
-		setUint32( dv, size, offset );
-
-		outBuffer.set( data, offset.value );
-		offset.value += size;
-
-	}
-
-	return outBuffer;
-
+  return outBuffer
 }
 
-function decodeLinear( dec, r, g, b, a ) {
-
-	dec.r = r;
-	dec.g = g;
-	dec.b = b;
-	dec.a = a;
-
+function decodeLinear(dec, r, g, b, a) {
+  dec.r = r
+  dec.g = g
+  dec.b = b
+  dec.a = a
 }
 
 // function decodeSRGB( dec, r, g, b, a ) {
@@ -416,86 +356,66 @@ function decodeLinear( dec, r, g, b, a ) {
 
 // }
 
+function setUint8(dv, value, offset) {
+  dv.setUint8(offset.value, value)
 
-function setUint8( dv, value, offset ) {
-
-	dv.setUint8( offset.value, value );
-
-	offset.value += 1;
-
+  offset.value += 1
 }
 
-function setUint32( dv, value, offset ) {
+function setUint32(dv, value, offset) {
+  dv.setUint32(offset.value, value, true)
 
-	dv.setUint32( offset.value, value, true );
-
-	offset.value += 4;
-
+  offset.value += 4
 }
 
-function setFloat16( dv, value, offset ) {
+function setFloat16(dv, value, offset) {
+  dv.setUint16(offset.value, DataUtils.toHalfFloat(value), true)
 
-	dv.setUint16( offset.value, DataUtils.toHalfFloat( value ), true );
-
-	offset.value += 2;
-
+  offset.value += 2
 }
 
-function setFloat32( dv, value, offset ) {
+function setFloat32(dv, value, offset) {
+  dv.setFloat32(offset.value, value, true)
 
-	dv.setFloat32( offset.value, value, true );
-
-	offset.value += 4;
-
+  offset.value += 4
 }
 
-function setUint64( dv, value, offset ) {
+function setUint64(dv, value, offset) {
+  dv.setBigUint64(offset.value, BigInt(value), true)
 
-	dv.setBigUint64( offset.value, BigInt( value ), true );
-
-	offset.value += 8;
-
+  offset.value += 8
 }
 
-function setString( dv, string, offset ) {
+function setString(dv, string, offset) {
+  const tmp = textEncoder.encode(string + "\0")
 
-	const tmp = textEncoder.encode( string + '\0' );
-
-	for ( let i = 0; i < tmp.length; ++ i ) {
-
-		setUint8( dv, tmp[ i ], offset );
-
-	}
-
+  for (let i = 0; i < tmp.length; ++i) {
+    setUint8(dv, tmp[i], offset)
+  }
 }
 
-function decodeFloat16( binary ) {
+function decodeFloat16(binary) {
+  const exponent = (binary & 0x7c00) >> 10,
+    fraction = binary & 0x03ff
 
-	const exponent = ( binary & 0x7C00 ) >> 10,
-		fraction = binary & 0x03FF;
-
-	return ( binary >> 15 ? - 1 : 1 ) * (
-		exponent ?
-			(
-				exponent === 0x1F ?
-					fraction ? NaN : Infinity :
-					Math.pow( 2, exponent - 15 ) * ( 1 + fraction / 0x400 )
-			) :
-			6.103515625e-5 * ( fraction / 0x400 )
-	);
-
+  return (
+    (binary >> 15 ? -1 : 1) *
+    (exponent
+      ? exponent === 0x1f
+        ? fraction
+          ? NaN
+          : Infinity
+        : Math.pow(2, exponent - 15) * (1 + fraction / 0x400)
+      : 6.103515625e-5 * (fraction / 0x400))
+  )
 }
 
-function getFloat16( arr, i ) {
-
-	return decodeFloat16( arr[ i ] );
-
+function getFloat16(arr, i) {
+  return decodeFloat16(arr[i])
 }
 
-function getFloat32( arr, i ) {
-
-	return arr[ i ];
-
+function getFloat32(arr, i) {
+  return arr[i]
 }
 
-export { EXRExporter, NO_COMPRESSION, ZIP_COMPRESSION, ZIPS_COMPRESSION };
+export { EXRExporter, NO_COMPRESSION, ZIP_COMPRESSION, ZIPS_COMPRESSION }

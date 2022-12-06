@@ -1,11 +1,4 @@
-import {
-	BackSide,
-	BoxGeometry,
-	Mesh,
-	ShaderMaterial,
-	UniformsUtils,
-	Vector3
-} from 'three';
+import { BackSide, BoxGeometry, Mesh, ShaderMaterial, UniformsUtils, Vector3 } from "../../three.module.js"
 
 /**
  * Based on "A Practical Analytic Model for Daylight"
@@ -19,43 +12,38 @@ import {
  * http://blenderartists.org/forum/showthread.php?245954-preethams-sky-impementation-HDR
  *
  * Three.js integration by zz85 http://twitter.com/blurspline
-*/
+ */
 
 class Sky extends Mesh {
+  constructor() {
+    const shader = Sky.SkyShader
 
-	constructor() {
+    const material = new ShaderMaterial({
+      name: "SkyShader",
+      fragmentShader: shader.fragmentShader,
+      vertexShader: shader.vertexShader,
+      uniforms: UniformsUtils.clone(shader.uniforms),
+      side: BackSide,
+      depthWrite: false,
+    })
 
-		const shader = Sky.SkyShader;
+    super(new BoxGeometry(1, 1, 1), material)
 
-		const material = new ShaderMaterial( {
-			name: 'SkyShader',
-			fragmentShader: shader.fragmentShader,
-			vertexShader: shader.vertexShader,
-			uniforms: UniformsUtils.clone( shader.uniforms ),
-			side: BackSide,
-			depthWrite: false
-		} );
-
-		super( new BoxGeometry( 1, 1, 1 ), material );
-
-		this.isSky = true;
-
-	}
-
+    this.isSky = true
+  }
 }
 
 Sky.SkyShader = {
+  uniforms: {
+    turbidity: { value: 2 },
+    rayleigh: { value: 1 },
+    mieCoefficient: { value: 0.005 },
+    mieDirectionalG: { value: 0.8 },
+    sunPosition: { value: new Vector3() },
+    up: { value: new Vector3(0, 1, 0) },
+  },
 
-	uniforms: {
-		'turbidity': { value: 2 },
-		'rayleigh': { value: 1 },
-		'mieCoefficient': { value: 0.005 },
-		'mieDirectionalG': { value: 0.8 },
-		'sunPosition': { value: new Vector3() },
-		'up': { value: new Vector3( 0, 1, 0 ) }
-	},
-
-	vertexShader: /* glsl */`
+  vertexShader: /* glsl */ `
 		uniform vec3 sunPosition;
 		uniform float rayleigh;
 		uniform float turbidity;
@@ -127,7 +115,7 @@ Sky.SkyShader = {
 
 		}`,
 
-	fragmentShader: /* glsl */`
+  fragmentShader: /* glsl */ `
 		varying vec3 vWorldPosition;
 		varying vec3 vSunDirection;
 		varying float vSunfade;
@@ -212,8 +200,7 @@ Sky.SkyShader = {
 			#include <tonemapping_fragment>
 			#include <encodings_fragment>
 
-		}`
+		}`,
+}
 
-};
-
-export { Sky };
+export { Sky }

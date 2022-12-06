@@ -1,105 +1,83 @@
-import {
-	Object3D
-} from 'three';
+import { Object3D } from "../../three.module.js"
 
-import {
-	XRHandPrimitiveModel
-} from './XRHandPrimitiveModel.js';
+import { XRHandPrimitiveModel } from "./XRHandPrimitiveModel.js"
 
-import {
-	XRHandMeshModel
-} from './XRHandMeshModel.js';
+import { XRHandMeshModel } from "./XRHandMeshModel.js"
 
 class XRHandModel extends Object3D {
+  constructor(controller) {
+    super()
 
-	constructor( controller ) {
+    this.controller = controller
+    this.motionController = null
+    this.envMap = null
 
-		super();
+    this.mesh = null
+  }
 
-		this.controller = controller;
-		this.motionController = null;
-		this.envMap = null;
+  updateMatrixWorld(force) {
+    super.updateMatrixWorld(force)
 
-		this.mesh = null;
-
-	}
-
-	updateMatrixWorld( force ) {
-
-		super.updateMatrixWorld( force );
-
-		if ( this.motionController ) {
-
-			this.motionController.updateMesh();
-
-		}
-
-	}
-
+    if (this.motionController) {
+      this.motionController.updateMesh()
+    }
+  }
 }
 
 class XRHandModelFactory {
+  constructor() {
+    this.path = null
+  }
 
-	constructor() {
+  setPath(path) {
+    this.path = path
 
-		this.path = null;
+    return this
+  }
 
-	}
+  createHandModel(controller, profile) {
+    const handModel = new XRHandModel(controller)
 
-	setPath( path ) {
+    controller.addEventListener("connected", (event) => {
+      const xrInputSource = event.data
 
-		this.path = path;
+      if (xrInputSource.hand && !handModel.motionController) {
+        handModel.xrInputSource = xrInputSource
 
-		return this;
+        // @todo Detect profile if not provided
+        if (profile === undefined || profile === "spheres") {
+          handModel.motionController = new XRHandPrimitiveModel(
+            handModel,
+            controller,
+            this.path,
+            xrInputSource.handedness,
+            { primitive: "sphere" }
+          )
+        } else if (profile === "boxes") {
+          handModel.motionController = new XRHandPrimitiveModel(
+            handModel,
+            controller,
+            this.path,
+            xrInputSource.handedness,
+            { primitive: "box" }
+          )
+        } else if (profile === "mesh") {
+          handModel.motionController = new XRHandMeshModel(handModel, controller, this.path, xrInputSource.handedness)
+        }
+      }
 
-	}
+      controller.visible = true
+    })
 
-	createHandModel( controller, profile ) {
+    controller.addEventListener("disconnected", () => {
+      controller.visible = false
+      // handModel.motionController = null;
+      // handModel.remove( scene );
+      // scene = null;
+    })
 
-		const handModel = new XRHandModel( controller );
-
-		controller.addEventListener( 'connected', ( event ) => {
-
-			const xrInputSource = event.data;
-
-			if ( xrInputSource.hand && ! handModel.motionController ) {
-
-				handModel.xrInputSource = xrInputSource;
-
-				// @todo Detect profile if not provided
-				if ( profile === undefined || profile === 'spheres' ) {
-
-					handModel.motionController = new XRHandPrimitiveModel( handModel, controller, this.path, xrInputSource.handedness, { primitive: 'sphere' } );
-
-				} else if ( profile === 'boxes' ) {
-
-					handModel.motionController = new XRHandPrimitiveModel( handModel, controller, this.path, xrInputSource.handedness, { primitive: 'box' } );
-
-				} else if ( profile === 'mesh' ) {
-
-					handModel.motionController = new XRHandMeshModel( handModel, controller, this.path, xrInputSource.handedness );
-
-				}
-
-			}
-
-			controller.visible = true;
-
-		} );
-
-		controller.addEventListener( 'disconnected', () => {
-
-			controller.visible = false;
-			// handModel.motionController = null;
-			// handModel.remove( scene );
-			// scene = null;
-
-		} );
-
-		return handModel;
-
-	}
-
+    return handModel
+  }
 }
 
-export { XRHandModelFactory };
+export { XRHandModelFactory }

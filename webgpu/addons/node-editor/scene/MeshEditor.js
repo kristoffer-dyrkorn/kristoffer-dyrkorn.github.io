@@ -1,102 +1,78 @@
-import { LabelElement } from '../../libs/flow.module.js';
-import { Object3DEditor } from './Object3DEditor.js';
-import { Mesh } from 'three';
+import { LabelElement } from "../../libs/flow.module.js"
+import { Object3DEditor } from "./Object3DEditor.js"
+import { Mesh } from "../../three.module.js"
 
 export class MeshEditor extends Object3DEditor {
+  constructor(mesh = null) {
+    if (mesh === null) {
+      mesh = new Mesh()
+    }
 
-	constructor( mesh = null ) {
+    super(mesh, "Mesh")
 
-		if ( mesh === null ) {
+    this.material = null
 
-			mesh = new Mesh();
+    this.meshMaterial = null
+    this.defaultMeshMaterial = null
 
-		}
+    this._initMaterial()
 
-		super( mesh, 'Mesh' );
+    this.updateDefault()
+    this.restoreDefault()
+    this.update()
+  }
 
-		this.material = null;
+  get mesh() {
+    return this.value
+  }
 
-		this.meshMaterial = null;
-		this.defaultMeshMaterial = null;
+  _initMaterial() {
+    const material = new LabelElement("Material").setInputColor("forestgreen").setInput(1)
 
-		this._initMaterial();
+    material
+      .onValid((source, target, stage) => {
+        const object = target.getObject()
 
-		this.updateDefault();
-		this.restoreDefault();
-		this.update();
+        if (object && object.isMaterial !== true) {
+          if (stage === "dragged") {
+            const name = target.node.getName()
 
-	}
+            this.editor.tips.error(`"${name}" is not a Material.`)
+          }
 
-	get mesh() {
+          return false
+        }
+      })
+      .onConnect(() => {
+        this.meshMaterial = material.getLinkedObject() || this.defaultMeshMaterial
 
-		return this.value;
+        this.update()
+      })
 
-	}
+    this.add(material)
 
-	_initMaterial() {
+    this.material = material
+  }
 
-		const material = new LabelElement( 'Material' ).setInputColor( 'forestgreen' ).setInput( 1 );
+  update() {
+    super.update()
 
-		material.onValid( ( source, target, stage ) => {
+    const mesh = this.mesh
 
-			const object = target.getObject();
+    if (mesh) {
+      mesh.material = this.meshMaterial || this.defaultMeshMaterial
+    }
+  }
 
-			if ( object && object.isMaterial !== true ) {
+  updateDefault() {
+    super.updateDefault()
 
-				if ( stage === 'dragged' ) {
+    this.defaultMeshMaterial = this.mesh.material
+  }
 
-					const name = target.node.getName();
+  restoreDefault() {
+    super.restoreDefault()
 
-					this.editor.tips.error( `"${name}" is not a Material.` );
-
-				}
-
-				return false;
-
-			}
-
-		} ).onConnect( () => {
-
-			this.meshMaterial = material.getLinkedObject() || this.defaultMeshMaterial;
-
-			this.update();
-
-		} );
-
-		this.add( material );
-
-		this.material = material;
-
-	}
-
-	update() {
-
-		super.update();
-
-		const mesh = this.mesh;
-
-		if ( mesh ) {
-
-			mesh.material = this.meshMaterial || this.defaultMeshMaterial;
-
-		}
-
-	}
-
-	updateDefault() {
-
-		super.updateDefault();
-
-		this.defaultMeshMaterial = this.mesh.material;
-
-	}
-
-	restoreDefault() {
-
-		super.restoreDefault();
-
-		this.mesh.material = this.defaultMeshMaterial;
-
-	}
-
+    this.mesh.material = this.defaultMeshMaterial
+  }
 }

@@ -1,107 +1,84 @@
-import * as Nodes from '../Nodes.js';
-import { FileLoader, Loader } from 'three';
+import * as Nodes from "../Nodes.js"
+import { FileLoader, Loader } from "../../three.module.js"
 
 class NodeLoader extends Loader {
+  constructor(manager) {
+    super(manager)
 
-	constructor( manager ) {
+    this.textures = {}
+  }
 
-		super( manager );
+  load(url, onLoad, onProgress, onError) {
+    const loader = new FileLoader(this.manager)
+    loader.setPath(this.path)
+    loader.setRequestHeader(this.requestHeader)
+    loader.setWithCredentials(this.withCredentials)
+    loader.load(
+      url,
+      (text) => {
+        try {
+          onLoad(this.parse(JSON.parse(text)))
+        } catch (e) {
+          if (onError) {
+            onError(e)
+          } else {
+            console.error(e)
+          }
 
-		this.textures = {};
+          this.manager.itemError(url)
+        }
+      },
+      onProgress,
+      onError
+    )
+  }
 
-	}
+  parseNodes(json) {
+    const nodes = {}
 
-	load( url, onLoad, onProgress, onError ) {
+    if (json !== undefined) {
+      for (const nodeJSON of json) {
+        const { uuid, type } = nodeJSON
 
-		const loader = new FileLoader( this.manager );
-		loader.setPath( this.path );
-		loader.setRequestHeader( this.requestHeader );
-		loader.setWithCredentials( this.withCredentials );
-		loader.load( url, ( text ) => {
+        nodes[uuid] = Nodes.fromType(type)
+        nodes[uuid].uuid = uuid
+      }
 
-			try {
+      const meta = { nodes, textures: this.textures }
 
-				onLoad( this.parse( JSON.parse( text ) ) );
+      for (const nodeJSON of json) {
+        nodeJSON.meta = meta
 
-			} catch ( e ) {
+        const node = nodes[nodeJSON.uuid]
+        node.deserialize(nodeJSON)
 
-				if ( onError ) {
+        delete nodeJSON.meta
+      }
+    }
 
-					onError( e );
+    return nodes
+  }
 
-				} else {
+  parse(json) {
+    const node = Nodes.fromType(json.type)
+    node.uuid = json.uuid
 
-					console.error( e );
+    const nodes = this.parseNodes(json.inputNodes)
+    const meta = { nodes, textures: this.textures }
 
-				}
+    json.meta = meta
 
-				this.manager.itemError( url );
+    node.deserialize(json)
 
-			}
+    delete json.meta
 
-		}, onProgress, onError );
+    return node
+  }
 
-	}
-
-	parseNodes( json ) {
-
-		const nodes = {};
-
-		if ( json !== undefined ) {
-
-			for ( const nodeJSON of json ) {
-
-				const { uuid, type } = nodeJSON;
-
-				nodes[ uuid ] = Nodes.fromType( type );
-				nodes[ uuid ].uuid = uuid;
-
-			}
-
-			const meta = { nodes, textures: this.textures };
-
-			for ( const nodeJSON of json ) {
-
-				nodeJSON.meta = meta;
-
-				const node = nodes[ nodeJSON.uuid ];
-				node.deserialize( nodeJSON );
-
-				delete nodeJSON.meta;
-
-			}
-
-		}
-
-		return nodes;
-
-	}
-
-	parse( json ) {
-
-		const node = Nodes.fromType( json.type );
-		node.uuid = json.uuid;
-
-		const nodes = this.parseNodes( json.inputNodes );
-		const meta = { nodes, textures: this.textures };
-
-		json.meta = meta;
-
-		node.deserialize( json );
-
-		delete json.meta;
-
-		return node;
-
-	}
-
-	setTextures( value ) {
-
-		this.textures = value;
-		return this;
-
-	}
-
+  setTextures(value) {
+    this.textures = value
+    return this
+  }
 }
 
-export default NodeLoader;
+export default NodeLoader

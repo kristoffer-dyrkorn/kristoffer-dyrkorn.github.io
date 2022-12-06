@@ -1,14 +1,14 @@
 import {
-	AnimationClip,
-	Bone,
-	FileLoader,
-	Loader,
-	Quaternion,
-	QuaternionKeyframeTrack,
-	Skeleton,
-	Vector3,
-	VectorKeyframeTrack
-} from 'three';
+  AnimationClip,
+  Bone,
+  FileLoader,
+  Loader,
+  Quaternion,
+  QuaternionKeyframeTrack,
+  Skeleton,
+  Vector3,
+  VectorKeyframeTrack,
+} from "../../three.module.js"
 
 /**
  * Description: reads BVH files and outputs a single Skeleton and an AnimationClip
@@ -18,116 +18,93 @@ import {
  */
 
 class BVHLoader extends Loader {
+  constructor(manager) {
+    super(manager)
 
-	constructor( manager ) {
+    this.animateBonePositions = true
+    this.animateBoneRotations = true
+  }
 
-		super( manager );
+  load(url, onLoad, onProgress, onError) {
+    const scope = this
 
-		this.animateBonePositions = true;
-		this.animateBoneRotations = true;
+    const loader = new FileLoader(scope.manager)
+    loader.setPath(scope.path)
+    loader.setRequestHeader(scope.requestHeader)
+    loader.setWithCredentials(scope.withCredentials)
+    loader.load(
+      url,
+      function (text) {
+        try {
+          onLoad(scope.parse(text))
+        } catch (e) {
+          if (onError) {
+            onError(e)
+          } else {
+            console.error(e)
+          }
 
-	}
+          scope.manager.itemError(url)
+        }
+      },
+      onProgress,
+      onError
+    )
+  }
 
-	load( url, onLoad, onProgress, onError ) {
-
-		const scope = this;
-
-		const loader = new FileLoader( scope.manager );
-		loader.setPath( scope.path );
-		loader.setRequestHeader( scope.requestHeader );
-		loader.setWithCredentials( scope.withCredentials );
-		loader.load( url, function ( text ) {
-
-			try {
-
-				onLoad( scope.parse( text ) );
-
-			} catch ( e ) {
-
-				if ( onError ) {
-
-					onError( e );
-
-				} else {
-
-					console.error( e );
-
-				}
-
-				scope.manager.itemError( url );
-
-			}
-
-		}, onProgress, onError );
-
-	}
-
-	parse( text ) {
-
-		/*
+  parse(text) {
+    /*
 			reads a string array (lines) from a BVH file
 			and outputs a skeleton structure including motion data
 
 			returns thee root node:
 			{ name: '', channels: [], children: [] }
 		*/
-		function readBvh( lines ) {
+    function readBvh(lines) {
+      // read model structure
 
-			// read model structure
+      if (nextLine(lines) !== "HIERARCHY") {
+        console.error("THREE.BVHLoader: HIERARCHY expected.")
+      }
 
-			if ( nextLine( lines ) !== 'HIERARCHY' ) {
+      const list = [] // collects flat array of all bones
+      const root = readNode(lines, nextLine(lines), list)
 
-				console.error( 'THREE.BVHLoader: HIERARCHY expected.' );
+      // read motion data
 
-			}
+      if (nextLine(lines) !== "MOTION") {
+        console.error("THREE.BVHLoader: MOTION expected.")
+      }
 
-			const list = []; // collects flat array of all bones
-			const root = readNode( lines, nextLine( lines ), list );
+      // number of frames
 
-			// read motion data
+      let tokens = nextLine(lines).split(/[\s]+/)
+      const numFrames = parseInt(tokens[1])
 
-			if ( nextLine( lines ) !== 'MOTION' ) {
+      if (isNaN(numFrames)) {
+        console.error("THREE.BVHLoader: Failed to read number of frames.")
+      }
 
-				console.error( 'THREE.BVHLoader: MOTION expected.' );
+      // frame time
 
-			}
+      tokens = nextLine(lines).split(/[\s]+/)
+      const frameTime = parseFloat(tokens[2])
 
-			// number of frames
+      if (isNaN(frameTime)) {
+        console.error("THREE.BVHLoader: Failed to read frame time.")
+      }
 
-			let tokens = nextLine( lines ).split( /[\s]+/ );
-			const numFrames = parseInt( tokens[ 1 ] );
+      // read frame data line by line
 
-			if ( isNaN( numFrames ) ) {
+      for (let i = 0; i < numFrames; i++) {
+        tokens = nextLine(lines).split(/[\s]+/)
+        readFrameData(tokens, i * frameTime, root)
+      }
 
-				console.error( 'THREE.BVHLoader: Failed to read number of frames.' );
+      return list
+    }
 
-			}
-
-			// frame time
-
-			tokens = nextLine( lines ).split( /[\s]+/ );
-			const frameTime = parseFloat( tokens[ 2 ] );
-
-			if ( isNaN( frameTime ) ) {
-
-				console.error( 'THREE.BVHLoader: Failed to read frame time.' );
-
-			}
-
-			// read frame data line by line
-
-			for ( let i = 0; i < numFrames; i ++ ) {
-
-				tokens = nextLine( lines ).split( /[\s]+/ );
-				readFrameData( tokens, i * frameTime, root );
-
-			}
-
-			return list;
-
-		}
-
-		/*
+    /*
 			Recursively reads data from a single frame into the bone hierarchy.
 			The passed bone hierarchy has to be structured in the same order as the BVH file.
 			keyframe data is stored in bone.frames.
@@ -137,73 +114,65 @@ class BVHLoader extends Loader {
 			- frameTime: playback time for this keyframe.
 			- bone: the bone to read frame data from.
 		*/
-		function readFrameData( data, frameTime, bone ) {
+    function readFrameData(data, frameTime, bone) {
+      // end sites have no motion data
 
-			// end sites have no motion data
+      if (bone.type === "ENDSITE") return
 
-			if ( bone.type === 'ENDSITE' ) return;
+      // add keyframe
 
-			// add keyframe
+      const keyframe = {
+        time: frameTime,
+        position: new Vector3(),
+        rotation: new Quaternion(),
+      }
 
-			const keyframe = {
-				time: frameTime,
-				position: new Vector3(),
-				rotation: new Quaternion()
-			};
+      bone.frames.push(keyframe)
 
-			bone.frames.push( keyframe );
+      const quat = new Quaternion()
 
-			const quat = new Quaternion();
+      const vx = new Vector3(1, 0, 0)
+      const vy = new Vector3(0, 1, 0)
+      const vz = new Vector3(0, 0, 1)
 
-			const vx = new Vector3( 1, 0, 0 );
-			const vy = new Vector3( 0, 1, 0 );
-			const vz = new Vector3( 0, 0, 1 );
+      // parse values for each channel in node
 
-			// parse values for each channel in node
+      for (let i = 0; i < bone.channels.length; i++) {
+        switch (bone.channels[i]) {
+          case "Xposition":
+            keyframe.position.x = parseFloat(data.shift().trim())
+            break
+          case "Yposition":
+            keyframe.position.y = parseFloat(data.shift().trim())
+            break
+          case "Zposition":
+            keyframe.position.z = parseFloat(data.shift().trim())
+            break
+          case "Xrotation":
+            quat.setFromAxisAngle(vx, (parseFloat(data.shift().trim()) * Math.PI) / 180)
+            keyframe.rotation.multiply(quat)
+            break
+          case "Yrotation":
+            quat.setFromAxisAngle(vy, (parseFloat(data.shift().trim()) * Math.PI) / 180)
+            keyframe.rotation.multiply(quat)
+            break
+          case "Zrotation":
+            quat.setFromAxisAngle(vz, (parseFloat(data.shift().trim()) * Math.PI) / 180)
+            keyframe.rotation.multiply(quat)
+            break
+          default:
+            console.warn("THREE.BVHLoader: Invalid channel type.")
+        }
+      }
 
-			for ( let i = 0; i < bone.channels.length; i ++ ) {
+      // parse child nodes
 
-				switch ( bone.channels[ i ] ) {
+      for (let i = 0; i < bone.children.length; i++) {
+        readFrameData(data, frameTime, bone.children[i])
+      }
+    }
 
-					case 'Xposition':
-						keyframe.position.x = parseFloat( data.shift().trim() );
-						break;
-					case 'Yposition':
-						keyframe.position.y = parseFloat( data.shift().trim() );
-						break;
-					case 'Zposition':
-						keyframe.position.z = parseFloat( data.shift().trim() );
-						break;
-					case 'Xrotation':
-						quat.setFromAxisAngle( vx, parseFloat( data.shift().trim() ) * Math.PI / 180 );
-						keyframe.rotation.multiply( quat );
-						break;
-					case 'Yrotation':
-						quat.setFromAxisAngle( vy, parseFloat( data.shift().trim() ) * Math.PI / 180 );
-						keyframe.rotation.multiply( quat );
-						break;
-					case 'Zrotation':
-						quat.setFromAxisAngle( vz, parseFloat( data.shift().trim() ) * Math.PI / 180 );
-						keyframe.rotation.multiply( quat );
-						break;
-					default:
-						console.warn( 'THREE.BVHLoader: Invalid channel type.' );
-
-				}
-
-			}
-
-			// parse child nodes
-
-			for ( let i = 0; i < bone.children.length; i ++ ) {
-
-				readFrameData( data, frameTime, bone.children[ i ] );
-
-			}
-
-		}
-
-		/*
+    /*
 		 Recursively parses the HIERACHY section of the BVH file
 
 		 - lines: all lines of the file. lines are consumed as we go along.
@@ -212,102 +181,74 @@ class BVHLoader extends Loader {
 
 		 returns: a BVH node including children
 		*/
-		function readNode( lines, firstline, list ) {
+    function readNode(lines, firstline, list) {
+      const node = { name: "", type: "", frames: [] }
+      list.push(node)
 
-			const node = { name: '', type: '', frames: [] };
-			list.push( node );
+      // parse node type and name
 
-			// parse node type and name
+      let tokens = firstline.split(/[\s]+/)
 
-			let tokens = firstline.split( /[\s]+/ );
+      if (tokens[0].toUpperCase() === "END" && tokens[1].toUpperCase() === "SITE") {
+        node.type = "ENDSITE"
+        node.name = "ENDSITE" // bvh end sites have no name
+      } else {
+        node.name = tokens[1]
+        node.type = tokens[0].toUpperCase()
+      }
 
-			if ( tokens[ 0 ].toUpperCase() === 'END' && tokens[ 1 ].toUpperCase() === 'SITE' ) {
+      if (nextLine(lines) !== "{") {
+        console.error("THREE.BVHLoader: Expected opening { after type & name")
+      }
 
-				node.type = 'ENDSITE';
-				node.name = 'ENDSITE'; // bvh end sites have no name
+      // parse OFFSET
 
-			} else {
+      tokens = nextLine(lines).split(/[\s]+/)
 
-				node.name = tokens[ 1 ];
-				node.type = tokens[ 0 ].toUpperCase();
+      if (tokens[0] !== "OFFSET") {
+        console.error("THREE.BVHLoader: Expected OFFSET but got: " + tokens[0])
+      }
 
-			}
+      if (tokens.length !== 4) {
+        console.error("THREE.BVHLoader: Invalid number of values for OFFSET.")
+      }
 
-			if ( nextLine( lines ) !== '{' ) {
+      const offset = new Vector3(parseFloat(tokens[1]), parseFloat(tokens[2]), parseFloat(tokens[3]))
 
-				console.error( 'THREE.BVHLoader: Expected opening { after type & name' );
+      if (isNaN(offset.x) || isNaN(offset.y) || isNaN(offset.z)) {
+        console.error("THREE.BVHLoader: Invalid values of OFFSET.")
+      }
 
-			}
+      node.offset = offset
 
-			// parse OFFSET
+      // parse CHANNELS definitions
 
-			tokens = nextLine( lines ).split( /[\s]+/ );
+      if (node.type !== "ENDSITE") {
+        tokens = nextLine(lines).split(/[\s]+/)
 
-			if ( tokens[ 0 ] !== 'OFFSET' ) {
+        if (tokens[0] !== "CHANNELS") {
+          console.error("THREE.BVHLoader: Expected CHANNELS definition.")
+        }
 
-				console.error( 'THREE.BVHLoader: Expected OFFSET but got: ' + tokens[ 0 ] );
+        const numChannels = parseInt(tokens[1])
+        node.channels = tokens.splice(2, numChannels)
+        node.children = []
+      }
 
-			}
+      // read children
 
-			if ( tokens.length !== 4 ) {
+      while (true) {
+        const line = nextLine(lines)
 
-				console.error( 'THREE.BVHLoader: Invalid number of values for OFFSET.' );
+        if (line === "}") {
+          return node
+        } else {
+          node.children.push(readNode(lines, line, list))
+        }
+      }
+    }
 
-			}
-
-			const offset = new Vector3(
-				parseFloat( tokens[ 1 ] ),
-				parseFloat( tokens[ 2 ] ),
-				parseFloat( tokens[ 3 ] )
-			);
-
-			if ( isNaN( offset.x ) || isNaN( offset.y ) || isNaN( offset.z ) ) {
-
-				console.error( 'THREE.BVHLoader: Invalid values of OFFSET.' );
-
-			}
-
-			node.offset = offset;
-
-			// parse CHANNELS definitions
-
-			if ( node.type !== 'ENDSITE' ) {
-
-				tokens = nextLine( lines ).split( /[\s]+/ );
-
-				if ( tokens[ 0 ] !== 'CHANNELS' ) {
-
-					console.error( 'THREE.BVHLoader: Expected CHANNELS definition.' );
-
-				}
-
-				const numChannels = parseInt( tokens[ 1 ] );
-				node.channels = tokens.splice( 2, numChannels );
-				node.children = [];
-
-			}
-
-			// read children
-
-			while ( true ) {
-
-				const line = nextLine( lines );
-
-				if ( line === '}' ) {
-
-					return node;
-
-				} else {
-
-					node.children.push( readNode( lines, line, list ) );
-
-				}
-
-			}
-
-		}
-
-		/*
+    /*
 			recursively converts the internal bvh node structure to a Bone hierarchy
 
 			source: the bvh root node
@@ -315,123 +256,102 @@ class BVHLoader extends Loader {
 
 			returns the root Bone
 		*/
-		function toTHREEBone( source, list ) {
+    function toTHREEBone(source, list) {
+      const bone = new Bone()
+      list.push(bone)
 
-			const bone = new Bone();
-			list.push( bone );
+      bone.position.add(source.offset)
+      bone.name = source.name
 
-			bone.position.add( source.offset );
-			bone.name = source.name;
+      if (source.type !== "ENDSITE") {
+        for (let i = 0; i < source.children.length; i++) {
+          bone.add(toTHREEBone(source.children[i], list))
+        }
+      }
 
-			if ( source.type !== 'ENDSITE' ) {
+      return bone
+    }
 
-				for ( let i = 0; i < source.children.length; i ++ ) {
-
-					bone.add( toTHREEBone( source.children[ i ], list ) );
-
-				}
-
-			}
-
-			return bone;
-
-		}
-
-		/*
+    /*
 			builds a AnimationClip from the keyframe data saved in each bone.
 
 			bone: bvh root node
 
 			returns: a AnimationClip containing position and quaternion tracks
 		*/
-		function toTHREEAnimation( bones ) {
+    function toTHREEAnimation(bones) {
+      const tracks = []
 
-			const tracks = [];
+      // create a position and quaternion animation track for each node
 
-			// create a position and quaternion animation track for each node
+      for (let i = 0; i < bones.length; i++) {
+        const bone = bones[i]
 
-			for ( let i = 0; i < bones.length; i ++ ) {
+        if (bone.type === "ENDSITE") continue
 
-				const bone = bones[ i ];
+        // track data
 
-				if ( bone.type === 'ENDSITE' )
-					continue;
+        const times = []
+        const positions = []
+        const rotations = []
 
-				// track data
+        for (let j = 0; j < bone.frames.length; j++) {
+          const frame = bone.frames[j]
 
-				const times = [];
-				const positions = [];
-				const rotations = [];
+          times.push(frame.time)
 
-				for ( let j = 0; j < bone.frames.length; j ++ ) {
+          // the animation system animates the position property,
+          // so we have to add the joint offset to all values
 
-					const frame = bone.frames[ j ];
+          positions.push(frame.position.x + bone.offset.x)
+          positions.push(frame.position.y + bone.offset.y)
+          positions.push(frame.position.z + bone.offset.z)
 
-					times.push( frame.time );
+          rotations.push(frame.rotation.x)
+          rotations.push(frame.rotation.y)
+          rotations.push(frame.rotation.z)
+          rotations.push(frame.rotation.w)
+        }
 
-					// the animation system animates the position property,
-					// so we have to add the joint offset to all values
+        if (scope.animateBonePositions) {
+          tracks.push(new VectorKeyframeTrack(".bones[" + bone.name + "].position", times, positions))
+        }
 
-					positions.push( frame.position.x + bone.offset.x );
-					positions.push( frame.position.y + bone.offset.y );
-					positions.push( frame.position.z + bone.offset.z );
+        if (scope.animateBoneRotations) {
+          tracks.push(new QuaternionKeyframeTrack(".bones[" + bone.name + "].quaternion", times, rotations))
+        }
+      }
 
-					rotations.push( frame.rotation.x );
-					rotations.push( frame.rotation.y );
-					rotations.push( frame.rotation.z );
-					rotations.push( frame.rotation.w );
+      return new AnimationClip("animation", -1, tracks)
+    }
 
-				}
-
-				if ( scope.animateBonePositions ) {
-
-					tracks.push( new VectorKeyframeTrack( '.bones[' + bone.name + '].position', times, positions ) );
-
-				}
-
-				if ( scope.animateBoneRotations ) {
-
-					tracks.push( new QuaternionKeyframeTrack( '.bones[' + bone.name + '].quaternion', times, rotations ) );
-
-				}
-
-			}
-
-			return new AnimationClip( 'animation', - 1, tracks );
-
-		}
-
-		/*
+    /*
 			returns the next non-empty line in lines
 		*/
-		function nextLine( lines ) {
+    function nextLine(lines) {
+      let line
+      // skip empty lines
+      while ((line = lines.shift().trim()).length === 0) {}
 
-			let line;
-			// skip empty lines
-			while ( ( line = lines.shift().trim() ).length === 0 ) { }
+      return line
+    }
 
-			return line;
+    const scope = this
 
-		}
+    const lines = text.split(/[\r\n]+/g)
 
-		const scope = this;
+    const bones = readBvh(lines)
 
-		const lines = text.split( /[\r\n]+/g );
+    const threeBones = []
+    toTHREEBone(bones[0], threeBones)
 
-		const bones = readBvh( lines );
+    const threeClip = toTHREEAnimation(bones)
 
-		const threeBones = [];
-		toTHREEBone( bones[ 0 ], threeBones );
-
-		const threeClip = toTHREEAnimation( bones );
-
-		return {
-			skeleton: new Skeleton( threeBones ),
-			clip: threeClip
-		};
-
-	}
-
+    return {
+      skeleton: new Skeleton(threeBones),
+      clip: threeClip,
+    }
+  }
 }
 
-export { BVHLoader };
+export { BVHLoader }

@@ -1,109 +1,81 @@
-import Node from '../core/Node.js';
-import { attribute, float } from '../shadernode/ShaderNodeBaseElements.js';
-import { MathUtils, InstancedBufferAttribute } from 'three';
+import Node from "../core/Node.js"
+import { attribute, float } from "../shadernode/ShaderNodeBaseElements.js"
+import { MathUtils, InstancedBufferAttribute } from "../../three.module.js"
 
 class RangeNode extends Node {
+  constructor(min, max) {
+    super()
 
-	constructor( min, max ) {
+    this.min = min
+    this.max = max
+  }
 
-		super();
+  getVectorLength() {
+    const min = this.min
 
-		this.min = min;
-		this.max = max;
+    let length = 1
 
-	}
+    if (min.isVector2) length = 2
+    else if (min.isVector3) length = 3
+    else if (min.isVector4) length = 4
+    else if (min.isColor) length = 3
 
-	getVectorLength() {
+    return length
+  }
 
-		const min = this.min;
+  getNodeType(builder) {
+    return builder.object.isInstancedMesh === true ? builder.getTypeFromLength(this.getVectorLength()) : "float"
+  }
 
-		let length = 1;
+  construct(builder) {
+    const { min, max } = this
+    const { object, geometry } = builder
 
-		if ( min.isVector2 ) length = 2;
-		else if ( min.isVector3 ) length = 3;
-		else if ( min.isVector4 ) length = 4;
-		else if ( min.isColor ) length = 3;
+    let output = null
 
-		return length;
+    if (object.isInstancedMesh === true) {
+      const vectorLength = this.getVectorLength()
+      const attributeName = "node" + this.id
 
-	}
+      const length = vectorLength * object.count
+      const array = new Float32Array(length)
 
-	getNodeType( builder ) {
+      const attributeGeometry = geometry.getAttribute(attributeName)
 
-		return ( builder.object.isInstancedMesh === true ) ? builder.getTypeFromLength( this.getVectorLength() ) : 'float';
+      if (attributeGeometry === undefined || attributeGeometry.array.length < length) {
+        if (vectorLength === 1) {
+          for (let i = 0; i < length; i++) {
+            array[i] = MathUtils.lerp(min, max, Math.random())
+          }
+        } else if (min.isColor) {
+          for (let i = 0; i < length; i += 3) {
+            array[i] = MathUtils.lerp(min.r, max.r, Math.random())
+            array[i + 1] = MathUtils.lerp(min.g, max.g, Math.random())
+            array[i + 2] = MathUtils.lerp(min.b, max.b, Math.random())
+          }
+        } else {
+          for (let i = 0; i < length; i++) {
+            const index = i % vectorLength
 
-	}
+            const minValue = min.getComponent(index)
+            const maxValue = max.getComponent(index)
 
-	construct( builder ) {
+            array[i] = MathUtils.lerp(minValue, maxValue, Math.random())
+          }
+        }
 
-		const { min, max } = this;
-		const { object, geometry } = builder;
+        geometry.setAttribute(attributeName, new InstancedBufferAttribute(array, vectorLength))
 
-		let output = null;
+        geometry.dispose()
+      }
 
-		if ( object.isInstancedMesh === true ) {
+      output = attribute(attributeName, builder.getTypeFromLength(vectorLength))
+    } else {
+      output = float(0)
+    }
 
-			const vectorLength = this.getVectorLength();
-			const attributeName = 'node' + this.id;
-
-			const length = vectorLength * object.count;
-			const array = new Float32Array( length );
-
-			const attributeGeometry = geometry.getAttribute( attributeName );
-
-			if ( attributeGeometry === undefined || attributeGeometry.array.length < length ) {
-
-				if ( vectorLength === 1 ) {
-
-					for ( let i = 0; i < length; i ++ ) {
-
-						array[ i ] = MathUtils.lerp( min, max, Math.random() );
-
-					}
-
-				} else if ( min.isColor ) {
-
-					for ( let i = 0; i < length; i += 3 ) {
-
-						array[ i ] = MathUtils.lerp( min.r, max.r, Math.random() );
-						array[ i + 1 ] = MathUtils.lerp( min.g, max.g, Math.random() );
-						array[ i + 2 ] = MathUtils.lerp( min.b, max.b, Math.random() );
-
-					}
-
-				} else {
-
-					for ( let i = 0; i < length; i ++ ) {
-
-						const index = i % vectorLength;
-
-						const minValue = min.getComponent( index );
-						const maxValue = max.getComponent( index );
-
-						array[ i ] = MathUtils.lerp( minValue, maxValue, Math.random() );
-
-					}
-
-				}
-
-				geometry.setAttribute( attributeName, new InstancedBufferAttribute( array, vectorLength ) );
-
-				geometry.dispose();
-
-			}
-
-			output = attribute( attributeName, builder.getTypeFromLength( vectorLength ) );
-
-		} else {
-
-			output = float( 0 );
-
-		}
-
-		return output;
-
-	}
-
+    return output
+  }
 }
 
-export default RangeNode;
+export default RangeNode

@@ -1,102 +1,88 @@
-import { ColorInput, ToggleInput, SliderInput, LabelElement } from '../../libs/flow.module.js';
-import { BaseNode } from '../core/BaseNode.js';
-import { PointsNodeMaterial } from 'three/nodes';
-import * as THREE from 'three';
+import { ColorInput, ToggleInput, SliderInput, LabelElement } from "../../libs/flow.module.js"
+import { BaseNode } from "../core/BaseNode.js"
+import { PointsNodeMaterial } from "three/nodes"
+import * as THREE from "../../three.module.js"
 
 export class PointsMaterialEditor extends BaseNode {
+  constructor() {
+    const material = new PointsNodeMaterial()
 
-	constructor() {
+    super("Points Material", 1, material)
 
-		const material = new PointsNodeMaterial();
+    this.setWidth(300)
 
-		super( 'Points Material', 1, material );
+    const color = new LabelElement("color").setInput(3)
+    const opacity = new LabelElement("opacity").setInput(1)
+    const size = new LabelElement("size").setInput(1)
+    const position = new LabelElement("position").setInput(3)
+    const sizeAttenuation = new LabelElement("Size Attenuation")
 
-		this.setWidth( 300 );
+    color.add(
+      new ColorInput(material.color.getHex()).onChange((input) => {
+        material.color.setHex(input.getValue())
+      })
+    )
 
-		const color = new LabelElement( 'color' ).setInput( 3 );
-		const opacity = new LabelElement( 'opacity' ).setInput( 1 );
-		const size = new LabelElement( 'size' ).setInput( 1 );
-		const position = new LabelElement( 'position' ).setInput( 3 );
-		const sizeAttenuation = new LabelElement( 'Size Attenuation' );
+    opacity.add(
+      new SliderInput(material.opacity, 0, 1).onChange((input) => {
+        material.opacity = input.getValue()
 
-		color.add( new ColorInput( material.color.getHex() ).onChange( ( input ) => {
+        this.updateTransparent()
+      })
+    )
 
-			material.color.setHex( input.getValue() );
+    sizeAttenuation.add(
+      new ToggleInput(material.sizeAttenuation).onClick((input) => {
+        material.sizeAttenuation = input.getValue()
+        material.dispose()
+      })
+    )
 
-		} ) );
+    color.onConnect(() => this.update(), true)
+    opacity.onConnect(() => this.update(), true)
+    size.onConnect(() => this.update(), true)
+    position.onConnect(() => this.update(), true)
 
-		opacity.add( new SliderInput( material.opacity, 0, 1 ).onChange( ( input ) => {
+    this.add(color).add(opacity).add(size).add(position).add(sizeAttenuation)
 
-			material.opacity = input.getValue();
+    this.color = color
+    this.opacity = opacity
+    this.size = size
+    this.position = position
+    this.sizeAttenuation = sizeAttenuation
 
-			this.updateTransparent();
+    this.material = material
 
-		} ) );
+    this.update()
+  }
 
-		sizeAttenuation.add( new ToggleInput( material.sizeAttenuation ).onClick( ( input ) => {
+  update() {
+    const { material, color, opacity, size, position } = this
 
-			material.sizeAttenuation = input.getValue();
-			material.dispose();
+    color.setEnabledInputs(!color.getLinkedObject())
+    opacity.setEnabledInputs(!opacity.getLinkedObject())
 
-		} ) );
+    material.colorNode = color.getLinkedObject()
+    material.opacityNode = opacity.getLinkedObject() || null
 
-		color.onConnect( () => this.update(), true );
-		opacity.onConnect( () => this.update(), true );
-		size.onConnect( () => this.update(), true );
-		position.onConnect( () => this.update(), true );
+    material.sizeNode = size.getLinkedObject() || null
+    material.positionNode = position.getLinkedObject() || null
 
-		this.add( color )
-			.add( opacity )
-			.add( size )
-			.add( position )
-			.add( sizeAttenuation );
+    material.dispose()
 
-		this.color = color;
-		this.opacity = opacity;
-		this.size = size;
-		this.position = position;
-		this.sizeAttenuation = sizeAttenuation;
+    this.updateTransparent()
 
-		this.material = material;
+    // TODO: Fix on NodeMaterial System
+    material.customProgramCacheKey = () => {
+      return THREE.MathUtils.generateUUID()
+    }
+  }
 
-		this.update();
+  updateTransparent() {
+    const { material, opacity } = this
 
-	}
+    material.transparent = opacity.getLinkedObject() || material.opacity < 1 ? true : false
 
-	update() {
-
-		const { material, color, opacity, size, position } = this;
-
-		color.setEnabledInputs( ! color.getLinkedObject() );
-		opacity.setEnabledInputs( ! opacity.getLinkedObject() );
-
-		material.colorNode = color.getLinkedObject();
-		material.opacityNode = opacity.getLinkedObject() || null;
-
-		material.sizeNode = size.getLinkedObject() || null;
-		material.positionNode = position.getLinkedObject() || null;
-
-		material.dispose();
-
-		this.updateTransparent();
-
-		// TODO: Fix on NodeMaterial System
-		material.customProgramCacheKey = () => {
-
-			return THREE.MathUtils.generateUUID();
-
-		};
-
-	}
-
-	updateTransparent() {
-
-		const { material, opacity } = this;
-
-		material.transparent = opacity.getLinkedObject() || material.opacity < 1 ? true : false;
-
-		opacity.setIcon( material.transparent ? 'ti ti-layers-intersect' : 'ti ti-layers-subtract' );
-
-	}
-
+    opacity.setIcon(material.transparent ? "ti ti-layers-intersect" : "ti ti-layers-subtract")
+  }
 }

@@ -1,68 +1,61 @@
-import AnalyticLightNode from './AnalyticLightNode.js';
-import LightsNode from './LightsNode.js';
-import Object3DNode from '../accessors/Object3DNode.js';
-import getDistanceAttenuation from '../functions/light/getDistanceAttenuation.js';
-import { uniform, mul, normalize, length, sub, positionView } from '../shadernode/ShaderNodeElements.js';
+import AnalyticLightNode from "./AnalyticLightNode.js"
+import LightsNode from "./LightsNode.js"
+import Object3DNode from "../accessors/Object3DNode.js"
+import getDistanceAttenuation from "../functions/light/getDistanceAttenuation.js"
+import { uniform, mul, normalize, length, sub, positionView } from "../shadernode/ShaderNodeElements.js"
 
-import { PointLight } from 'three';
+import { PointLight } from "../../three.module.js"
 
 class PunctualLightNode extends AnalyticLightNode {
+  constructor(light = null) {
+    super(light)
 
-	constructor( light = null ) {
+    this.cutoffDistanceNode = uniform(0)
+    this.decayExponentNode = uniform(0)
+  }
 
-		super( light );
+  update(frame) {
+    const { light } = this
 
-		this.cutoffDistanceNode = uniform( 0 );
-		this.decayExponentNode = uniform( 0 );
+    super.update(frame)
 
-	}
+    this.cutoffDistanceNode.value = light.distance
+    this.decayExponentNode.value = light.decay
+  }
 
-	update( frame ) {
+  construct(builder) {
+    const { colorNode, cutoffDistanceNode, decayExponentNode } = this
 
-		const { light } = this;
+    const lightPositionViewNode = new Object3DNode(Object3DNode.VIEW_POSITION, this.light)
+    const lVector = sub(lightPositionViewNode, positionView)
 
-		super.update( frame );
+    const lightDirection = normalize(lVector)
+    const lightDistance = length(lVector)
 
-		this.cutoffDistanceNode.value = light.distance;
-		this.decayExponentNode.value = light.decay;
+    const lightAttenuation = getDistanceAttenuation.call({
+      lightDistance,
+      cutoffDistance: cutoffDistanceNode,
+      decayExponent: decayExponentNode,
+    })
 
-	}
+    const lightColor = mul(colorNode, lightAttenuation)
 
-	construct( builder ) {
+    const lightingModelFunctionNode = builder.context.lightingModelNode
+    const reflectedLight = builder.context.reflectedLight
 
-		const { colorNode, cutoffDistanceNode, decayExponentNode } = this;
-
-		const lightPositionViewNode = new Object3DNode( Object3DNode.VIEW_POSITION, this.light );
-		const lVector = sub( lightPositionViewNode, positionView );
-
-		const lightDirection = normalize( lVector );
-		const lightDistance = length( lVector );
-
-		const lightAttenuation = getDistanceAttenuation.call( {
-			lightDistance,
-			cutoffDistance: cutoffDistanceNode,
-			decayExponent: decayExponentNode
-		} );
-
-		const lightColor = mul( colorNode, lightAttenuation );
-
-		const lightingModelFunctionNode = builder.context.lightingModelNode;
-		const reflectedLight = builder.context.reflectedLight;
-
-		if ( lightingModelFunctionNode?.direct ) {
-
-			lightingModelFunctionNode.direct.call( {
-				lightDirection,
-				lightColor,
-				reflectedLight
-			}, builder );
-
-		}
-
-	}
-
+    if (lightingModelFunctionNode?.direct) {
+      lightingModelFunctionNode.direct.call(
+        {
+          lightDirection,
+          lightColor,
+          reflectedLight,
+        },
+        builder
+      )
+    }
+  }
 }
 
-LightsNode.setReference( PointLight, PunctualLightNode );
+LightsNode.setReference(PointLight, PunctualLightNode)
 
-export default PunctualLightNode;
+export default PunctualLightNode

@@ -1,45 +1,39 @@
-import { SelectInput, Element, LabelElement } from '../../libs/flow.module.js';
-import { BaseNode } from '../core/BaseNode.js';
-import { Vector3 } from 'three';
-import { MathNode, UniformNode } from 'three/nodes';
+import { SelectInput, Element, LabelElement } from "../../libs/flow.module.js"
+import { BaseNode } from "../core/BaseNode.js"
+import { Vector3 } from "../../three.module.js"
+import { MathNode, UniformNode } from "three/nodes"
 
-const DEFAULT_VALUE = new UniformNode( new Vector3() );
+const DEFAULT_VALUE = new UniformNode(new Vector3())
 
 export class TrigonometryEditor extends BaseNode {
+  constructor() {
+    const node = new MathNode(MathNode.SIN, DEFAULT_VALUE)
 
-	constructor() {
+    super("Trigonometry", 1, node, 175)
 
-		const node = new MathNode( MathNode.SIN, DEFAULT_VALUE );
+    const optionsField = new SelectInput(
+      [
+        { name: "Sin", value: MathNode.SIN },
+        { name: "Cos", value: MathNode.COS },
+        { name: "Tan", value: MathNode.TAN },
 
-		super( 'Trigonometry', 1, node, 175 );
+        { name: "asin", value: MathNode.ASIN },
+        { name: "acos", value: MathNode.ACOS },
+        { name: "atan", value: MathNode.ATAN },
+      ],
+      MathNode.SIN
+    ).onChange(() => {
+      node.method = optionsField.getValue()
 
-		const optionsField = new SelectInput( [
-			{ name: 'Sin', value: MathNode.SIN },
-			{ name: 'Cos', value: MathNode.COS },
-			{ name: 'Tan', value: MathNode.TAN },
+      this.invalidate()
+    })
 
-			{ name: 'asin', value: MathNode.ASIN },
-			{ name: 'acos', value: MathNode.ACOS },
-			{ name: 'atan', value: MathNode.ATAN }
-		], MathNode.SIN ).onChange( () => {
+    const input = new LabelElement("A").setInput(1)
 
-			node.method = optionsField.getValue();
+    input.onConnect(() => {
+      node.aNode = input.getLinkedObject() || DEFAULT_VALUE
+    })
 
-			this.invalidate();
-
-		} );
-
-		const input = new LabelElement( 'A' ).setInput( 1 );
-
-		input.onConnect( () => {
-
-			node.aNode = input.getLinkedObject() || DEFAULT_VALUE;
-
-		} );
-
-		this.add( new Element().add( optionsField ) )
-			.add( input );
-
-	}
-
+    this.add(new Element().add(optionsField)).add(input)
+  }
 }
