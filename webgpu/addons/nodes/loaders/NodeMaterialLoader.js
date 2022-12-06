@@ -1,4 +1,4 @@
-import { MaterialLoader } from "../../three.module.js"
+import { MaterialLoader } from "../../../three.module.js"
 import {
   NodeMaterial,
   LineBasicNodeMaterial,

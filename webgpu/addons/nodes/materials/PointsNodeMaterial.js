@@ -1,5 +1,5 @@
 import NodeMaterial from "./NodeMaterial.js"
-import { PointsMaterial } from "../../three.module.js"
+import { PointsMaterial } from "../../../three.module.js"
 
 const defaultValues = new PointsMaterial()
 
