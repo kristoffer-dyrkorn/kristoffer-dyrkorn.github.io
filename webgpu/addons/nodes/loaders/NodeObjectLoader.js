@@ -1,6 +1,6 @@
 import NodeLoader from "./NodeLoader.js"
 import NodeMaterialLoader from "./NodeMaterialLoader.js"
-import { ObjectLoader } from "../../three.module.js"
+import { ObjectLoader } from "../../../three.module.js"
 
 class NodeObjectLoader extends ObjectLoader {
   constructor(manager) {
