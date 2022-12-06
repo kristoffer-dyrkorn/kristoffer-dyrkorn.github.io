@@ -1,6 +1,6 @@
 import Node from "../core/Node.js"
 import { attribute, float } from "../shadernode/ShaderNodeBaseElements.js"
-import { MathUtils, InstancedBufferAttribute } from "../../three.module.js"
+import { MathUtils, InstancedBufferAttribute } from "../../../three.module.js"
 
 class RangeNode extends Node {
   constructor(min, max) {
