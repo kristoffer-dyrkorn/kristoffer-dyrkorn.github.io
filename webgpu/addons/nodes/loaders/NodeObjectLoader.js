@@ -1,54 +1,70 @@
-import NodeLoader from "./NodeLoader.js"
-import NodeMaterialLoader from "./NodeMaterialLoader.js"
-import { ObjectLoader } from "../../../three.module.js"
+import NodeLoader from './NodeLoader.js';
+import NodeMaterialLoader from './NodeMaterialLoader.js';
+import { ObjectLoader } from 'three';
 
 class NodeObjectLoader extends ObjectLoader {
-  constructor(manager) {
-    super(manager)
 
-    this._nodesJSON = null
-  }
+	constructor( manager ) {
 
-  parse(json, onLoad) {
-    this._nodesJSON = json.nodes
+		super( manager );
 
-    const data = super.parse(json, onLoad)
+		this._nodesJSON = null;
 
-    this._nodesJSON = null // dispose
+	}
 
-    return data
-  }
+	parse( json, onLoad ) {
 
-  parseNodes(json, textures) {
-    if (json !== undefined) {
-      const loader = new NodeLoader()
-      loader.setTextures(textures)
+		this._nodesJSON = json.nodes;
 
-      return loader.parseNodes(json)
-    }
+		const data = super.parse( json, onLoad );
 
-    return {}
-  }
+		this._nodesJSON = null; // dispose
 
-  parseMaterials(json, textures) {
-    const materials = {}
+		return data;
 
-    if (json !== undefined) {
-      const nodes = this.parseNodes(this._nodesJSON, textures)
+	}
 
-      const loader = new NodeMaterialLoader()
-      loader.setTextures(textures)
-      loader.setNodes(nodes)
+	parseNodes( json, textures ) {
 
-      for (let i = 0, l = json.length; i < l; i++) {
-        const data = json[i]
+		if ( json !== undefined ) {
 
-        materials[data.uuid] = loader.parse(data)
-      }
-    }
+			const loader = new NodeLoader();
+			loader.setTextures( textures );
 
-    return materials
-  }
+			return loader.parseNodes( json );
+
+		}
+
+		return {};
+
+	}
+
+	parseMaterials( json, textures ) {
+
+		const materials = {};
+
+		if ( json !== undefined ) {
+
+			const nodes = this.parseNodes( this._nodesJSON, textures );
+
+			const loader = new NodeMaterialLoader();
+			loader.setTextures( textures );
+			loader.setNodes( nodes );
+
+			for ( let i = 0, l = json.length; i < l; i ++ ) {
+
+				const data = json[ i ];
+
+				materials[ data.uuid ] = loader.parse( data );
+
+			}
+
+		}
+
+		return materials;
+
+	}
+
 }
 
-export default NodeObjectLoader
+export default NodeObjectLoader;

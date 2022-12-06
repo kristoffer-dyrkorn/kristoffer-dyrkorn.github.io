@@ -1,4 +1,7 @@
-import { Color, Vector3 } from "../../three.module.js"
+import {
+	Color,
+	Vector3
+} from 'three';
 
 /**
  * God-rays (crepuscular rays)
@@ -19,13 +22,16 @@ import { Color, Vector3 } from "../../three.module.js"
  */
 
 const GodRaysDepthMaskShader = {
-  uniforms: {
-    tInput: {
-      value: null,
-    },
-  },
 
-  vertexShader: /* glsl */ `
+	uniforms: {
+
+		tInput: {
+			value: null
+		}
+
+	},
+
+	vertexShader: /* glsl */`
 
 		varying vec2 vUv;
 
@@ -36,7 +42,7 @@ const GodRaysDepthMaskShader = {
 
 	 }`,
 
-  fragmentShader: /* glsl */ `
+	fragmentShader: /* glsl */`
 
 		varying vec2 vUv;
 
@@ -46,8 +52,10 @@ const GodRaysDepthMaskShader = {
 
 			gl_FragColor = vec4( 1.0 ) - texture2D( tInput, vUv );
 
-		}`,
-}
+		}`
+
+};
+
 
 /**
  * The god-ray generation shader.
@@ -65,19 +73,22 @@ const GodRaysDepthMaskShader = {
  */
 
 const GodRaysGenerateShader = {
-  uniforms: {
-    tInput: {
-      value: null,
-    },
-    fStepSize: {
-      value: 1.0,
-    },
-    vSunPositionScreenSpace: {
-      value: new Vector3(),
-    },
-  },
 
-  vertexShader: /* glsl */ `
+	uniforms: {
+
+		tInput: {
+			value: null
+		},
+		fStepSize: {
+			value: 1.0
+		},
+		vSunPositionScreenSpace: {
+			value: new Vector3()
+		}
+
+	},
+
+	vertexShader: /* glsl */`
 
 		varying vec2 vUv;
 
@@ -88,7 +99,7 @@ const GodRaysGenerateShader = {
 
 	 }`,
 
-  fragmentShader: /* glsl */ `
+	fragmentShader: /* glsl */`
 
 		#define TAPS_PER_PASS 6.0
 
@@ -172,8 +183,9 @@ const GodRaysGenerateShader = {
 			gl_FragColor = vec4( col/TAPS_PER_PASS );
 			gl_FragColor.a = 1.0;
 
-		}`,
-}
+		}`
+
+};
 
 /**
  * Additively applies god rays from texture tGodRays to a background (tColors).
@@ -181,21 +193,24 @@ const GodRaysGenerateShader = {
  */
 
 const GodRaysCombineShader = {
-  uniforms: {
-    tColors: {
-      value: null,
-    },
 
-    tGodRays: {
-      value: null,
-    },
+	uniforms: {
 
-    fGodRayIntensity: {
-      value: 0.69,
-    },
-  },
+		tColors: {
+			value: null
+		},
 
-  vertexShader: /* glsl */ `
+		tGodRays: {
+			value: null
+		},
+
+		fGodRayIntensity: {
+			value: 0.69
+		}
+
+	},
+
+	vertexShader: /* glsl */`
 
 		varying vec2 vUv;
 
@@ -206,7 +221,7 @@ const GodRaysCombineShader = {
 
 		}`,
 
-  fragmentShader: /* glsl */ `
+	fragmentShader: /* glsl */`
 
 		varying vec2 vUv;
 
@@ -224,8 +239,10 @@ const GodRaysCombineShader = {
 			gl_FragColor = texture2D( tColors, vUv ) + fGodRayIntensity * vec4( 1.0 - texture2D( tGodRays, vUv ).r );
 			gl_FragColor.a = 1.0;
 
-		}`,
-}
+		}`
+
+};
+
 
 /**
  * A dodgy sun/sky shader. Makes a bright spot at the sun location. Would be
@@ -233,25 +250,28 @@ const GodRaysCombineShader = {
  */
 
 const GodRaysFakeSunShader = {
-  uniforms: {
-    vSunPositionScreenSpace: {
-      value: new Vector3(),
-    },
 
-    fAspect: {
-      value: 1.0,
-    },
+	uniforms: {
 
-    sunColor: {
-      value: new Color(0xffee00),
-    },
+		vSunPositionScreenSpace: {
+			value: new Vector3()
+		},
 
-    bgColor: {
-      value: new Color(0x000000),
-    },
-  },
+		fAspect: {
+			value: 1.0
+		},
 
-  vertexShader: /* glsl */ `
+		sunColor: {
+			value: new Color( 0xffee00 )
+		},
+
+		bgColor: {
+			value: new Color( 0x000000 )
+		}
+
+	},
+
+	vertexShader: /* glsl */`
 
 		varying vec2 vUv;
 
@@ -262,7 +282,7 @@ const GodRaysFakeSunShader = {
 
 		}`,
 
-  fragmentShader: /* glsl */ `
+	fragmentShader: /* glsl */`
 
 		varying vec2 vUv;
 
@@ -286,7 +306,8 @@ const GodRaysFakeSunShader = {
 			gl_FragColor.xyz = ( vSunPositionScreenSpace.z > 0.0 ) ? mix( sunColor, bgColor, 1.0 - prop ) : bgColor;
 			gl_FragColor.w = 1.0;
 
-		}`,
-}
+		}`
 
-export { GodRaysDepthMaskShader, GodRaysGenerateShader, GodRaysCombineShader, GodRaysFakeSunShader }
+};
+
+export { GodRaysDepthMaskShader, GodRaysGenerateShader, GodRaysCombineShader, GodRaysFakeSunShader };

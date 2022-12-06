@@ -1,42 +1,55 @@
-import { StereoCamera, Vector2 } from "../../three.module.js"
+import {
+	StereoCamera,
+	Vector2
+} from 'three';
 
 class StereoEffect {
-  constructor(renderer) {
-    const _stereo = new StereoCamera()
-    _stereo.aspect = 0.5
-    const size = new Vector2()
 
-    this.setEyeSeparation = function (eyeSep) {
-      _stereo.eyeSep = eyeSep
-    }
+	constructor( renderer ) {
 
-    this.setSize = function (width, height) {
-      renderer.setSize(width, height)
-    }
+		const _stereo = new StereoCamera();
+		_stereo.aspect = 0.5;
+		const size = new Vector2();
 
-    this.render = function (scene, camera) {
-      if (scene.matrixWorldAutoUpdate === true) scene.updateMatrixWorld()
+		this.setEyeSeparation = function ( eyeSep ) {
 
-      if (camera.parent === null && camera.matrixWorldAutoUpdate === true) camera.updateMatrixWorld()
+			_stereo.eyeSep = eyeSep;
 
-      _stereo.update(camera)
+		};
 
-      renderer.getSize(size)
+		this.setSize = function ( width, height ) {
 
-      if (renderer.autoClear) renderer.clear()
-      renderer.setScissorTest(true)
+			renderer.setSize( width, height );
 
-      renderer.setScissor(0, 0, size.width / 2, size.height)
-      renderer.setViewport(0, 0, size.width / 2, size.height)
-      renderer.render(scene, _stereo.cameraL)
+		};
 
-      renderer.setScissor(size.width / 2, 0, size.width / 2, size.height)
-      renderer.setViewport(size.width / 2, 0, size.width / 2, size.height)
-      renderer.render(scene, _stereo.cameraR)
+		this.render = function ( scene, camera ) {
 
-      renderer.setScissorTest(false)
-    }
-  }
+			if ( scene.matrixWorldAutoUpdate === true ) scene.updateMatrixWorld();
+
+			if ( camera.parent === null && camera.matrixWorldAutoUpdate === true ) camera.updateMatrixWorld();
+
+			_stereo.update( camera );
+
+			renderer.getSize( size );
+
+			if ( renderer.autoClear ) renderer.clear();
+			renderer.setScissorTest( true );
+
+			renderer.setScissor( 0, 0, size.width / 2, size.height );
+			renderer.setViewport( 0, 0, size.width / 2, size.height );
+			renderer.render( scene, _stereo.cameraL );
+
+			renderer.setScissor( size.width / 2, 0, size.width / 2, size.height );
+			renderer.setViewport( size.width / 2, 0, size.width / 2, size.height );
+			renderer.render( scene, _stereo.cameraR );
+
+			renderer.setScissorTest( false );
+
+		};
+
+	}
+
 }
 
-export { StereoEffect }
+export { StereoEffect };

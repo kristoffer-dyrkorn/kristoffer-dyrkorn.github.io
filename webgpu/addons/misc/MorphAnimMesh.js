@@ -1,51 +1,75 @@
-import { AnimationClip, AnimationMixer, Mesh } from "../../three.module.js"
+import {
+	AnimationClip,
+	AnimationMixer,
+	Mesh
+} from 'three';
 
 class MorphAnimMesh extends Mesh {
-  constructor(geometry, material) {
-    super(geometry, material)
 
-    this.type = "MorphAnimMesh"
+	constructor( geometry, material ) {
 
-    this.mixer = new AnimationMixer(this)
-    this.activeAction = null
-  }
+		super( geometry, material );
 
-  setDirectionForward() {
-    this.mixer.timeScale = 1.0
-  }
+		this.type = 'MorphAnimMesh';
 
-  setDirectionBackward() {
-    this.mixer.timeScale = -1.0
-  }
+		this.mixer = new AnimationMixer( this );
+		this.activeAction = null;
 
-  playAnimation(label, fps) {
-    if (this.activeAction) {
-      this.activeAction.stop()
-      this.activeAction = null
-    }
+	}
 
-    const clip = AnimationClip.findByName(this, label)
+	setDirectionForward() {
 
-    if (clip) {
-      const action = this.mixer.clipAction(clip)
-      action.timeScale = (clip.tracks.length * fps) / clip.duration
-      this.activeAction = action.play()
-    } else {
-      throw new Error("THREE.MorphAnimMesh: animations[" + label + "] undefined in .playAnimation()")
-    }
-  }
+		this.mixer.timeScale = 1.0;
 
-  updateAnimation(delta) {
-    this.mixer.update(delta)
-  }
+	}
 
-  copy(source, recursive) {
-    super.copy(source, recursive)
+	setDirectionBackward() {
 
-    this.mixer = new AnimationMixer(this)
+		this.mixer.timeScale = - 1.0;
 
-    return this
-  }
+	}
+
+	playAnimation( label, fps ) {
+
+		if ( this.activeAction ) {
+
+			this.activeAction.stop();
+			this.activeAction = null;
+
+		}
+
+		const clip = AnimationClip.findByName( this, label );
+
+		if ( clip ) {
+
+			const action = this.mixer.clipAction( clip );
+			action.timeScale = ( clip.tracks.length * fps ) / clip.duration;
+			this.activeAction = action.play();
+
+		} else {
+
+			throw new Error( 'THREE.MorphAnimMesh: animations[' + label + '] undefined in .playAnimation()' );
+
+		}
+
+	}
+
+	updateAnimation( delta ) {
+
+		this.mixer.update( delta );
+
+	}
+
+	copy( source, recursive ) {
+
+		super.copy( source, recursive );
+
+		this.mixer = new AnimationMixer( this );
+
+		return this;
+
+	}
+
 }
 
-export { MorphAnimMesh }
+export { MorphAnimMesh };

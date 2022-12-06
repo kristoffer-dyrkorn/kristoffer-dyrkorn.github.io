@@ -1,4 +1,6 @@
-import { Vector2 } from "../../three.module.js"
+import {
+	Vector2
+} from 'three';
 
 /**
  * tool for "unwrapping" and debugging three.js geometries UV mapping
@@ -8,128 +10,156 @@ import { Vector2 } from "../../three.module.js"
  *
  */
 
-function UVsDebug(geometry, size = 1024) {
-  // handles wrapping of uv.x > 1 only
+function UVsDebug( geometry, size = 1024 ) {
 
-  const abc = "abc"
-  const a = new Vector2()
-  const b = new Vector2()
+	// handles wrapping of uv.x > 1 only
 
-  const uvs = [new Vector2(), new Vector2(), new Vector2()]
+	const abc = 'abc';
+	const a = new Vector2();
+	const b = new Vector2();
 
-  const face = []
+	const uvs = [
+		new Vector2(),
+		new Vector2(),
+		new Vector2()
+	];
 
-  const canvas = document.createElement("canvas")
-  const width = size // power of 2 required for wrapping
-  const height = size
-  canvas.width = width
-  canvas.height = height
+	const face = [];
 
-  const ctx = canvas.getContext("2d")
-  ctx.lineWidth = 1
-  ctx.strokeStyle = "rgb( 63, 63, 63 )"
-  ctx.textAlign = "center"
+	const canvas = document.createElement( 'canvas' );
+	const width = size; // power of 2 required for wrapping
+	const height = size;
+	canvas.width = width;
+	canvas.height = height;
 
-  // paint background white
+	const ctx = canvas.getContext( '2d' );
+	ctx.lineWidth = 1;
+	ctx.strokeStyle = 'rgb( 63, 63, 63 )';
+	ctx.textAlign = 'center';
 
-  ctx.fillStyle = "rgb( 255, 255, 255 )"
-  ctx.fillRect(0, 0, width, height)
+	// paint background white
 
-  const index = geometry.index
-  const uvAttribute = geometry.attributes.uv
+	ctx.fillStyle = 'rgb( 255, 255, 255 )';
+	ctx.fillRect( 0, 0, width, height );
 
-  if (index) {
-    // indexed geometry
+	const index = geometry.index;
+	const uvAttribute = geometry.attributes.uv;
 
-    for (let i = 0, il = index.count; i < il; i += 3) {
-      face[0] = index.getX(i)
-      face[1] = index.getX(i + 1)
-      face[2] = index.getX(i + 2)
+	if ( index ) {
 
-      uvs[0].fromBufferAttribute(uvAttribute, face[0])
-      uvs[1].fromBufferAttribute(uvAttribute, face[1])
-      uvs[2].fromBufferAttribute(uvAttribute, face[2])
+		// indexed geometry
 
-      processFace(face, uvs, i / 3)
-    }
-  } else {
-    // non-indexed geometry
+		for ( let i = 0, il = index.count; i < il; i += 3 ) {
 
-    for (let i = 0, il = uvAttribute.count; i < il; i += 3) {
-      face[0] = i
-      face[1] = i + 1
-      face[2] = i + 2
+			face[ 0 ] = index.getX( i );
+			face[ 1 ] = index.getX( i + 1 );
+			face[ 2 ] = index.getX( i + 2 );
 
-      uvs[0].fromBufferAttribute(uvAttribute, face[0])
-      uvs[1].fromBufferAttribute(uvAttribute, face[1])
-      uvs[2].fromBufferAttribute(uvAttribute, face[2])
+			uvs[ 0 ].fromBufferAttribute( uvAttribute, face[ 0 ] );
+			uvs[ 1 ].fromBufferAttribute( uvAttribute, face[ 1 ] );
+			uvs[ 2 ].fromBufferAttribute( uvAttribute, face[ 2 ] );
 
-      processFace(face, uvs, i / 3)
-    }
-  }
+			processFace( face, uvs, i / 3 );
 
-  return canvas
+		}
 
-  function processFace(face, uvs, index) {
-    // draw contour of face
+	} else {
 
-    ctx.beginPath()
+		// non-indexed geometry
 
-    a.set(0, 0)
+		for ( let i = 0, il = uvAttribute.count; i < il; i += 3 ) {
 
-    for (let j = 0, jl = uvs.length; j < jl; j++) {
-      const uv = uvs[j]
+			face[ 0 ] = i;
+			face[ 1 ] = i + 1;
+			face[ 2 ] = i + 2;
 
-      a.x += uv.x
-      a.y += uv.y
+			uvs[ 0 ].fromBufferAttribute( uvAttribute, face[ 0 ] );
+			uvs[ 1 ].fromBufferAttribute( uvAttribute, face[ 1 ] );
+			uvs[ 2 ].fromBufferAttribute( uvAttribute, face[ 2 ] );
 
-      if (j === 0) {
-        ctx.moveTo(uv.x * (width - 2) + 0.5, (1 - uv.y) * (height - 2) + 0.5)
-      } else {
-        ctx.lineTo(uv.x * (width - 2) + 0.5, (1 - uv.y) * (height - 2) + 0.5)
-      }
-    }
+			processFace( face, uvs, i / 3 );
 
-    ctx.closePath()
-    ctx.stroke()
+		}
 
-    // calculate center of face
+	}
 
-    a.divideScalar(uvs.length)
+	return canvas;
 
-    // label the face number
+	function processFace( face, uvs, index ) {
 
-    ctx.font = "18px Arial"
-    ctx.fillStyle = "rgb( 63, 63, 63 )"
-    ctx.fillText(index, a.x * width, (1 - a.y) * height)
+		// draw contour of face
 
-    if (a.x > 0.95) {
-      // wrap x // 0.95 is arbitrary
+		ctx.beginPath();
 
-      ctx.fillText(index, (a.x % 1) * width, (1 - a.y) * height)
-    }
+		a.set( 0, 0 );
 
-    //
+		for ( let j = 0, jl = uvs.length; j < jl; j ++ ) {
 
-    ctx.font = "12px Arial"
-    ctx.fillStyle = "rgb( 191, 191, 191 )"
+			const uv = uvs[ j ];
 
-    // label uv edge orders
+			a.x += uv.x;
+			a.y += uv.y;
 
-    for (let j = 0, jl = uvs.length; j < jl; j++) {
-      const uv = uvs[j]
-      b.addVectors(a, uv).divideScalar(2)
+			if ( j === 0 ) {
 
-      const vnum = face[j]
-      ctx.fillText(abc[j] + vnum, b.x * width, (1 - b.y) * height)
+				ctx.moveTo( uv.x * ( width - 2 ) + 0.5, ( 1 - uv.y ) * ( height - 2 ) + 0.5 );
 
-      if (b.x > 0.95) {
-        // wrap x
+			} else {
 
-        ctx.fillText(abc[j] + vnum, (b.x % 1) * width, (1 - b.y) * height)
-      }
-    }
-  }
+				ctx.lineTo( uv.x * ( width - 2 ) + 0.5, ( 1 - uv.y ) * ( height - 2 ) + 0.5 );
+
+			}
+
+		}
+
+		ctx.closePath();
+		ctx.stroke();
+
+		// calculate center of face
+
+		a.divideScalar( uvs.length );
+
+		// label the face number
+
+		ctx.font = '18px Arial';
+		ctx.fillStyle = 'rgb( 63, 63, 63 )';
+		ctx.fillText( index, a.x * width, ( 1 - a.y ) * height );
+
+		if ( a.x > 0.95 ) {
+
+			// wrap x // 0.95 is arbitrary
+
+			ctx.fillText( index, ( a.x % 1 ) * width, ( 1 - a.y ) * height );
+
+		}
+
+		//
+
+		ctx.font = '12px Arial';
+		ctx.fillStyle = 'rgb( 191, 191, 191 )';
+
+		// label uv edge orders
+
+		for ( let j = 0, jl = uvs.length; j < jl; j ++ ) {
+
+			const uv = uvs[ j ];
+			b.addVectors( a, uv ).divideScalar( 2 );
+
+			const vnum = face[ j ];
+			ctx.fillText( abc[ j ] + vnum, b.x * width, ( 1 - b.y ) * height );
+
+			if ( b.x > 0.95 ) {
+
+				// wrap x
+
+				ctx.fillText( abc[ j ] + vnum, ( b.x % 1 ) * width, ( 1 - b.y ) * height );
+
+			}
+
+		}
+
+	}
+
 }
 
-export { UVsDebug }
+export { UVsDebug };

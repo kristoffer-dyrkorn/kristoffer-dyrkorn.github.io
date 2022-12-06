@@ -1,238 +1,250 @@
-import { Color, LightProbe, LinearEncoding, SphericalHarmonics3, Vector3, sRGBEncoding } from "../../three.module.js"
+import {
+	Color,
+	LightProbe,
+	LinearEncoding,
+	SphericalHarmonics3,
+	Vector3,
+	sRGBEncoding
+} from 'three';
 
 class LightProbeGenerator {
-  // https://www.ppsloan.org/publications/StupidSH36.pdf
-  static fromCubeTexture(cubeTexture) {
-    let totalWeight = 0
 
-    const coord = new Vector3()
+	// https://www.ppsloan.org/publications/StupidSH36.pdf
+	static fromCubeTexture( cubeTexture ) {
 
-    const dir = new Vector3()
+		let totalWeight = 0;
 
-    const color = new Color()
+		const coord = new Vector3();
 
-    const shBasis = [0, 0, 0, 0, 0, 0, 0, 0, 0]
+		const dir = new Vector3();
 
-    const sh = new SphericalHarmonics3()
-    const shCoefficients = sh.coefficients
+		const color = new Color();
 
-    for (let faceIndex = 0; faceIndex < 6; faceIndex++) {
-      const image = cubeTexture.image[faceIndex]
+		const shBasis = [ 0, 0, 0, 0, 0, 0, 0, 0, 0 ];
 
-      const width = image.width
-      const height = image.height
+		const sh = new SphericalHarmonics3();
+		const shCoefficients = sh.coefficients;
 
-      const canvas = document.createElement("canvas")
+		for ( let faceIndex = 0; faceIndex < 6; faceIndex ++ ) {
 
-      canvas.width = width
-      canvas.height = height
+			const image = cubeTexture.image[ faceIndex ];
 
-      const context = canvas.getContext("2d")
+			const width = image.width;
+			const height = image.height;
 
-      context.drawImage(image, 0, 0, width, height)
+			const canvas = document.createElement( 'canvas' );
 
-      const imageData = context.getImageData(0, 0, width, height)
+			canvas.width = width;
+			canvas.height = height;
 
-      const data = imageData.data
+			const context = canvas.getContext( '2d' );
 
-      const imageWidth = imageData.width // assumed to be square
+			context.drawImage( image, 0, 0, width, height );
 
-      const pixelSize = 2 / imageWidth
+			const imageData = context.getImageData( 0, 0, width, height );
 
-      for (let i = 0, il = data.length; i < il; i += 4) {
-        // RGBA assumed
+			const data = imageData.data;
 
-        // pixel color
-        color.setRGB(data[i] / 255, data[i + 1] / 255, data[i + 2] / 255)
+			const imageWidth = imageData.width; // assumed to be square
 
-        // convert to linear color space
-        convertColorToLinear(color, cubeTexture.encoding)
+			const pixelSize = 2 / imageWidth;
 
-        // pixel coordinate on unit cube
+			for ( let i = 0, il = data.length; i < il; i += 4 ) { // RGBA assumed
 
-        const pixelIndex = i / 4
+				// pixel color
+				color.setRGB( data[ i ] / 255, data[ i + 1 ] / 255, data[ i + 2 ] / 255 );
 
-        const col = -1 + ((pixelIndex % imageWidth) + 0.5) * pixelSize
+				// convert to linear color space
+				convertColorToLinear( color, cubeTexture.encoding );
 
-        const row = 1 - (Math.floor(pixelIndex / imageWidth) + 0.5) * pixelSize
+				// pixel coordinate on unit cube
 
-        switch (faceIndex) {
-          case 0:
-            coord.set(-1, row, -col)
-            break
+				const pixelIndex = i / 4;
 
-          case 1:
-            coord.set(1, row, col)
-            break
+				const col = - 1 + ( pixelIndex % imageWidth + 0.5 ) * pixelSize;
 
-          case 2:
-            coord.set(-col, 1, -row)
-            break
+				const row = 1 - ( Math.floor( pixelIndex / imageWidth ) + 0.5 ) * pixelSize;
 
-          case 3:
-            coord.set(-col, -1, row)
-            break
+				switch ( faceIndex ) {
 
-          case 4:
-            coord.set(-col, row, 1)
-            break
+					case 0: coord.set( - 1, row, - col ); break;
 
-          case 5:
-            coord.set(col, row, -1)
-            break
-        }
+					case 1: coord.set( 1, row, col ); break;
 
-        // weight assigned to this pixel
+					case 2: coord.set( - col, 1, - row ); break;
 
-        const lengthSq = coord.lengthSq()
+					case 3: coord.set( - col, - 1, row ); break;
 
-        const weight = 4 / (Math.sqrt(lengthSq) * lengthSq)
+					case 4: coord.set( - col, row, 1 ); break;
 
-        totalWeight += weight
+					case 5: coord.set( col, row, - 1 ); break;
 
-        // direction vector to this pixel
-        dir.copy(coord).normalize()
+				}
 
-        // evaluate SH basis functions in direction dir
-        SphericalHarmonics3.getBasisAt(dir, shBasis)
+				// weight assigned to this pixel
 
-        // accummuulate
-        for (let j = 0; j < 9; j++) {
-          shCoefficients[j].x += shBasis[j] * color.r * weight
-          shCoefficients[j].y += shBasis[j] * color.g * weight
-          shCoefficients[j].z += shBasis[j] * color.b * weight
-        }
-      }
-    }
+				const lengthSq = coord.lengthSq();
 
-    // normalize
-    const norm = (4 * Math.PI) / totalWeight
+				const weight = 4 / ( Math.sqrt( lengthSq ) * lengthSq );
 
-    for (let j = 0; j < 9; j++) {
-      shCoefficients[j].x *= norm
-      shCoefficients[j].y *= norm
-      shCoefficients[j].z *= norm
-    }
+				totalWeight += weight;
 
-    return new LightProbe(sh)
-  }
+				// direction vector to this pixel
+				dir.copy( coord ).normalize();
 
-  static fromCubeRenderTarget(renderer, cubeRenderTarget) {
-    // The renderTarget must be set to RGBA in order to make readRenderTargetPixels works
-    let totalWeight = 0
+				// evaluate SH basis functions in direction dir
+				SphericalHarmonics3.getBasisAt( dir, shBasis );
 
-    const coord = new Vector3()
+				// accummuulate
+				for ( let j = 0; j < 9; j ++ ) {
 
-    const dir = new Vector3()
+					shCoefficients[ j ].x += shBasis[ j ] * color.r * weight;
+					shCoefficients[ j ].y += shBasis[ j ] * color.g * weight;
+					shCoefficients[ j ].z += shBasis[ j ] * color.b * weight;
 
-    const color = new Color()
+				}
 
-    const shBasis = [0, 0, 0, 0, 0, 0, 0, 0, 0]
+			}
 
-    const sh = new SphericalHarmonics3()
-    const shCoefficients = sh.coefficients
+		}
 
-    for (let faceIndex = 0; faceIndex < 6; faceIndex++) {
-      const imageWidth = cubeRenderTarget.width // assumed to be square
-      const data = new Uint8Array(imageWidth * imageWidth * 4)
-      renderer.readRenderTargetPixels(cubeRenderTarget, 0, 0, imageWidth, imageWidth, data, faceIndex)
+		// normalize
+		const norm = ( 4 * Math.PI ) / totalWeight;
 
-      const pixelSize = 2 / imageWidth
+		for ( let j = 0; j < 9; j ++ ) {
 
-      for (let i = 0, il = data.length; i < il; i += 4) {
-        // RGBA assumed
+			shCoefficients[ j ].x *= norm;
+			shCoefficients[ j ].y *= norm;
+			shCoefficients[ j ].z *= norm;
 
-        // pixel color
-        color.setRGB(data[i] / 255, data[i + 1] / 255, data[i + 2] / 255)
+		}
 
-        // convert to linear color space
-        convertColorToLinear(color, cubeRenderTarget.texture.encoding)
+		return new LightProbe( sh );
 
-        // pixel coordinate on unit cube
+	}
 
-        const pixelIndex = i / 4
+	static fromCubeRenderTarget( renderer, cubeRenderTarget ) {
 
-        const col = -1 + ((pixelIndex % imageWidth) + 0.5) * pixelSize
+		// The renderTarget must be set to RGBA in order to make readRenderTargetPixels works
+		let totalWeight = 0;
 
-        const row = 1 - (Math.floor(pixelIndex / imageWidth) + 0.5) * pixelSize
+		const coord = new Vector3();
 
-        switch (faceIndex) {
-          case 0:
-            coord.set(1, row, -col)
-            break
+		const dir = new Vector3();
 
-          case 1:
-            coord.set(-1, row, col)
-            break
+		const color = new Color();
 
-          case 2:
-            coord.set(col, 1, -row)
-            break
+		const shBasis = [ 0, 0, 0, 0, 0, 0, 0, 0, 0 ];
 
-          case 3:
-            coord.set(col, -1, row)
-            break
+		const sh = new SphericalHarmonics3();
+		const shCoefficients = sh.coefficients;
 
-          case 4:
-            coord.set(col, row, 1)
-            break
+		for ( let faceIndex = 0; faceIndex < 6; faceIndex ++ ) {
 
-          case 5:
-            coord.set(-col, row, -1)
-            break
-        }
+			const imageWidth = cubeRenderTarget.width; // assumed to be square
+			const data = new Uint8Array( imageWidth * imageWidth * 4 );
+			renderer.readRenderTargetPixels( cubeRenderTarget, 0, 0, imageWidth, imageWidth, data, faceIndex );
 
-        // weight assigned to this pixel
+			const pixelSize = 2 / imageWidth;
 
-        const lengthSq = coord.lengthSq()
+			for ( let i = 0, il = data.length; i < il; i += 4 ) { // RGBA assumed
 
-        const weight = 4 / (Math.sqrt(lengthSq) * lengthSq)
+				// pixel color
+				color.setRGB( data[ i ] / 255, data[ i + 1 ] / 255, data[ i + 2 ] / 255 );
 
-        totalWeight += weight
+				// convert to linear color space
+				convertColorToLinear( color, cubeRenderTarget.texture.encoding );
 
-        // direction vector to this pixel
-        dir.copy(coord).normalize()
+				// pixel coordinate on unit cube
 
-        // evaluate SH basis functions in direction dir
-        SphericalHarmonics3.getBasisAt(dir, shBasis)
+				const pixelIndex = i / 4;
 
-        // accummuulate
-        for (let j = 0; j < 9; j++) {
-          shCoefficients[j].x += shBasis[j] * color.r * weight
-          shCoefficients[j].y += shBasis[j] * color.g * weight
-          shCoefficients[j].z += shBasis[j] * color.b * weight
-        }
-      }
-    }
+				const col = - 1 + ( pixelIndex % imageWidth + 0.5 ) * pixelSize;
 
-    // normalize
-    const norm = (4 * Math.PI) / totalWeight
+				const row = 1 - ( Math.floor( pixelIndex / imageWidth ) + 0.5 ) * pixelSize;
 
-    for (let j = 0; j < 9; j++) {
-      shCoefficients[j].x *= norm
-      shCoefficients[j].y *= norm
-      shCoefficients[j].z *= norm
-    }
+				switch ( faceIndex ) {
 
-    return new LightProbe(sh)
-  }
+					case 0: coord.set( 1, row, - col ); break;
+
+					case 1: coord.set( - 1, row, col ); break;
+
+					case 2: coord.set( col, 1, - row ); break;
+
+					case 3: coord.set( col, - 1, row ); break;
+
+					case 4: coord.set( col, row, 1 ); break;
+
+					case 5: coord.set( - col, row, - 1 ); break;
+
+				}
+
+				// weight assigned to this pixel
+
+				const lengthSq = coord.lengthSq();
+
+				const weight = 4 / ( Math.sqrt( lengthSq ) * lengthSq );
+
+				totalWeight += weight;
+
+				// direction vector to this pixel
+				dir.copy( coord ).normalize();
+
+				// evaluate SH basis functions in direction dir
+				SphericalHarmonics3.getBasisAt( dir, shBasis );
+
+				// accummuulate
+				for ( let j = 0; j < 9; j ++ ) {
+
+					shCoefficients[ j ].x += shBasis[ j ] * color.r * weight;
+					shCoefficients[ j ].y += shBasis[ j ] * color.g * weight;
+					shCoefficients[ j ].z += shBasis[ j ] * color.b * weight;
+
+				}
+
+			}
+
+		}
+
+		// normalize
+		const norm = ( 4 * Math.PI ) / totalWeight;
+
+		for ( let j = 0; j < 9; j ++ ) {
+
+			shCoefficients[ j ].x *= norm;
+			shCoefficients[ j ].y *= norm;
+			shCoefficients[ j ].z *= norm;
+
+		}
+
+		return new LightProbe( sh );
+
+	}
+
 }
 
-function convertColorToLinear(color, encoding) {
-  switch (encoding) {
-    case sRGBEncoding:
-      color.convertSRGBToLinear()
-      break
+function convertColorToLinear( color, encoding ) {
 
-    case LinearEncoding:
-      break
+	switch ( encoding ) {
 
-    default:
-      console.warn("WARNING: LightProbeGenerator convertColorToLinear() encountered an unsupported encoding.")
-      break
-  }
+		case sRGBEncoding:
 
-  return color
+			color.convertSRGBToLinear();
+			break;
+
+		case LinearEncoding:
+
+			break;
+
+		default:
+
+			console.warn( 'WARNING: LightProbeGenerator convertColorToLinear() encountered an unsupported encoding.' );
+			break;
+
+	}
+
+	return color;
+
 }
 
-export { LightProbeGenerator }
+export { LightProbeGenerator };

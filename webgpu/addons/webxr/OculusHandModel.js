@@ -1,75 +1,109 @@
-import { Object3D, Sphere, Box3 } from "../../three.module.js"
-import { XRHandMeshModel } from "./XRHandMeshModel.js"
+import { Object3D, Sphere, Box3 } from 'three';
+import { XRHandMeshModel } from './XRHandMeshModel.js';
 
-const TOUCH_RADIUS = 0.01
-const POINTING_JOINT = "index-finger-tip"
+const TOUCH_RADIUS = 0.01;
+const POINTING_JOINT = 'index-finger-tip';
 
 class OculusHandModel extends Object3D {
-  constructor(controller, loader = null) {
-    super()
 
-    this.controller = controller
-    this.motionController = null
-    this.envMap = null
-    this.loader = loader
+	constructor( controller, loader = null ) {
 
-    this.mesh = null
+		super();
 
-    controller.addEventListener("connected", (event) => {
-      const xrInputSource = event.data
+		this.controller = controller;
+		this.motionController = null;
+		this.envMap = null;
+		this.loader = loader;
 
-      if (xrInputSource.hand && !this.motionController) {
-        this.xrInputSource = xrInputSource
+		this.mesh = null;
 
-        this.motionController = new XRHandMeshModel(this, controller, this.path, xrInputSource.handedness, this.loader)
-      }
-    })
+		controller.addEventListener( 'connected', ( event ) => {
 
-    controller.addEventListener("disconnected", () => {
-      this.clear()
-      this.motionController = null
-    })
-  }
+			const xrInputSource = event.data;
 
-  updateMatrixWorld(force) {
-    super.updateMatrixWorld(force)
+			if ( xrInputSource.hand && ! this.motionController ) {
 
-    if (this.motionController) {
-      this.motionController.updateMesh()
-    }
-  }
+				this.xrInputSource = xrInputSource;
 
-  getPointerPosition() {
-    const indexFingerTip = this.controller.joints[POINTING_JOINT]
-    if (indexFingerTip) {
-      return indexFingerTip.position
-    } else {
-      return null
-    }
-  }
+				this.motionController = new XRHandMeshModel( this, controller, this.path, xrInputSource.handedness, this.loader );
 
-  intersectBoxObject(boxObject) {
-    const pointerPosition = this.getPointerPosition()
-    if (pointerPosition) {
-      const indexSphere = new Sphere(pointerPosition, TOUCH_RADIUS)
-      const box = new Box3().setFromObject(boxObject)
-      return indexSphere.intersectsBox(box)
-    } else {
-      return false
-    }
-  }
+			}
 
-  checkButton(button) {
-    if (this.intersectBoxObject(button)) {
-      button.onPress()
-    } else {
-      button.onClear()
-    }
+		} );
 
-    if (button.isPressed()) {
-      button.whilePressed()
-    }
-  }
+		controller.addEventListener( 'disconnected', () => {
+
+			this.clear();
+			this.motionController = null;
+
+		} );
+
+	}
+
+	updateMatrixWorld( force ) {
+
+		super.updateMatrixWorld( force );
+
+		if ( this.motionController ) {
+
+			this.motionController.updateMesh();
+
+		}
+
+	}
+
+	getPointerPosition() {
+
+		const indexFingerTip = this.controller.joints[ POINTING_JOINT ];
+		if ( indexFingerTip ) {
+
+			return indexFingerTip.position;
+
+		} else {
+
+			return null;
+
+		}
+
+	}
+
+	intersectBoxObject( boxObject ) {
+
+		const pointerPosition = this.getPointerPosition();
+		if ( pointerPosition ) {
+
+			const indexSphere = new Sphere( pointerPosition, TOUCH_RADIUS );
+			const box = new Box3().setFromObject( boxObject );
+			return indexSphere.intersectsBox( box );
+
+		} else {
+
+			return false;
+
+		}
+
+	}
+
+	checkButton( button ) {
+
+		if ( this.intersectBoxObject( button ) ) {
+
+			button.onPress();
+
+		} else {
+
+			button.onClear();
+
+		}
+
+		if ( button.isPressed() ) {
+
+			button.whilePressed();
+
+		}
+
+	}
+
 }
 
-export { OculusHandModel }
+export { OculusHandModel };

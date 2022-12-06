@@ -1,42 +1,53 @@
-import { BufferGeometry, Float32BufferAttribute } from "../../three.module.js"
-import { ConvexHull } from "../math/ConvexHull.js"
+import {
+	BufferGeometry,
+	Float32BufferAttribute
+} from 'three';
+import { ConvexHull } from '../math/ConvexHull.js';
 
 class ConvexGeometry extends BufferGeometry {
-  constructor(points = []) {
-    super()
 
-    // buffers
+	constructor( points = [] ) {
 
-    const vertices = []
-    const normals = []
+		super();
 
-    const convexHull = new ConvexHull().setFromPoints(points)
+		// buffers
 
-    // generate vertices and normals
+		const vertices = [];
+		const normals = [];
 
-    const faces = convexHull.faces
+		const convexHull = new ConvexHull().setFromPoints( points );
 
-    for (let i = 0; i < faces.length; i++) {
-      const face = faces[i]
-      let edge = face.edge
+		// generate vertices and normals
 
-      // we move along a doubly-connected edge list to access all face points (see HalfEdge docs)
+		const faces = convexHull.faces;
 
-      do {
-        const point = edge.head().point
+		for ( let i = 0; i < faces.length; i ++ ) {
 
-        vertices.push(point.x, point.y, point.z)
-        normals.push(face.normal.x, face.normal.y, face.normal.z)
+			const face = faces[ i ];
+			let edge = face.edge;
 
-        edge = edge.next
-      } while (edge !== face.edge)
-    }
+			// we move along a doubly-connected edge list to access all face points (see HalfEdge docs)
 
-    // build geometry
+			do {
 
-    this.setAttribute("position", new Float32BufferAttribute(vertices, 3))
-    this.setAttribute("normal", new Float32BufferAttribute(normals, 3))
-  }
+				const point = edge.head().point;
+
+				vertices.push( point.x, point.y, point.z );
+				normals.push( face.normal.x, face.normal.y, face.normal.z );
+
+				edge = edge.next;
+
+			} while ( edge !== face.edge );
+
+		}
+
+		// build geometry
+
+		this.setAttribute( 'position', new Float32BufferAttribute( vertices, 3 ) );
+		this.setAttribute( 'normal', new Float32BufferAttribute( normals, 3 ) );
+
+	}
+
 }
 
-export { ConvexGeometry }
+export { ConvexGeometry };

@@ -1,18 +1,18 @@
 import {
-  Clock,
-  Color,
-  Matrix4,
-  Mesh,
-  RepeatWrapping,
-  ShaderMaterial,
-  TextureLoader,
-  UniformsLib,
-  UniformsUtils,
-  Vector2,
-  Vector4,
-} from "../../three.module.js"
-import { Reflector } from "../objects/Reflector.js"
-import { Refractor } from "../objects/Refractor.js"
+	Clock,
+	Color,
+	Matrix4,
+	Mesh,
+	RepeatWrapping,
+	ShaderMaterial,
+	TextureLoader,
+	UniformsLib,
+	UniformsUtils,
+	Vector2,
+	Vector4
+} from 'three';
+import { Reflector } from '../objects/Reflector.js';
+import { Refractor } from '../objects/Refractor.js';
 
 /**
  * References:
@@ -22,201 +22,234 @@ import { Refractor } from "../objects/Refractor.js"
  */
 
 class Water extends Mesh {
-  constructor(geometry, options = {}) {
-    super(geometry)
 
-    this.isWater = true
+	constructor( geometry, options = {} ) {
 
-    this.type = "Water"
+		super( geometry );
 
-    const scope = this
+		this.isWater = true;
 
-    const color = options.color !== undefined ? new Color(options.color) : new Color(0xffffff)
-    const textureWidth = options.textureWidth || 512
-    const textureHeight = options.textureHeight || 512
-    const clipBias = options.clipBias || 0
-    const flowDirection = options.flowDirection || new Vector2(1, 0)
-    const flowSpeed = options.flowSpeed || 0.03
-    const reflectivity = options.reflectivity || 0.02
-    const scale = options.scale || 1
-    const shader = options.shader || Water.WaterShader
+		this.type = 'Water';
 
-    const textureLoader = new TextureLoader()
+		const scope = this;
 
-    const flowMap = options.flowMap || undefined
-    const normalMap0 = options.normalMap0 || textureLoader.load("textures/water/Water_1_M_Normal.jpg")
-    const normalMap1 = options.normalMap1 || textureLoader.load("textures/water/Water_2_M_Normal.jpg")
+		const color = ( options.color !== undefined ) ? new Color( options.color ) : new Color( 0xFFFFFF );
+		const textureWidth = options.textureWidth || 512;
+		const textureHeight = options.textureHeight || 512;
+		const clipBias = options.clipBias || 0;
+		const flowDirection = options.flowDirection || new Vector2( 1, 0 );
+		const flowSpeed = options.flowSpeed || 0.03;
+		const reflectivity = options.reflectivity || 0.02;
+		const scale = options.scale || 1;
+		const shader = options.shader || Water.WaterShader;
 
-    const cycle = 0.15 // a cycle of a flow map phase
-    const halfCycle = cycle * 0.5
-    const textureMatrix = new Matrix4()
-    const clock = new Clock()
+		const textureLoader = new TextureLoader();
 
-    // internal components
+		const flowMap = options.flowMap || undefined;
+		const normalMap0 = options.normalMap0 || textureLoader.load( 'textures/water/Water_1_M_Normal.jpg' );
+		const normalMap1 = options.normalMap1 || textureLoader.load( 'textures/water/Water_2_M_Normal.jpg' );
 
-    if (Reflector === undefined) {
-      console.error("THREE.Water: Required component Reflector not found.")
-      return
-    }
+		const cycle = 0.15; // a cycle of a flow map phase
+		const halfCycle = cycle * 0.5;
+		const textureMatrix = new Matrix4();
+		const clock = new Clock();
 
-    if (Refractor === undefined) {
-      console.error("THREE.Water: Required component Refractor not found.")
-      return
-    }
+		// internal components
 
-    const reflector = new Reflector(geometry, {
-      textureWidth: textureWidth,
-      textureHeight: textureHeight,
-      clipBias: clipBias,
-    })
+		if ( Reflector === undefined ) {
 
-    const refractor = new Refractor(geometry, {
-      textureWidth: textureWidth,
-      textureHeight: textureHeight,
-      clipBias: clipBias,
-    })
+			console.error( 'THREE.Water: Required component Reflector not found.' );
+			return;
 
-    reflector.matrixAutoUpdate = false
-    refractor.matrixAutoUpdate = false
+		}
 
-    // material
+		if ( Refractor === undefined ) {
 
-    this.material = new ShaderMaterial({
-      uniforms: UniformsUtils.merge([UniformsLib["fog"], shader.uniforms]),
-      vertexShader: shader.vertexShader,
-      fragmentShader: shader.fragmentShader,
-      transparent: true,
-      fog: true,
-    })
+			console.error( 'THREE.Water: Required component Refractor not found.' );
+			return;
 
-    if (flowMap !== undefined) {
-      this.material.defines.USE_FLOWMAP = ""
-      this.material.uniforms["tFlowMap"] = {
-        type: "t",
-        value: flowMap,
-      }
-    } else {
-      this.material.uniforms["flowDirection"] = {
-        type: "v2",
-        value: flowDirection,
-      }
-    }
+		}
 
-    // maps
+		const reflector = new Reflector( geometry, {
+			textureWidth: textureWidth,
+			textureHeight: textureHeight,
+			clipBias: clipBias
+		} );
 
-    normalMap0.wrapS = normalMap0.wrapT = RepeatWrapping
-    normalMap1.wrapS = normalMap1.wrapT = RepeatWrapping
+		const refractor = new Refractor( geometry, {
+			textureWidth: textureWidth,
+			textureHeight: textureHeight,
+			clipBias: clipBias
+		} );
 
-    this.material.uniforms["tReflectionMap"].value = reflector.getRenderTarget().texture
-    this.material.uniforms["tRefractionMap"].value = refractor.getRenderTarget().texture
-    this.material.uniforms["tNormalMap0"].value = normalMap0
-    this.material.uniforms["tNormalMap1"].value = normalMap1
+		reflector.matrixAutoUpdate = false;
+		refractor.matrixAutoUpdate = false;
 
-    // water
+		// material
 
-    this.material.uniforms["color"].value = color
-    this.material.uniforms["reflectivity"].value = reflectivity
-    this.material.uniforms["textureMatrix"].value = textureMatrix
+		this.material = new ShaderMaterial( {
+			uniforms: UniformsUtils.merge( [
+				UniformsLib[ 'fog' ],
+				shader.uniforms
+			] ),
+			vertexShader: shader.vertexShader,
+			fragmentShader: shader.fragmentShader,
+			transparent: true,
+			fog: true
+		} );
 
-    // inital values
+		if ( flowMap !== undefined ) {
 
-    this.material.uniforms["config"].value.x = 0 // flowMapOffset0
-    this.material.uniforms["config"].value.y = halfCycle // flowMapOffset1
-    this.material.uniforms["config"].value.z = halfCycle // halfCycle
-    this.material.uniforms["config"].value.w = scale // scale
+			this.material.defines.USE_FLOWMAP = '';
+			this.material.uniforms[ 'tFlowMap' ] = {
+				type: 't',
+				value: flowMap
+			};
 
-    // functions
+		} else {
 
-    function updateTextureMatrix(camera) {
-      textureMatrix.set(0.5, 0.0, 0.0, 0.5, 0.0, 0.5, 0.0, 0.5, 0.0, 0.0, 0.5, 0.5, 0.0, 0.0, 0.0, 1.0)
+			this.material.uniforms[ 'flowDirection' ] = {
+				type: 'v2',
+				value: flowDirection
+			};
 
-      textureMatrix.multiply(camera.projectionMatrix)
-      textureMatrix.multiply(camera.matrixWorldInverse)
-      textureMatrix.multiply(scope.matrixWorld)
-    }
+		}
 
-    function updateFlow() {
-      const delta = clock.getDelta()
-      const config = scope.material.uniforms["config"]
+		// maps
 
-      config.value.x += flowSpeed * delta // flowMapOffset0
-      config.value.y = config.value.x + halfCycle // flowMapOffset1
+		normalMap0.wrapS = normalMap0.wrapT = RepeatWrapping;
+		normalMap1.wrapS = normalMap1.wrapT = RepeatWrapping;
 
-      // Important: The distance between offsets should be always the value of "halfCycle".
-      // Moreover, both offsets should be in the range of [ 0, cycle ].
-      // This approach ensures a smooth water flow and avoids "reset" effects.
+		this.material.uniforms[ 'tReflectionMap' ].value = reflector.getRenderTarget().texture;
+		this.material.uniforms[ 'tRefractionMap' ].value = refractor.getRenderTarget().texture;
+		this.material.uniforms[ 'tNormalMap0' ].value = normalMap0;
+		this.material.uniforms[ 'tNormalMap1' ].value = normalMap1;
 
-      if (config.value.x >= cycle) {
-        config.value.x = 0
-        config.value.y = halfCycle
-      } else if (config.value.y >= cycle) {
-        config.value.y = config.value.y - cycle
-      }
-    }
+		// water
 
-    //
+		this.material.uniforms[ 'color' ].value = color;
+		this.material.uniforms[ 'reflectivity' ].value = reflectivity;
+		this.material.uniforms[ 'textureMatrix' ].value = textureMatrix;
 
-    this.onBeforeRender = function (renderer, scene, camera) {
-      updateTextureMatrix(camera)
-      updateFlow()
+		// inital values
 
-      scope.visible = false
+		this.material.uniforms[ 'config' ].value.x = 0; // flowMapOffset0
+		this.material.uniforms[ 'config' ].value.y = halfCycle; // flowMapOffset1
+		this.material.uniforms[ 'config' ].value.z = halfCycle; // halfCycle
+		this.material.uniforms[ 'config' ].value.w = scale; // scale
 
-      reflector.matrixWorld.copy(scope.matrixWorld)
-      refractor.matrixWorld.copy(scope.matrixWorld)
+		// functions
 
-      reflector.onBeforeRender(renderer, scene, camera)
-      refractor.onBeforeRender(renderer, scene, camera)
+		function updateTextureMatrix( camera ) {
 
-      scope.visible = true
-    }
-  }
+			textureMatrix.set(
+				0.5, 0.0, 0.0, 0.5,
+				0.0, 0.5, 0.0, 0.5,
+				0.0, 0.0, 0.5, 0.5,
+				0.0, 0.0, 0.0, 1.0
+			);
+
+			textureMatrix.multiply( camera.projectionMatrix );
+			textureMatrix.multiply( camera.matrixWorldInverse );
+			textureMatrix.multiply( scope.matrixWorld );
+
+		}
+
+		function updateFlow() {
+
+			const delta = clock.getDelta();
+			const config = scope.material.uniforms[ 'config' ];
+
+			config.value.x += flowSpeed * delta; // flowMapOffset0
+			config.value.y = config.value.x + halfCycle; // flowMapOffset1
+
+			// Important: The distance between offsets should be always the value of "halfCycle".
+			// Moreover, both offsets should be in the range of [ 0, cycle ].
+			// This approach ensures a smooth water flow and avoids "reset" effects.
+
+			if ( config.value.x >= cycle ) {
+
+				config.value.x = 0;
+				config.value.y = halfCycle;
+
+			} else if ( config.value.y >= cycle ) {
+
+				config.value.y = config.value.y - cycle;
+
+			}
+
+		}
+
+		//
+
+		this.onBeforeRender = function ( renderer, scene, camera ) {
+
+			updateTextureMatrix( camera );
+			updateFlow();
+
+			scope.visible = false;
+
+			reflector.matrixWorld.copy( scope.matrixWorld );
+			refractor.matrixWorld.copy( scope.matrixWorld );
+
+			reflector.onBeforeRender( renderer, scene, camera );
+			refractor.onBeforeRender( renderer, scene, camera );
+
+			scope.visible = true;
+
+		};
+
+	}
+
 }
 
 Water.WaterShader = {
-  uniforms: {
-    color: {
-      type: "c",
-      value: null,
-    },
 
-    reflectivity: {
-      type: "f",
-      value: 0,
-    },
+	uniforms: {
 
-    tReflectionMap: {
-      type: "t",
-      value: null,
-    },
+		'color': {
+			type: 'c',
+			value: null
+		},
 
-    tRefractionMap: {
-      type: "t",
-      value: null,
-    },
+		'reflectivity': {
+			type: 'f',
+			value: 0
+		},
 
-    tNormalMap0: {
-      type: "t",
-      value: null,
-    },
+		'tReflectionMap': {
+			type: 't',
+			value: null
+		},
 
-    tNormalMap1: {
-      type: "t",
-      value: null,
-    },
+		'tRefractionMap': {
+			type: 't',
+			value: null
+		},
 
-    textureMatrix: {
-      type: "m4",
-      value: null,
-    },
+		'tNormalMap0': {
+			type: 't',
+			value: null
+		},
 
-    config: {
-      type: "v4",
-      value: new Vector4(),
-    },
-  },
+		'tNormalMap1': {
+			type: 't',
+			value: null
+		},
 
-  vertexShader: /* glsl */ `
+		'textureMatrix': {
+			type: 'm4',
+			value: null
+		},
+
+		'config': {
+			type: 'v4',
+			value: new Vector4()
+		}
+
+	},
+
+	vertexShader: /* glsl */`
 
 		#include <common>
 		#include <fog_pars_vertex>
@@ -244,7 +277,7 @@ Water.WaterShader = {
 
 		}`,
 
-  fragmentShader: /* glsl */ `
+	fragmentShader: /* glsl */`
 
 		#include <common>
 		#include <fog_pars_fragment>
@@ -318,7 +351,8 @@ Water.WaterShader = {
 			#include <encodings_fragment>
 			#include <fog_fragment>
 
-		}`,
-}
+		}`
 
-export { Water }
+};
+
+export { Water };

@@ -1,47 +1,64 @@
-import { ShaderMaterial, UniformsUtils } from "../../three.module.js"
-import { Pass, FullScreenQuad } from "./Pass.js"
-import { DotScreenShader } from "../shaders/DotScreenShader.js"
+import {
+	ShaderMaterial,
+	UniformsUtils
+} from 'three';
+import { Pass, FullScreenQuad } from './Pass.js';
+import { DotScreenShader } from '../shaders/DotScreenShader.js';
 
 class DotScreenPass extends Pass {
-  constructor(center, angle, scale) {
-    super()
 
-    const shader = DotScreenShader
+	constructor( center, angle, scale ) {
 
-    this.uniforms = UniformsUtils.clone(shader.uniforms)
+		super();
 
-    if (center !== undefined) this.uniforms["center"].value.copy(center)
-    if (angle !== undefined) this.uniforms["angle"].value = angle
-    if (scale !== undefined) this.uniforms["scale"].value = scale
+		const shader = DotScreenShader;
 
-    this.material = new ShaderMaterial({
-      uniforms: this.uniforms,
-      vertexShader: shader.vertexShader,
-      fragmentShader: shader.fragmentShader,
-    })
+		this.uniforms = UniformsUtils.clone( shader.uniforms );
 
-    this.fsQuad = new FullScreenQuad(this.material)
-  }
+		if ( center !== undefined ) this.uniforms[ 'center' ].value.copy( center );
+		if ( angle !== undefined ) this.uniforms[ 'angle' ].value = angle;
+		if ( scale !== undefined ) this.uniforms[ 'scale' ].value = scale;
 
-  render(renderer, writeBuffer, readBuffer /*, deltaTime, maskActive */) {
-    this.uniforms["tDiffuse"].value = readBuffer.texture
-    this.uniforms["tSize"].value.set(readBuffer.width, readBuffer.height)
+		this.material = new ShaderMaterial( {
 
-    if (this.renderToScreen) {
-      renderer.setRenderTarget(null)
-      this.fsQuad.render(renderer)
-    } else {
-      renderer.setRenderTarget(writeBuffer)
-      if (this.clear) renderer.clear()
-      this.fsQuad.render(renderer)
-    }
-  }
+			uniforms: this.uniforms,
+			vertexShader: shader.vertexShader,
+			fragmentShader: shader.fragmentShader
 
-  dispose() {
-    this.material.dispose()
+		} );
 
-    this.fsQuad.dispose()
-  }
+		this.fsQuad = new FullScreenQuad( this.material );
+
+	}
+
+	render( renderer, writeBuffer, readBuffer /*, deltaTime, maskActive */ ) {
+
+		this.uniforms[ 'tDiffuse' ].value = readBuffer.texture;
+		this.uniforms[ 'tSize' ].value.set( readBuffer.width, readBuffer.height );
+
+		if ( this.renderToScreen ) {
+
+			renderer.setRenderTarget( null );
+			this.fsQuad.render( renderer );
+
+		} else {
+
+			renderer.setRenderTarget( writeBuffer );
+			if ( this.clear ) renderer.clear();
+			this.fsQuad.render( renderer );
+
+		}
+
+	}
+
+	dispose() {
+
+		this.material.dispose();
+
+		this.fsQuad.dispose();
+
+	}
+
 }
 
-export { DotScreenPass }
+export { DotScreenPass };

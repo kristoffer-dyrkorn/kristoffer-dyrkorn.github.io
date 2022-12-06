@@ -1,173 +1,168 @@
-import NodeMaterial from "./NodeMaterial.js"
+import NodeMaterial from './NodeMaterial.js';
 import {
-  float,
-  vec3,
-  vec4,
-  normalView,
-  add,
-  context,
-  assign,
-  label,
-  mul,
-  invert,
-  mix,
-  texture,
-  uniform,
-  materialRoughness,
-  materialMetalness,
-  materialEmissive,
-} from "../shadernode/ShaderNodeElements.js"
-import LightsNode from "../lighting/LightsNode.js"
-import EnvironmentNode from "../lighting/EnvironmentNode.js"
-import AONode from "../lighting/AONode.js"
-import getRoughness from "../functions/material/getRoughness.js"
-import PhysicalLightingModel from "../functions/PhysicalLightingModel.js"
-import NormalMapNode from "../display/NormalMapNode.js"
+	float, vec3, vec4, normalView, add, context,
+	assign, label, mul, invert, mix, texture, uniform,
+	materialRoughness, materialMetalness, materialEmissive
+} from '../shadernode/ShaderNodeElements.js';
+import LightsNode from '../lighting/LightsNode.js';
+import EnvironmentNode from '../lighting/EnvironmentNode.js';
+import AONode from '../lighting/AONode.js';
+import getRoughness from '../functions/material/getRoughness.js';
+import PhysicalLightingModel from '../functions/PhysicalLightingModel.js';
+import NormalMapNode from '../display/NormalMapNode.js';
 
-import { MeshStandardMaterial } from "../../../three.module.js"
+import { MeshStandardMaterial } from 'three';
 
-const defaultValues = new MeshStandardMaterial()
+const defaultValues = new MeshStandardMaterial();
 
 export default class MeshStandardNodeMaterial extends NodeMaterial {
-  constructor(parameters) {
-    super()
 
-    this.isMeshStandardNodeMaterial = true
+	constructor( parameters ) {
 
-    this.colorNode = null
-    this.opacityNode = null
+		super();
 
-    this.alphaTestNode = null
+		this.isMeshStandardNodeMaterial = true;
 
-    this.normalNode = null
+		this.colorNode = null;
+		this.opacityNode = null;
 
-    this.emissiveNode = null
+		this.alphaTestNode = null;
 
-    this.metalnessNode = null
-    this.roughnessNode = null
+		this.normalNode = null;
 
-    this.envNode = null
+		this.emissiveNode = null;
 
-    this.lightsNode = null
+		this.metalnessNode = null;
+		this.roughnessNode = null;
 
-    this.positionNode = null
+		this.envNode = null;
 
-    this.setDefaultValues(defaultValues)
+		this.lightsNode = null;
 
-    this.setValues(parameters)
-  }
+		this.positionNode = null;
 
-  build(builder) {
-    this.generatePosition(builder)
+		this.setDefaultValues( defaultValues );
 
-    const colorNodes = this.generateDiffuseColor(builder)
-    const { colorNode } = colorNodes
-    let { diffuseColorNode } = colorNodes
+		this.setValues( parameters );
 
-    const envNode = this.envNode || builder.scene.environmentNode
+	}
 
-    diffuseColorNode = this.generateStandardMaterial(builder, { colorNode, diffuseColorNode })
+	build( builder ) {
 
-    if (this.lightsNode) builder.lightsNode = this.lightsNode
+		this.generatePosition( builder );
 
-    const materialLightsNode = []
+		const colorNodes = this.generateDiffuseColor( builder );
+		const { colorNode } = colorNodes;
+		let { diffuseColorNode } = colorNodes;
 
-    if (envNode) {
-      materialLightsNode.push(new EnvironmentNode(envNode))
-    }
+		const envNode = this.envNode || builder.scene.environmentNode;
 
-    if (builder.material.aoMap) {
-      materialLightsNode.push(new AONode(texture(builder.material.aoMap)))
-    }
+		diffuseColorNode = this.generateStandardMaterial( builder, { colorNode, diffuseColorNode } );
 
-    if (materialLightsNode.length > 0) {
-      builder.lightsNode = new LightsNode([...builder.lightsNode.lightNodes, ...materialLightsNode])
-    }
+		if ( this.lightsNode ) builder.lightsNode = this.lightsNode;
 
-    const outgoingLightNode = this.generateLight(builder, {
-      diffuseColorNode,
-      lightingModelNode: PhysicalLightingModel,
-    })
+		const materialLightsNode = [];
 
-    this.generateOutput(builder, { diffuseColorNode, outgoingLightNode })
-  }
+		if ( envNode ) {
 
-  generateStandardMaterial(builder, { colorNode, diffuseColorNode }) {
-    const { material } = builder
+			materialLightsNode.push( new EnvironmentNode( envNode ) );
 
-    // METALNESS
+		}
 
-    let metalnessNode = this.metalnessNode ? float(this.metalnessNode) : materialMetalness
+		if ( builder.material.aoMap ) {
 
-    metalnessNode = builder.addFlow("fragment", label(metalnessNode, "Metalness"))
-    builder.addFlow(
-      "fragment",
-      assign(diffuseColorNode, vec4(mul(diffuseColorNode.rgb, invert(metalnessNode)), diffuseColorNode.a))
-    )
+			materialLightsNode.push( new AONode( texture( builder.material.aoMap ) ) );
 
-    // ROUGHNESS
+		}
 
-    let roughnessNode = this.roughnessNode ? float(this.roughnessNode) : materialRoughness
-    roughnessNode = getRoughness.call({ roughness: roughnessNode })
+		if ( materialLightsNode.length > 0 ) {
 
-    builder.addFlow("fragment", label(roughnessNode, "Roughness"))
+			builder.lightsNode = new LightsNode( [ ...builder.lightsNode.lightNodes, ...materialLightsNode ] );
 
-    // SPECULAR COLOR
+		}
 
-    const specularColorNode = mix(vec3(0.04), colorNode.rgb, metalnessNode)
+		const outgoingLightNode = this.generateLight( builder, { diffuseColorNode, lightingModelNode: PhysicalLightingModel } );
 
-    builder.addFlow("fragment", label(specularColorNode, "SpecularColor"))
+		this.generateOutput( builder, { diffuseColorNode, outgoingLightNode } );
 
-    // NORMAL VIEW
+	}
 
-    const normalNode = this.normalNode
-      ? vec3(this.normalNode)
-      : material.normalMap
-      ? new NormalMapNode(texture(material.normalMap), uniform(material.normalScale))
-      : normalView
+	generateStandardMaterial( builder, { colorNode, diffuseColorNode } ) {
 
-    builder.addFlow("fragment", label(normalNode, "TransformedNormalView"))
+		const { material } = builder;
 
-    return diffuseColorNode
-  }
+		// METALNESS
 
-  generateLight(builder, { diffuseColorNode, lightingModelNode, lightsNode = builder.lightsNode }) {
-    const renderer = builder.renderer
+		let metalnessNode = this.metalnessNode ? float( this.metalnessNode ) : materialMetalness;
 
-    // OUTGOING LIGHT
+		metalnessNode = builder.addFlow( 'fragment', label( metalnessNode, 'Metalness' ) );
+		builder.addFlow( 'fragment', assign( diffuseColorNode, vec4( mul( diffuseColorNode.rgb, invert( metalnessNode ) ), diffuseColorNode.a ) ) );
 
-    let outgoingLightNode = super.generateLight(builder, { diffuseColorNode, lightingModelNode, lightsNode })
+		// ROUGHNESS
 
-    // EMISSIVE
+		let roughnessNode = this.roughnessNode ? float( this.roughnessNode ) : materialRoughness;
+		roughnessNode = getRoughness.call( { roughness: roughnessNode } );
 
-    outgoingLightNode = add(vec3(this.emissiveNode || materialEmissive), outgoingLightNode)
+		builder.addFlow( 'fragment', label( roughnessNode, 'Roughness' ) );
 
-    // TONE MAPPING
+		// SPECULAR COLOR
 
-    if (renderer.toneMappingNode) outgoingLightNode = context(renderer.toneMappingNode, { color: outgoingLightNode })
+		const specularColorNode = mix( vec3( 0.04 ), colorNode.rgb, metalnessNode );
 
-    return outgoingLightNode
-  }
+		builder.addFlow( 'fragment', label( specularColorNode, 'SpecularColor' ) );
 
-  copy(source) {
-    this.colorNode = source.colorNode
-    this.opacityNode = source.opacityNode
+		// NORMAL VIEW
 
-    this.alphaTestNode = source.alphaTestNode
+		const normalNode = this.normalNode ? vec3( this.normalNode ) : ( material.normalMap ? new NormalMapNode( texture( material.normalMap ), uniform( material.normalScale ) ) : normalView );
 
-    this.normalNode = source.normalNode
+		builder.addFlow( 'fragment', label( normalNode, 'TransformedNormalView' ) );
 
-    this.emissiveNode = source.emissiveNode
+		return diffuseColorNode;
 
-    this.metalnessNode = source.metalnessNode
-    this.roughnessNode = source.roughnessNode
+	}
 
-    this.envNode = source.envNode
+	generateLight( builder, { diffuseColorNode, lightingModelNode, lightsNode = builder.lightsNode } ) {
 
-    this.lightsNode = source.lightsNode
+		const renderer = builder.renderer;
 
-    this.positionNode = source.positionNode
+		// OUTGOING LIGHT
 
-    return super.copy(source)
-  }
+		let outgoingLightNode = super.generateLight( builder, { diffuseColorNode, lightingModelNode, lightsNode } );
+
+		// EMISSIVE
+
+		outgoingLightNode = add( vec3( this.emissiveNode || materialEmissive ), outgoingLightNode );
+
+		// TONE MAPPING
+
+		if ( renderer.toneMappingNode ) outgoingLightNode = context( renderer.toneMappingNode, { color: outgoingLightNode } );
+
+		return outgoingLightNode;
+
+	}
+
+	copy( source ) {
+
+		this.colorNode = source.colorNode;
+		this.opacityNode = source.opacityNode;
+
+		this.alphaTestNode = source.alphaTestNode;
+
+		this.normalNode = source.normalNode;
+
+		this.emissiveNode = source.emissiveNode;
+
+		this.metalnessNode = source.metalnessNode;
+		this.roughnessNode = source.roughnessNode;
+
+		this.envNode = source.envNode;
+
+		this.lightsNode = source.lightsNode;
+
+		this.positionNode = source.positionNode;
+
+		return super.copy( source );
+
+	}
+
 }

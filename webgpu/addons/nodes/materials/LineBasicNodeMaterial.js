@@ -1,40 +1,46 @@
-import NodeMaterial from "./NodeMaterial.js"
-import { LineBasicMaterial } from "../../../three.module.js"
+import NodeMaterial from './NodeMaterial.js';
+import { LineBasicMaterial } from 'three';
 
-const defaultValues = new LineBasicMaterial()
+const defaultValues = new LineBasicMaterial();
 
 class LineBasicNodeMaterial extends NodeMaterial {
-  constructor(parameters) {
-    super()
 
-    this.isLineBasicNodeMaterial = true
+	constructor( parameters ) {
 
-    this.colorNode = null
-    this.opacityNode = null
+		super();
 
-    this.alphaTestNode = null
+		this.isLineBasicNodeMaterial = true;
 
-    this.lightNode = null
+		this.colorNode = null;
+		this.opacityNode = null;
 
-    this.positionNode = null
+		this.alphaTestNode = null;
 
-    this.setDefaultValues(defaultValues)
+		this.lightNode = null;
 
-    this.setValues(parameters)
-  }
+		this.positionNode = null;
 
-  copy(source) {
-    this.colorNode = source.colorNode
-    this.opacityNode = source.opacityNode
+		this.setDefaultValues( defaultValues );
 
-    this.alphaTestNode = source.alphaTestNode
+		this.setValues( parameters );
 
-    this.lightNode = source.lightNode
+	}
 
-    this.positionNode = source.positionNode
+	copy( source ) {
 
-    return super.copy(source)
-  }
+		this.colorNode = source.colorNode;
+		this.opacityNode = source.opacityNode;
+
+		this.alphaTestNode = source.alphaTestNode;
+
+		this.lightNode = source.lightNode;
+
+		this.positionNode = source.positionNode;
+
+		return super.copy( source );
+
+	}
+
 }
 
-export default LineBasicNodeMaterial
+export default LineBasicNodeMaterial;

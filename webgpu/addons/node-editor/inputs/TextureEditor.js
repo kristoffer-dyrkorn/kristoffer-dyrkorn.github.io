@@ -1,135 +1,155 @@
-import { LabelElement, ToggleInput, SelectInput } from "../../libs/flow.module.js"
-import { BaseNode, onNodeValidElement } from "../core/BaseNode.js"
-import { TextureNode, UVNode } from "three/nodes"
-import {
-  Texture,
-  TextureLoader,
-  RepeatWrapping,
-  ClampToEdgeWrapping,
-  MirroredRepeatWrapping,
-} from "../../three.module.js"
+import { LabelElement, ToggleInput, SelectInput } from '../../libs/flow.module.js';
+import { BaseNode, onNodeValidElement } from '../core/BaseNode.js';
+import { TextureNode, UVNode } from 'three/nodes';
+import { Texture, TextureLoader, RepeatWrapping, ClampToEdgeWrapping, MirroredRepeatWrapping } from 'three';
 
-const fileTexture = new WeakMap()
-const fileURL = new WeakMap()
-const textureLoader = new TextureLoader()
-const defaultTexture = new Texture()
-const defaultUV = new UVNode()
+const fileTexture = new WeakMap();
+const fileURL = new WeakMap();
+const textureLoader = new TextureLoader();
+const defaultTexture = new Texture();
+const defaultUV = new UVNode();
 
-const getTexture = (file) => {
-  let texture = fileTexture.get(file)
+const getTexture = ( file ) => {
 
-  if (texture === undefined || file.getURL() !== fileURL.get(file)) {
-    const url = file.getURL()
+	let texture = fileTexture.get( file );
 
-    if (texture !== undefined) {
-      texture.dispose()
-    }
+	if ( texture === undefined || file.getURL() !== fileURL.get( file ) ) {
 
-    texture = textureLoader.load(url)
+		const url = file.getURL();
 
-    fileTexture.set(file, texture)
-    fileURL.set(file, url)
-  }
+		if ( texture !== undefined ) {
 
-  return texture
-}
+			texture.dispose();
+
+		}
+
+		texture = textureLoader.load( url );
+
+		fileTexture.set( file, texture );
+		fileURL.set( file, url );
+
+	}
+
+	return texture;
+
+};
 
 export class TextureEditor extends BaseNode {
-  constructor() {
-    const node = new TextureNode(defaultTexture)
 
-    super("Texture", 4, node, 250)
+	constructor() {
 
-    this.texture = null
+		const node = new TextureNode( defaultTexture );
 
-    this._initFile()
-    this._initParams()
+		super( 'Texture', 4, node, 250 );
 
-    this.onValidElement = () => {}
-  }
+		this.texture = null;
 
-  _initFile() {
-    const fileElement = new LabelElement("File").setInputColor("aqua").setInput(1)
+		this._initFile();
+		this._initParams();
 
-    fileElement
-      .onValid((source, target, stage) => {
-        const object = target.getObject()
+		this.onValidElement = () => {};
 
-        if (object && object.isDataFile !== true) {
-          if (stage === "dragged") {
-            const name = target.node.getName()
+	}
 
-            this.editor.tips.error(`"${name}" is not a File.`)
-          }
+	_initFile() {
 
-          return false
-        }
-      })
-      .onConnect(() => {
-        const file = fileElement.getLinkedObject()
-        const node = this.value
+		const fileElement = new LabelElement( 'File' ).setInputColor( 'aqua' ).setInput( 1 );
 
-        this.texture = file ? getTexture(file) : null
+		fileElement.onValid( ( source, target, stage ) => {
 
-        node.value = this.texture || defaultTexture
+			const object = target.getObject();
 
-        this.update()
-      }, true)
+			if ( object && object.isDataFile !== true ) {
 
-    this.add(fileElement)
-  }
+				if ( stage === 'dragged' ) {
 
-  _initParams() {
-    const uvField = new LabelElement("UV").setInput(2)
+					const name = target.node.getName();
 
-    uvField.onValid(onNodeValidElement).onConnect(() => {
-      const node = this.value
+					this.editor.tips.error( `"${name}" is not a File.` );
 
-      node.uvNode = uvField.getLinkedObject() || defaultUV
-    })
+				}
 
-    this.wrapSInput = new SelectInput(
-      [
-        { name: "Repeat Wrapping", value: RepeatWrapping },
-        { name: "Clamp To Edge Wrapping", value: ClampToEdgeWrapping },
-        { name: "Mirrored Repeat Wrapping", value: MirroredRepeatWrapping },
-      ],
-      RepeatWrapping
-    ).onChange(() => {
-      this.update()
-    })
+				return false;
 
-    this.wrapTInput = new SelectInput(
-      [
-        { name: "Repeat Wrapping", value: RepeatWrapping },
-        { name: "Clamp To Edge Wrapping", value: ClampToEdgeWrapping },
-        { name: "Mirrored Repeat Wrapping", value: MirroredRepeatWrapping },
-      ],
-      RepeatWrapping
-    ).onChange(() => {
-      this.update()
-    })
+			}
 
-    this.flipYInput = new ToggleInput(false).onChange(() => {
-      this.update()
-    })
+		} ).onConnect( () => {
 
-    this.add(uvField)
-      .add(new LabelElement("Wrap S").add(this.wrapSInput))
-      .add(new LabelElement("Wrap T").add(this.wrapTInput))
-      .add(new LabelElement("Flip Y").add(this.flipYInput))
-  }
+			const file = fileElement.getLinkedObject();
+			const node = this.value;
 
-  update() {
-    const texture = this.texture
+			this.texture = file ? getTexture( file ) : null;
 
-    if (texture) {
-      texture.wrapS = Number(this.wrapSInput.getValue())
-      texture.wrapT = Number(this.wrapTInput.getValue())
-      texture.flipY = this.flipYInput.getValue()
-      texture.dispose()
+			node.value = this.texture || defaultTexture;
 
-      this.invalidate()
-    }
-  }
+			this.update();
+
+		}, true );
+
+		this.add( fileElement );
+
+	}
+
+	_initParams() {
+
+		const uvField = new LabelElement( 'UV' ).setInput( 2 );
+
+		uvField.onValid( onNodeValidElement ).onConnect( () => {
+
+			const node = this.value;
+
+			node.uvNode = uvField.getLinkedObject() || defaultUV;
+
+		} );
+
+		this.wrapSInput = new SelectInput( [
+			{ name: 'Repeat Wrapping', value: RepeatWrapping },
+			{ name: 'Clamp To Edge Wrapping', value: ClampToEdgeWrapping },
+			{ name: 'Mirrored Repeat Wrapping', value: MirroredRepeatWrapping }
+		], RepeatWrapping ).onChange( () => {
+
+			this.update();
+
+		} );
+
+		this.wrapTInput = new SelectInput( [
+			{ name: 'Repeat Wrapping', value: RepeatWrapping },
+			{ name: 'Clamp To Edge Wrapping', value: ClampToEdgeWrapping },
+			{ name: 'Mirrored Repeat Wrapping', value: MirroredRepeatWrapping }
+		], RepeatWrapping ).onChange( () => {
+
+			this.update();
+
+		} );
+
+		this.flipYInput = new ToggleInput( false ).onChange( () => {
+
+			this.update();
+
+		} );
+
+		this.add( uvField )
+			.add( new LabelElement( 'Wrap S' ).add( this.wrapSInput ) )
+			.add( new LabelElement( 'Wrap T' ).add( this.wrapTInput ) )
+			.add( new LabelElement( 'Flip Y' ).add( this.flipYInput ) );
+
+	}
+
+	update() {
+
+		const texture = this.texture;
+
+		if ( texture ) {
+
+			texture.wrapS = Number( this.wrapSInput.getValue() );
+			texture.wrapT = Number( this.wrapTInput.getValue() );
+			texture.flipY = this.flipYInput.getValue();
+			texture.dispose();
+
+			this.invalidate();
+
+		}
+
+	}
+
 }

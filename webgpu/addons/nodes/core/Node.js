@@ -1,268 +1,368 @@
-import { NodeUpdateType } from "./constants.js"
-import { getNodesKeys, getCacheKey } from "./NodeUtils.js"
-import { MathUtils } from "../../../three.module.js"
+import { NodeUpdateType } from './constants.js';
+import { getNodesKeys, getCacheKey } from './NodeUtils.js';
+import { MathUtils } from 'three';
 
-let _nodeId = 0
+let _nodeId = 0;
 
 class Node {
-  constructor(nodeType = null) {
-    this.isNode = true
 
-    this.nodeType = nodeType
+	constructor( nodeType = null ) {
 
-    this.updateType = NodeUpdateType.NONE
+		this.isNode = true;
 
-    this.uuid = MathUtils.generateUUID()
+		this.nodeType = nodeType;
 
-    Object.defineProperty(this, "id", { value: _nodeId++ })
-  }
+		this.updateType = NodeUpdateType.NONE;
 
-  get type() {
-    return this.constructor.name
-  }
+		this.uuid = MathUtils.generateUUID();
 
-  isGlobal(/*builder*/) {
-    return false
-  }
+		Object.defineProperty( this, 'id', { value: _nodeId ++ } );
 
-  getChildren() {
-    const children = []
+	}
 
-    for (const property in this) {
-      const object = this[property]
+	get type() {
 
-      if (Array.isArray(object) === true) {
-        for (const child of object) {
-          if (child?.isNode === true) {
-            children.push(child)
-          }
-        }
-      } else if (object?.isNode === true) {
-        children.push(object)
-      } else if (typeof object === "object") {
-        for (const property in object) {
-          const child = object[property]
+		return this.constructor.name;
 
-          if (child?.isNode === true) {
-            children.push(child)
-          }
-        }
-      }
-    }
+	}
 
-    return children
-  }
+	isGlobal( /*builder*/ ) {
 
-  getCacheKey() {
-    return getCacheKey(this)
-  }
+		return false;
 
-  getHash(/*builder*/) {
-    return this.uuid
-  }
+	}
 
-  getUpdateType(/*builder*/) {
-    return this.updateType
-  }
+	getChildren() {
 
-  getNodeType(/*builder*/) {
-    return this.nodeType
-  }
+		const children = [];
 
-  getReference(builder) {
-    const hash = this.getHash(builder)
-    const nodeFromHash = builder.getNodeFromHash(hash)
+		for ( const property in this ) {
 
-    return nodeFromHash || this
-  }
+			const object = this[ property ];
 
-  construct(builder) {
-    const nodeProperties = builder.getNodeProperties(this)
+			if ( Array.isArray( object ) === true ) {
 
-    for (const childNode of this.getChildren()) {
-      nodeProperties["_node" + childNode.id] = childNode
-    }
+				for ( const child of object ) {
 
-    // return a outputNode if exists
-    return null
-  }
+					if ( child?.isNode === true ) {
 
-  analyze(builder) {
-    const nodeData = builder.getDataFromNode(this)
-    nodeData.dependenciesCount = nodeData.dependenciesCount === undefined ? 1 : nodeData.dependenciesCount + 1
+						children.push( child );
 
-    if (nodeData.dependenciesCount === 1) {
-      // node flow children
+					}
 
-      const nodeProperties = builder.getNodeProperties(this)
+				}
 
-      for (const childNode of Object.values(nodeProperties)) {
-        if (childNode?.isNode === true) {
-          childNode.build(builder)
-        }
-      }
-    }
-  }
+			} else if ( object?.isNode === true ) {
 
-  generate(builder, output) {
-    const { outputNode } = builder.getNodeProperties(this)
+				children.push( object );
 
-    if (outputNode?.isNode === true) {
-      return outputNode.build(builder, output)
-    }
-  }
+			} else if ( typeof object === 'object' ) {
 
-  update(/*frame*/) {
-    console.warn("Abstract function.")
-  }
+				for ( const property in object ) {
 
-  build(builder, output = null) {
-    const refNode = this.getReference(builder)
+					const child = object[ property ];
 
-    if (this !== refNode) {
-      return refNode.build(builder, output)
-    }
+					if ( child?.isNode === true ) {
 
-    builder.addNode(this)
-    builder.addStack(this)
+						children.push( child );
 
-    /* expected return:
+					}
+
+				}
+
+			}
+
+		}
+
+		return children;
+
+	}
+
+	getCacheKey() {
+
+		return getCacheKey( this );
+
+	}
+
+	getHash( /*builder*/ ) {
+
+		return this.uuid;
+
+	}
+
+	getUpdateType( /*builder*/ ) {
+
+		return this.updateType;
+
+	}
+
+	getNodeType( /*builder*/ ) {
+
+		return this.nodeType;
+
+	}
+
+	getReference( builder ) {
+
+		const hash = this.getHash( builder );
+		const nodeFromHash = builder.getNodeFromHash( hash );
+
+		return nodeFromHash || this;
+
+	}
+
+	construct( builder ) {
+
+		const nodeProperties = builder.getNodeProperties( this );
+
+		for ( const childNode of this.getChildren() ) {
+
+			nodeProperties[ '_node' + childNode.id ] = childNode;
+
+		}
+
+		// return a outputNode if exists
+		return null;
+
+	}
+
+	analyze( builder ) {
+
+		const nodeData = builder.getDataFromNode( this );
+		nodeData.dependenciesCount = nodeData.dependenciesCount === undefined ? 1 : nodeData.dependenciesCount + 1;
+
+		if ( nodeData.dependenciesCount === 1 ) {
+
+			// node flow children
+
+			const nodeProperties = builder.getNodeProperties( this );
+
+			for ( const childNode of Object.values( nodeProperties ) ) {
+
+				if ( childNode?.isNode === true ) {
+
+					childNode.build( builder );
+
+				}
+
+			}
+
+		}
+
+	}
+
+	generate( builder, output ) {
+
+		const { outputNode } = builder.getNodeProperties( this );
+
+		if ( outputNode?.isNode === true ) {
+
+			return outputNode.build( builder, output );
+
+		}
+
+	}
+
+	update( /*frame*/ ) {
+
+		console.warn( 'Abstract function.' );
+
+	}
+
+	build( builder, output = null ) {
+
+		const refNode = this.getReference( builder );
+
+		if ( this !== refNode ) {
+
+			return refNode.build( builder, output );
+
+		}
+
+		builder.addNode( this );
+		builder.addStack( this );
+
+		/* expected return:
 			- "construct"	-> Node
 			- "analyze"		-> null
 			- "generate"	-> String
 		*/
-    let result = null
+		let result = null;
 
-    const buildStage = builder.getBuildStage()
+		const buildStage = builder.getBuildStage();
 
-    if (buildStage === "construct") {
-      const properties = builder.getNodeProperties(this)
+		if ( buildStage === 'construct' ) {
 
-      if (properties.initialized !== true || builder.context.tempRead === false) {
-        properties.initialized = true
-        properties.outputNode = this.construct(builder)
+			const properties = builder.getNodeProperties( this );
 
-        for (const childNode of Object.values(properties)) {
-          if (childNode?.isNode === true) {
-            childNode.build(builder)
-          }
-        }
-      }
-    } else if (buildStage === "analyze") {
-      this.analyze(builder)
-    } else if (buildStage === "generate") {
-      const isGenerateOnce = this.generate.length === 1
+			if ( properties.initialized !== true || builder.context.tempRead === false ) {
 
-      if (isGenerateOnce) {
-        const type = this.getNodeType(builder)
-        const nodeData = builder.getDataFromNode(this)
+				properties.initialized = true;
+				properties.outputNode = this.construct( builder );
 
-        result = nodeData.snippet
+				for ( const childNode of Object.values( properties ) ) {
 
-        if (result === undefined /*|| builder.context.tempRead === false*/) {
-          result = this.generate(builder) || ""
+					if ( childNode?.isNode === true ) {
 
-          nodeData.snippet = result
-        }
+						childNode.build( builder );
 
-        result = builder.format(result, type, output)
-      } else {
-        result = this.generate(builder, output) || ""
-      }
-    }
+					}
 
-    builder.removeStack(this)
+				}
 
-    return result
-  }
+			}
 
-  serialize(json) {
-    const nodeKeys = getNodesKeys(this)
+		} else if ( buildStage === 'analyze' ) {
 
-    if (nodeKeys.length > 0) {
-      const inputNodes = {}
+			this.analyze( builder );
 
-      for (const property of nodeKeys) {
-        inputNodes[property] = this[property].toJSON(json.meta).uuid
-      }
+		} else if ( buildStage === 'generate' ) {
 
-      json.inputNodes = inputNodes
-    }
-  }
+			const isGenerateOnce = this.generate.length === 1;
 
-  deserialize(json) {
-    if (json.inputNodes !== undefined) {
-      const nodes = json.meta.nodes
+			if ( isGenerateOnce ) {
 
-      for (const property in json.inputNodes) {
-        const uuid = json.inputNodes[property]
+				const type = this.getNodeType( builder );
+				const nodeData = builder.getDataFromNode( this );
 
-        this[property] = nodes[uuid]
-      }
-    }
-  }
+				result = nodeData.snippet;
 
-  toJSON(meta) {
-    const { uuid, type } = this
-    const isRoot = meta === undefined || typeof meta === "string"
+				if ( result === undefined /*|| builder.context.tempRead === false*/ ) {
 
-    if (isRoot) {
-      meta = {
-        textures: {},
-        images: {},
-        nodes: {},
-      }
-    }
+					result = this.generate( builder ) || '';
 
-    // serialize
+					nodeData.snippet = result;
 
-    let data = meta.nodes[uuid]
+				}
 
-    if (data === undefined) {
-      data = {
-        uuid,
-        type,
-        meta,
-        metadata: {
-          version: 4.5,
-          type: "Node",
-          generator: "Node.toJSON",
-        },
-      }
+				result = builder.format( result, type, output );
 
-      meta.nodes[data.uuid] = data
+			} else {
 
-      this.serialize(data)
+				result = this.generate( builder, output ) || '';
 
-      delete data.meta
-    }
+			}
 
-    // TODO: Copied from Object3D.toJSON
+		}
 
-    function extractFromCache(cache) {
-      const values = []
+		builder.removeStack( this );
 
-      for (const key in cache) {
-        const data = cache[key]
-        delete data.metadata
-        values.push(data)
-      }
+		return result;
 
-      return values
-    }
+	}
 
-    if (isRoot) {
-      const textures = extractFromCache(meta.textures)
-      const images = extractFromCache(meta.images)
-      const nodes = extractFromCache(meta.nodes)
+	serialize( json ) {
 
-      if (textures.length > 0) data.textures = textures
-      if (images.length > 0) data.images = images
-      if (nodes.length > 0) data.nodes = nodes
-    }
+		const nodeKeys = getNodesKeys( this );
 
-    return data
-  }
+		if ( nodeKeys.length > 0 ) {
+
+			const inputNodes = {};
+
+			for ( const property of nodeKeys ) {
+
+				inputNodes[ property ] = this[ property ].toJSON( json.meta ).uuid;
+
+			}
+
+			json.inputNodes = inputNodes;
+
+		}
+
+	}
+
+	deserialize( json ) {
+
+		if ( json.inputNodes !== undefined ) {
+
+			const nodes = json.meta.nodes;
+
+			for ( const property in json.inputNodes ) {
+
+				const uuid = json.inputNodes[ property ];
+
+				this[ property ] = nodes[ uuid ];
+
+			}
+
+		}
+
+	}
+
+	toJSON( meta ) {
+
+		const { uuid, type } = this;
+		const isRoot = ( meta === undefined || typeof meta === 'string' );
+
+		if ( isRoot ) {
+
+			meta = {
+				textures: {},
+				images: {},
+				nodes: {}
+			};
+
+		}
+
+		// serialize
+
+		let data = meta.nodes[ uuid ];
+
+		if ( data === undefined ) {
+
+			data = {
+				uuid,
+				type,
+				meta,
+				metadata: {
+					version: 4.5,
+					type: 'Node',
+					generator: 'Node.toJSON'
+				}
+			};
+
+			meta.nodes[ data.uuid ] = data;
+
+			this.serialize( data );
+
+			delete data.meta;
+
+		}
+
+		// TODO: Copied from Object3D.toJSON
+
+		function extractFromCache( cache ) {
+
+			const values = [];
+
+			for ( const key in cache ) {
+
+				const data = cache[ key ];
+				delete data.metadata;
+				values.push( data );
+
+			}
+
+			return values;
+
+		}
+
+		if ( isRoot ) {
+
+			const textures = extractFromCache( meta.textures );
+			const images = extractFromCache( meta.images );
+			const nodes = extractFromCache( meta.nodes );
+
+			if ( textures.length > 0 ) data.textures = textures;
+			if ( images.length > 0 ) data.images = images;
+			if ( nodes.length > 0 ) data.nodes = nodes;
+
+		}
+
+		return data;
+
+	}
+
 }
 
-export default Node
+export default Node;

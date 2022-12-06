@@ -1,105 +1,106 @@
-import NodeMaterial from "./NodeMaterial.js"
-import { SpriteMaterial } from "../../../three.module.js"
+import NodeMaterial from './NodeMaterial.js';
+import { SpriteMaterial } from 'three';
 import {
-  vec2,
-  vec3,
-  vec4,
-  uniform,
-  add,
-  mul,
-  sub,
-  positionLocal,
-  length,
-  cos,
-  sin,
-  modelViewMatrix,
-  cameraProjectionMatrix,
-  modelWorldMatrix,
-  materialRotation,
-} from "../shadernode/ShaderNodeElements.js"
+	vec2, vec3, vec4,
+	uniform, add, mul, sub,
+	positionLocal, length, cos, sin,
+	modelViewMatrix, cameraProjectionMatrix, modelWorldMatrix, materialRotation
+} from '../shadernode/ShaderNodeElements.js';
 
-const defaultValues = new SpriteMaterial()
+const defaultValues = new SpriteMaterial();
 
 class SpriteNodeMaterial extends NodeMaterial {
-  constructor(parameters) {
-    super()
 
-    this.isSpriteNodeMaterial = true
+	constructor( parameters ) {
 
-    this.lights = true
+		super();
 
-    this.colorNode = null
-    this.opacityNode = null
+		this.isSpriteNodeMaterial = true;
 
-    this.alphaTestNode = null
+		this.lights = true;
 
-    this.lightNode = null
+		this.colorNode = null;
+		this.opacityNode = null;
 
-    this.positionNode = null
-    this.rotationNode = null
-    this.scaleNode = null
+		this.alphaTestNode = null;
 
-    this.setDefaultValues(defaultValues)
+		this.lightNode = null;
 
-    this.setValues(parameters)
-  }
+		this.positionNode = null;
+		this.rotationNode = null;
+		this.scaleNode = null;
 
-  generatePosition(builder) {
-    // < VERTEX STAGE >
+		this.setDefaultValues( defaultValues );
 
-    const { positionNode, rotationNode, scaleNode } = this
+		this.setValues( parameters );
 
-    const vertex = positionLocal
+	}
 
-    let mvPosition = mul(modelViewMatrix, positionNode ? vec4(positionNode.xyz, 1) : vec4(0, 0, 0, 1))
+	generatePosition( builder ) {
 
-    let scale = vec2(
-      length(vec3(modelWorldMatrix[0].x, modelWorldMatrix[0].y, modelWorldMatrix[0].z)),
-      length(vec3(modelWorldMatrix[1].x, modelWorldMatrix[1].y, modelWorldMatrix[1].z))
-    )
+		// < VERTEX STAGE >
 
-    if (scaleNode !== null) {
-      scale = mul(scale, scaleNode)
-    }
+		const { positionNode, rotationNode, scaleNode } = this;
 
-    let alignedPosition = vertex.xy
+		const vertex = positionLocal;
 
-    if (builder.object.center?.isVector2 === true) {
-      alignedPosition = sub(alignedPosition, sub(uniform(builder.object.center), vec2(0.5)))
-    }
+		let mvPosition = mul( modelViewMatrix, positionNode ? vec4( positionNode.xyz, 1 ) : vec4( 0, 0, 0, 1 ) );
 
-    alignedPosition = mul(alignedPosition, scale)
+		let scale = vec2(
+			length( vec3( modelWorldMatrix[ 0 ].x, modelWorldMatrix[ 0 ].y, modelWorldMatrix[ 0 ].z ) ),
+			length( vec3( modelWorldMatrix[ 1 ].x, modelWorldMatrix[ 1 ].y, modelWorldMatrix[ 1 ].z ) )
+		);
 
-    const rotation = rotationNode || materialRotation
+		if ( scaleNode !== null ) {
 
-    const rotatedPosition = vec2(
-      sub(mul(cos(rotation), alignedPosition.x), mul(sin(rotation), alignedPosition.y)),
-      add(mul(sin(rotation), alignedPosition.x), mul(cos(rotation), alignedPosition.y))
-    )
+			scale = mul( scale, scaleNode );
 
-    mvPosition = vec4(add(mvPosition.xy, rotatedPosition.xy), mvPosition.z, mvPosition.w)
+		}
 
-    const modelViewProjection = mul(cameraProjectionMatrix, mvPosition)
+		let alignedPosition = vertex.xy;
 
-    builder.context.vertex = vertex
+		if ( builder.object.center?.isVector2 === true ) {
 
-    builder.addFlow("vertex", modelViewProjection)
-  }
+			alignedPosition = sub( alignedPosition, sub( uniform( builder.object.center ), vec2( 0.5 ) ) );
 
-  copy(source) {
-    this.colorNode = source.colorNode
-    this.opacityNode = source.opacityNode
+		}
 
-    this.alphaTestNode = source.alphaTestNode
+		alignedPosition = mul( alignedPosition, scale );
 
-    this.lightNode = source.lightNode
+		const rotation = rotationNode || materialRotation;
 
-    this.positionNode = source.positionNode
-    this.rotationNode = source.rotationNode
-    this.scaleNode = source.scaleNode
+		const rotatedPosition = vec2(
+			sub( mul( cos( rotation ), alignedPosition.x ), mul( sin( rotation ), alignedPosition.y ) ),
+			add( mul( sin( rotation ), alignedPosition.x ), mul( cos( rotation ), alignedPosition.y ) )
+		);
 
-    return super.copy(source)
-  }
+		mvPosition = vec4( add( mvPosition.xy, rotatedPosition.xy ), mvPosition.z, mvPosition.w );
+
+		const modelViewProjection = mul( cameraProjectionMatrix, mvPosition );
+
+		builder.context.vertex = vertex;
+
+		builder.addFlow( 'vertex', modelViewProjection );
+
+	}
+
+	copy( source ) {
+
+		this.colorNode = source.colorNode;
+		this.opacityNode = source.opacityNode;
+
+		this.alphaTestNode = source.alphaTestNode;
+
+		this.lightNode = source.lightNode;
+
+		this.positionNode = source.positionNode;
+		this.rotationNode = source.rotationNode;
+		this.scaleNode = source.scaleNode;
+
+		return super.copy( source );
+
+	}
+
 }
 
-export default SpriteNodeMaterial
+export default SpriteNodeMaterial;

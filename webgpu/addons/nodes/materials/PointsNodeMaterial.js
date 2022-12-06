@@ -1,46 +1,52 @@
-import NodeMaterial from "./NodeMaterial.js"
-import { PointsMaterial } from "../../../three.module.js"
+import NodeMaterial from './NodeMaterial.js';
+import { PointsMaterial } from 'three';
 
-const defaultValues = new PointsMaterial()
+const defaultValues = new PointsMaterial();
 
 class PointsNodeMaterial extends NodeMaterial {
-  constructor(parameters) {
-    super()
 
-    this.isPointsNodeMaterial = true
+	constructor( parameters ) {
 
-    this.transparent = true
+		super();
 
-    this.colorNode = null
-    this.opacityNode = null
+		this.isPointsNodeMaterial = true;
 
-    this.alphaTestNode = null
+		this.transparent = true;
 
-    this.lightNode = null
+		this.colorNode = null;
+		this.opacityNode = null;
 
-    this.sizeNode = null
+		this.alphaTestNode = null;
 
-    this.positionNode = null
+		this.lightNode = null;
 
-    this.setDefaultValues(defaultValues)
+		this.sizeNode = null;
 
-    this.setValues(parameters)
-  }
+		this.positionNode = null;
 
-  copy(source) {
-    this.colorNode = source.colorNode
-    this.opacityNode = source.opacityNode
+		this.setDefaultValues( defaultValues );
 
-    this.alphaTestNode = source.alphaTestNode
+		this.setValues( parameters );
 
-    this.lightNode = source.lightNode
+	}
 
-    this.sizeNode = source.sizeNode
+	copy( source ) {
 
-    this.positionNode = source.positionNode
+		this.colorNode = source.colorNode;
+		this.opacityNode = source.opacityNode;
 
-    return super.copy(source)
-  }
+		this.alphaTestNode = source.alphaTestNode;
+
+		this.lightNode = source.lightNode;
+
+		this.sizeNode = source.sizeNode;
+
+		this.positionNode = source.positionNode;
+
+		return super.copy( source );
+
+	}
+
 }
 
-export default PointsNodeMaterial
+export default PointsNodeMaterial;

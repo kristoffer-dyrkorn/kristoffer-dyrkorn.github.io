@@ -1,56 +1,76 @@
-import { ShaderMaterial, UniformsUtils, WebGLRenderTarget } from "../../three.module.js"
-import { Pass, FullScreenQuad } from "./Pass.js"
-import { CopyShader } from "../shaders/CopyShader.js"
+import {
+	ShaderMaterial,
+	UniformsUtils,
+	WebGLRenderTarget
+} from 'three';
+import { Pass, FullScreenQuad } from './Pass.js';
+import { CopyShader } from '../shaders/CopyShader.js';
 
 class SavePass extends Pass {
-  constructor(renderTarget) {
-    super()
 
-    const shader = CopyShader
+	constructor( renderTarget ) {
 
-    this.textureID = "tDiffuse"
+		super();
 
-    this.uniforms = UniformsUtils.clone(shader.uniforms)
+		const shader = CopyShader;
 
-    this.material = new ShaderMaterial({
-      uniforms: this.uniforms,
-      vertexShader: shader.vertexShader,
-      fragmentShader: shader.fragmentShader,
-    })
+		this.textureID = 'tDiffuse';
 
-    this.renderTarget = renderTarget
+		this.uniforms = UniformsUtils.clone( shader.uniforms );
 
-    if (this.renderTarget === undefined) {
-      this.renderTarget = new WebGLRenderTarget() // will be resized later
-      this.renderTarget.texture.name = "SavePass.rt"
-    }
+		this.material = new ShaderMaterial( {
 
-    this.needsSwap = false
+			uniforms: this.uniforms,
+			vertexShader: shader.vertexShader,
+			fragmentShader: shader.fragmentShader
 
-    this.fsQuad = new FullScreenQuad(this.material)
-  }
+		} );
 
-  render(renderer, writeBuffer, readBuffer /*, deltaTime, maskActive */) {
-    if (this.uniforms[this.textureID]) {
-      this.uniforms[this.textureID].value = readBuffer.texture
-    }
+		this.renderTarget = renderTarget;
 
-    renderer.setRenderTarget(this.renderTarget)
-    if (this.clear) renderer.clear()
-    this.fsQuad.render(renderer)
-  }
+		if ( this.renderTarget === undefined ) {
 
-  setSize(width, height) {
-    this.renderTarget.setSize(width, height)
-  }
+			this.renderTarget = new WebGLRenderTarget(); // will be resized later
+			this.renderTarget.texture.name = 'SavePass.rt';
 
-  dispose() {
-    this.renderTarget.dispose()
+		}
 
-    this.material.dispose()
+		this.needsSwap = false;
 
-    this.fsQuad.dispose()
-  }
+		this.fsQuad = new FullScreenQuad( this.material );
+
+	}
+
+	render( renderer, writeBuffer, readBuffer/*, deltaTime, maskActive */ ) {
+
+		if ( this.uniforms[ this.textureID ] ) {
+
+			this.uniforms[ this.textureID ].value = readBuffer.texture;
+
+		}
+
+		renderer.setRenderTarget( this.renderTarget );
+		if ( this.clear ) renderer.clear();
+		this.fsQuad.render( renderer );
+
+	}
+
+	setSize( width, height ) {
+
+		this.renderTarget.setSize( width, height );
+
+	}
+
+	dispose() {
+
+		this.renderTarget.dispose();
+
+		this.material.dispose();
+
+		this.fsQuad.dispose();
+
+	}
+
 }
 
-export { SavePass }
+export { SavePass };

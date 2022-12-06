@@ -1,48 +1,65 @@
-import { ShaderMaterial, UniformsUtils } from "../../three.module.js"
-import { Pass, FullScreenQuad } from "./Pass.js"
-import { FilmShader } from "../shaders/FilmShader.js"
+import {
+	ShaderMaterial,
+	UniformsUtils
+} from 'three';
+import { Pass, FullScreenQuad } from './Pass.js';
+import { FilmShader } from '../shaders/FilmShader.js';
 
 class FilmPass extends Pass {
-  constructor(noiseIntensity, scanlinesIntensity, scanlinesCount, grayscale) {
-    super()
 
-    const shader = FilmShader
+	constructor( noiseIntensity, scanlinesIntensity, scanlinesCount, grayscale ) {
 
-    this.uniforms = UniformsUtils.clone(shader.uniforms)
+		super();
 
-    this.material = new ShaderMaterial({
-      uniforms: this.uniforms,
-      vertexShader: shader.vertexShader,
-      fragmentShader: shader.fragmentShader,
-    })
+		const shader = FilmShader;
 
-    if (grayscale !== undefined) this.uniforms.grayscale.value = grayscale
-    if (noiseIntensity !== undefined) this.uniforms.nIntensity.value = noiseIntensity
-    if (scanlinesIntensity !== undefined) this.uniforms.sIntensity.value = scanlinesIntensity
-    if (scanlinesCount !== undefined) this.uniforms.sCount.value = scanlinesCount
+		this.uniforms = UniformsUtils.clone( shader.uniforms );
 
-    this.fsQuad = new FullScreenQuad(this.material)
-  }
+		this.material = new ShaderMaterial( {
 
-  render(renderer, writeBuffer, readBuffer, deltaTime /*, maskActive */) {
-    this.uniforms["tDiffuse"].value = readBuffer.texture
-    this.uniforms["time"].value += deltaTime
+			uniforms: this.uniforms,
+			vertexShader: shader.vertexShader,
+			fragmentShader: shader.fragmentShader
 
-    if (this.renderToScreen) {
-      renderer.setRenderTarget(null)
-      this.fsQuad.render(renderer)
-    } else {
-      renderer.setRenderTarget(writeBuffer)
-      if (this.clear) renderer.clear()
-      this.fsQuad.render(renderer)
-    }
-  }
+		} );
 
-  dispose() {
-    this.material.dispose()
+		if ( grayscale !== undefined )	this.uniforms.grayscale.value = grayscale;
+		if ( noiseIntensity !== undefined ) this.uniforms.nIntensity.value = noiseIntensity;
+		if ( scanlinesIntensity !== undefined ) this.uniforms.sIntensity.value = scanlinesIntensity;
+		if ( scanlinesCount !== undefined ) this.uniforms.sCount.value = scanlinesCount;
 
-    this.fsQuad.dispose()
-  }
+		this.fsQuad = new FullScreenQuad( this.material );
+
+	}
+
+	render( renderer, writeBuffer, readBuffer, deltaTime /*, maskActive */ ) {
+
+		this.uniforms[ 'tDiffuse' ].value = readBuffer.texture;
+		this.uniforms[ 'time' ].value += deltaTime;
+
+		if ( this.renderToScreen ) {
+
+			renderer.setRenderTarget( null );
+			this.fsQuad.render( renderer );
+
+		} else {
+
+			renderer.setRenderTarget( writeBuffer );
+			if ( this.clear ) renderer.clear();
+			this.fsQuad.render( renderer );
+
+		}
+
+	}
+
+	dispose() {
+
+		this.material.dispose();
+
+		this.fsQuad.dispose();
+
+	}
+
 }
 
-export { FilmPass }
+export { FilmPass };

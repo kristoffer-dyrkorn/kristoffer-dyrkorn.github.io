@@ -1,228 +1,259 @@
-import { Material, ShaderMaterial } from "../../../three.module.js"
-import { getNodesKeys, getCacheKey } from "../core/NodeUtils.js"
-import ExpressionNode from "../core/ExpressionNode.js"
+import { Material, ShaderMaterial } from 'three';
+import { getNodesKeys, getCacheKey } from '../core/NodeUtils.js';
+import ExpressionNode from '../core/ExpressionNode.js';
 import {
-  float,
-  vec3,
-  vec4,
-  assign,
-  label,
-  mul,
-  bypass,
-  attribute,
-  positionLocal,
-  skinning,
-  instance,
-  modelViewProjection,
-  lightingContext,
-  colorSpace,
-  materialAlphaTest,
-  materialColor,
-  materialOpacity,
-  reference,
-  rangeFog,
-  exp2Fog,
-} from "../shadernode/ShaderNodeElements.js"
+	float, vec3, vec4,
+	assign, label, mul, bypass, attribute,
+	positionLocal, skinning, instance, modelViewProjection, lightingContext, colorSpace,
+	materialAlphaTest, materialColor, materialOpacity, reference, rangeFog, exp2Fog
+} from '../shadernode/ShaderNodeElements.js';
 
 class NodeMaterial extends ShaderMaterial {
-  constructor() {
-    super()
 
-    this.isNodeMaterial = true
+	constructor() {
 
-    this.type = this.constructor.name
+		super();
 
-    this.lights = true
-  }
+		this.isNodeMaterial = true;
 
-  build(builder) {
-    this.generatePosition(builder)
+		this.type = this.constructor.name;
 
-    const { lightsNode } = this
-    const { diffuseColorNode } = this.generateDiffuseColor(builder)
+		this.lights = true;
 
-    const outgoingLightNode = this.generateLight(builder, { diffuseColorNode, lightsNode })
+	}
 
-    this.generateOutput(builder, { diffuseColorNode, outgoingLightNode })
-  }
+	build( builder ) {
 
-  customProgramCacheKey() {
-    return getCacheKey(this)
-  }
+		this.generatePosition( builder );
 
-  generatePosition(builder) {
-    const object = builder.object
+		const { lightsNode } = this;
+		const { diffuseColorNode } = this.generateDiffuseColor( builder );
 
-    // < VERTEX STAGE >
+		const outgoingLightNode = this.generateLight( builder, { diffuseColorNode, lightsNode } );
 
-    let vertex = positionLocal
+		this.generateOutput( builder, { diffuseColorNode, outgoingLightNode } );
 
-    if (this.positionNode !== null) {
-      vertex = bypass(vertex, assign(positionLocal, this.positionNode))
-    }
+	}
 
-    if (object.instanceMatrix?.isInstancedBufferAttribute === true && builder.isAvailable("instance") === true) {
-      vertex = bypass(vertex, instance(object))
-    }
+	customProgramCacheKey() {
 
-    if (object.isSkinnedMesh === true) {
-      vertex = bypass(vertex, skinning(object))
-    }
+		return getCacheKey( this );
 
-    builder.context.vertex = vertex
+	}
 
-    builder.addFlow("vertex", modelViewProjection())
-  }
+	generatePosition( builder ) {
 
-  generateDiffuseColor(builder) {
-    // < FRAGMENT STAGE >
+		const object = builder.object;
 
-    let colorNode = vec4(this.colorNode || materialColor)
-    let opacityNode = this.opacityNode ? float(this.opacityNode) : materialOpacity
+		// < VERTEX STAGE >
 
-    // VERTEX COLORS
+		let vertex = positionLocal;
 
-    if (this.vertexColors === true && builder.geometry.hasAttribute("color")) {
-      colorNode = vec4(mul(colorNode.xyz, attribute("color")), colorNode.a)
-    }
+		if ( this.positionNode !== null ) {
 
-    // COLOR
+			vertex = bypass( vertex, assign( positionLocal, this.positionNode ) );
 
-    colorNode = builder.addFlow("fragment", label(colorNode, "Color"))
-    const diffuseColorNode = builder.addFlow("fragment", label(colorNode, "DiffuseColor"))
+		}
 
-    // OPACITY
+		if ( object.instanceMatrix?.isInstancedBufferAttribute === true && builder.isAvailable( 'instance' ) === true ) {
 
-    opacityNode = builder.addFlow("fragment", label(opacityNode, "OPACITY"))
-    builder.addFlow("fragment", assign(diffuseColorNode.a, mul(diffuseColorNode.a, opacityNode)))
+			vertex = bypass( vertex, instance( object ) );
 
-    // ALPHA TEST
+		}
 
-    if (this.alphaTestNode || this.alphaTest > 0) {
-      const alphaTestNode = this.alphaTestNode ? float(this.alphaTestNode) : materialAlphaTest
+		if ( object.isSkinnedMesh === true ) {
 
-      builder.addFlow("fragment", label(alphaTestNode, "AlphaTest"))
+			vertex = bypass( vertex, skinning( object ) );
 
-      // @TODO: remove ExpressionNode here and then possibly remove it completely
-      builder.addFlow("fragment", new ExpressionNode("if ( DiffuseColor.a <= AlphaTest ) { discard; }"))
-    }
+		}
 
-    return { colorNode, diffuseColorNode }
-  }
+		builder.context.vertex = vertex;
 
-  generateLight(builder, { diffuseColorNode, lightingModelNode, lightsNode = builder.lightsNode }) {
-    // < ANALYTIC LIGHTS >
+		builder.addFlow( 'vertex', modelViewProjection() );
 
-    // OUTGOING LIGHT
+	}
 
-    let outgoingLightNode = diffuseColorNode.xyz
-    if (lightsNode && lightsNode.hasLight !== false)
-      outgoingLightNode = builder.addFlow("fragment", label(lightingContext(lightsNode, lightingModelNode), "Light"))
+	generateDiffuseColor( builder ) {
 
-    return outgoingLightNode
-  }
+		// < FRAGMENT STAGE >
 
-  generateOutput(builder, { diffuseColorNode, outgoingLightNode }) {
-    // OUTPUT
+		let colorNode = vec4( this.colorNode || materialColor );
+		let opacityNode = this.opacityNode ? float( this.opacityNode ) : materialOpacity;
 
-    let outputNode = vec4(outgoingLightNode, diffuseColorNode.a)
+		// VERTEX COLORS
 
-    // ENCODING
+		if ( this.vertexColors === true && builder.geometry.hasAttribute( 'color' ) ) {
 
-    outputNode = colorSpace(outputNode, builder.renderer.outputEncoding)
+			colorNode = vec4( mul( colorNode.xyz, attribute( 'color' ) ), colorNode.a );
+		
+		}
 
-    // FOG
+		// COLOR
 
-    let fogNode = builder.fogNode
+		colorNode = builder.addFlow( 'fragment', label( colorNode, 'Color' ) );
+		const diffuseColorNode = builder.addFlow( 'fragment', label( colorNode, 'DiffuseColor' ) );
 
-    if (fogNode?.isNode !== true && builder.scene.fog) {
-      const fog = builder.scene.fog
+		// OPACITY
 
-      if (fog.isFogExp2) {
-        fogNode = exp2Fog(reference("color", "color", fog), reference("density", "float", fog))
-      } else if (fog.isFog) {
-        fogNode = rangeFog(
-          reference("color", "color", fog),
-          reference("near", "float", fog),
-          reference("far", "float", fog)
-        )
-      } else {
-        console.error("NodeMaterial: Unsupported fog configuration.", fog)
-      }
-    }
+		opacityNode = builder.addFlow( 'fragment', label( opacityNode, 'OPACITY' ) );
+		builder.addFlow( 'fragment', assign( diffuseColorNode.a, mul( diffuseColorNode.a, opacityNode ) ) );
 
-    if (fogNode) outputNode = vec4(vec3(fogNode.mix(outputNode)), outputNode.w)
+		// ALPHA TEST
 
-    // RESULT
+		if ( this.alphaTestNode || this.alphaTest > 0 ) {
 
-    builder.addFlow("fragment", label(outputNode, "Output"))
+			const alphaTestNode = this.alphaTestNode ? float( this.alphaTestNode ) : materialAlphaTest;
 
-    return outputNode
-  }
+			builder.addFlow( 'fragment', label( alphaTestNode, 'AlphaTest' ) );
 
-  setDefaultValues(values) {
-    // This approach is to reuse the native refreshUniforms*
-    // and turn available the use of features like transmission and environment in core
+			// @TODO: remove ExpressionNode here and then possibly remove it completely
+			builder.addFlow( 'fragment', new ExpressionNode( 'if ( DiffuseColor.a <= AlphaTest ) { discard; }' ) );
 
-    for (const property in values) {
-      const value = values[property]
+		}
 
-      if (this[property] === undefined) {
-        this[property] = value?.clone?.() || value
-      }
-    }
+		return { colorNode, diffuseColorNode };
 
-    Object.assign(this.defines, values.defines)
-  }
+	}
 
-  toJSON(meta) {
-    const isRoot = meta === undefined || typeof meta === "string"
+	generateLight( builder, { diffuseColorNode, lightingModelNode, lightsNode = builder.lightsNode } ) {
 
-    if (isRoot) {
-      meta = {
-        textures: {},
-        images: {},
-        nodes: {},
-      }
-    }
+		// < ANALYTIC LIGHTS >
 
-    const data = Material.prototype.toJSON.call(this, meta)
-    const nodeKeys = getNodesKeys(this)
+		// OUTGOING LIGHT
 
-    data.inputNodes = {}
+		let outgoingLightNode = diffuseColorNode.xyz;
+		if ( lightsNode && lightsNode.hasLight !== false ) outgoingLightNode = builder.addFlow( 'fragment', label( lightingContext( lightsNode, lightingModelNode ), 'Light' ) );
 
-    for (const name of nodeKeys) {
-      data.inputNodes[name] = this[name].toJSON(meta).uuid
-    }
+		return outgoingLightNode;
 
-    // TODO: Copied from Object3D.toJSON
+	}
 
-    function extractFromCache(cache) {
-      const values = []
+	generateOutput( builder, { diffuseColorNode, outgoingLightNode } ) {
 
-      for (const key in cache) {
-        const data = cache[key]
-        delete data.metadata
-        values.push(data)
-      }
+		// OUTPUT
 
-      return values
-    }
+		let outputNode = vec4( outgoingLightNode, diffuseColorNode.a );
 
-    if (isRoot) {
-      const textures = extractFromCache(meta.textures)
-      const images = extractFromCache(meta.images)
-      const nodes = extractFromCache(meta.nodes)
+		// ENCODING
 
-      if (textures.length > 0) data.textures = textures
-      if (images.length > 0) data.images = images
-      if (nodes.length > 0) data.nodes = nodes
-    }
+		outputNode = colorSpace( outputNode, builder.renderer.outputEncoding );
 
-    return data
-  }
+		// FOG
 
-  static fromMaterial(/*material*/) {}
+		let fogNode = builder.fogNode;
+
+		if ( fogNode?.isNode !== true && builder.scene.fog ) {
+
+			const fog = builder.scene.fog;
+
+			if ( fog.isFogExp2 ) {
+
+				fogNode = exp2Fog( reference( 'color', 'color', fog ), reference( 'density', 'float', fog ) );
+
+			} else if ( fog.isFog ) {
+
+				fogNode = rangeFog( reference( 'color', 'color', fog ), reference( 'near', 'float', fog ), reference( 'far', 'float', fog ) );
+
+			} else {
+
+				console.error( 'NodeMaterial: Unsupported fog configuration.', fog );
+
+			}
+			
+		}
+
+		if ( fogNode ) outputNode = vec4( vec3( fogNode.mix( outputNode ) ), outputNode.w );
+
+		// RESULT
+
+		builder.addFlow( 'fragment', label( outputNode, 'Output' ) );
+
+		return outputNode;
+
+	}
+
+	setDefaultValues( values ) {
+
+		// This approach is to reuse the native refreshUniforms*
+		// and turn available the use of features like transmission and environment in core
+
+		for ( const property in values ) {
+
+			const value = values[ property ];
+
+			if ( this[ property ] === undefined ) {
+
+				this[ property ] = value?.clone?.() || value;
+
+			}
+
+		}
+
+		Object.assign( this.defines, values.defines );
+
+	}
+
+	toJSON( meta ) {
+
+		const isRoot = ( meta === undefined || typeof meta === 'string' );
+
+		if ( isRoot ) {
+
+			meta = {
+				textures: {},
+				images: {},
+				nodes: {}
+			};
+
+		}
+
+		const data = Material.prototype.toJSON.call( this, meta );
+		const nodeKeys = getNodesKeys( this );
+
+		data.inputNodes = {};
+
+		for ( const name of nodeKeys ) {
+
+			data.inputNodes[ name ] = this[ name ].toJSON( meta ).uuid;
+
+		}
+
+		// TODO: Copied from Object3D.toJSON
+
+		function extractFromCache( cache ) {
+
+			const values = [];
+
+			for ( const key in cache ) {
+
+				const data = cache[ key ];
+				delete data.metadata;
+				values.push( data );
+
+			}
+
+			return values;
+
+		}
+
+		if ( isRoot ) {
+
+			const textures = extractFromCache( meta.textures );
+			const images = extractFromCache( meta.images );
+			const nodes = extractFromCache( meta.nodes );
+
+			if ( textures.length > 0 ) data.textures = textures;
+			if ( images.length > 0 ) data.images = images;
+			if ( nodes.length > 0 ) data.nodes = nodes;
+
+		}
+
+		return data;
+
+	}
+
+	static fromMaterial( /*material*/ ) { }
+
 }
 
-export default NodeMaterial
+export default NodeMaterial;

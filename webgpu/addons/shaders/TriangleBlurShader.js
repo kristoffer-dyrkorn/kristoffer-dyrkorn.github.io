@@ -1,4 +1,6 @@
-import { Vector2 } from "../../three.module.js"
+import {
+	Vector2
+} from 'three';
 
 /**
  * Triangle blur shader
@@ -11,12 +13,15 @@ import { Vector2 } from "../../three.module.js"
  */
 
 const TriangleBlurShader = {
-  uniforms: {
-    texture: { value: null },
-    delta: { value: new Vector2(1, 1) },
-  },
 
-  vertexShader: /* glsl */ `
+	uniforms: {
+
+		'texture': { value: null },
+		'delta': { value: new Vector2( 1, 1 ) }
+
+	},
+
+	vertexShader: /* glsl */`
 
 		varying vec2 vUv;
 
@@ -27,7 +32,7 @@ const TriangleBlurShader = {
 
 		}`,
 
-  fragmentShader: /* glsl */ `
+	fragmentShader: /* glsl */`
 
 		#include <common>
 
@@ -60,7 +65,8 @@ const TriangleBlurShader = {
 
 			gl_FragColor = color / total;
 
-		}`,
-}
+		}`
 
-export { TriangleBlurShader }
+};
+
+export { TriangleBlurShader };

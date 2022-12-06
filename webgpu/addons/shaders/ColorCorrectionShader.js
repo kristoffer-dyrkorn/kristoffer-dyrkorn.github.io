@@ -1,18 +1,23 @@
-import { Vector3 } from "../../three.module.js"
+import {
+	Vector3
+} from 'three';
 
 /**
  * Color correction
  */
 
 const ColorCorrectionShader = {
-  uniforms: {
-    tDiffuse: { value: null },
-    powRGB: { value: new Vector3(2, 2, 2) },
-    mulRGB: { value: new Vector3(1, 1, 1) },
-    addRGB: { value: new Vector3(0, 0, 0) },
-  },
 
-  vertexShader: /* glsl */ `
+	uniforms: {
+
+		'tDiffuse': { value: null },
+		'powRGB': { value: new Vector3( 2, 2, 2 ) },
+		'mulRGB': { value: new Vector3( 1, 1, 1 ) },
+		'addRGB': { value: new Vector3( 0, 0, 0 ) }
+
+	},
+
+	vertexShader: /* glsl */`
 
 		varying vec2 vUv;
 
@@ -24,7 +29,7 @@ const ColorCorrectionShader = {
 
 		}`,
 
-  fragmentShader: /* glsl */ `
+	fragmentShader: /* glsl */`
 
 		uniform sampler2D tDiffuse;
 		uniform vec3 powRGB;
@@ -38,7 +43,8 @@ const ColorCorrectionShader = {
 			gl_FragColor = texture2D( tDiffuse, vUv );
 			gl_FragColor.rgb = mulRGB * pow( ( gl_FragColor.rgb + addRGB ), powRGB );
 
-		}`,
-}
+		}`
 
-export { ColorCorrectionShader }
+};
+
+export { ColorCorrectionShader };

@@ -1,64 +1,70 @@
-import MeshStandardNodeMaterial from "./MeshStandardNodeMaterial.js"
+import MeshStandardNodeMaterial from './MeshStandardNodeMaterial.js';
 
-import { MeshPhysicalMaterial } from "../../../three.module.js"
+import { MeshPhysicalMaterial } from 'three';
 
-const defaultValues = new MeshPhysicalMaterial()
+const defaultValues = new MeshPhysicalMaterial();
 
 export default class MeshPhysicalNodeMaterial extends MeshStandardNodeMaterial {
-  constructor(parameters) {
-    super()
 
-    this.isMeshPhysicalNodeMaterial = true
+	constructor( parameters ) {
 
-    this.clearcoatNode = null
-    this.clearcoatRoughnessNode = null
-    this.clearcoatNormalNode = null
+		super();
 
-    this.sheenNode = null
-    this.sheenRoughnessNode = null
+		this.isMeshPhysicalNodeMaterial = true;
 
-    this.iridescenceNode = null
-    this.iridescenceIORNode = null
-    this.iridescenceThicknessNode = null
+		this.clearcoatNode = null;
+		this.clearcoatRoughnessNode = null;
+		this.clearcoatNormalNode = null;
 
-    this.specularIntensityNode = null
-    this.specularColorNode = null
+		this.sheenNode = null;
+		this.sheenRoughnessNode = null;
 
-    this.transmissionNode = null
-    this.thicknessNode = null
-    this.attenuationDistanceNode = null
-    this.attenuationColorNode = null
+		this.iridescenceNode = null;
+		this.iridescenceIORNode = null;
+		this.iridescenceThicknessNode = null;
 
-    this.sheen = 0
-    this.clearcoat = 0
-    this.iridescence = 0
-    this.transmission = 0
+		this.specularIntensityNode = null;
+		this.specularColorNode = null;
 
-    this.setDefaultValues(defaultValues)
+		this.transmissionNode = null;
+		this.thicknessNode = null;
+		this.attenuationDistanceNode = null;
+		this.attenuationColorNode = null;
 
-    this.setValues(parameters)
-  }
+		this.sheen = 0;
+		this.clearcoat = 0;
+		this.iridescence = 0;
+		this.transmission = 0;
 
-  copy(source) {
-    this.clearcoatNode = source.clearcoatNode
-    this.clearcoatRoughnessNode = source.clearcoatRoughnessNode
-    this.clearcoatNormalNode = source.clearcoatNormalNode
+		this.setDefaultValues( defaultValues );
 
-    this.sheenNode = source.sheenNode
-    this.sheenRoughnessNode = source.sheenRoughnessNode
+		this.setValues( parameters );
 
-    this.iridescenceNode = source.iridescenceNode
-    this.iridescenceIORNode = source.iridescenceIORNode
-    this.iridescenceThicknessNode = source.iridescenceThicknessNode
+	}
 
-    this.specularIntensityNode = source.specularIntensityNode
-    this.specularColorNode = source.specularColorNode
+	copy( source ) {
 
-    this.transmissionNode = source.transmissionNode
-    this.thicknessNode = source.thicknessNode
-    this.attenuationDistanceNode = source.attenuationDistanceNode
-    this.attenuationColorNode = source.attenuationColorNode
+		this.clearcoatNode = source.clearcoatNode;
+		this.clearcoatRoughnessNode = source.clearcoatRoughnessNode;
+		this.clearcoatNormalNode = source.clearcoatNormalNode;
 
-    return super.copy(source)
-  }
+		this.sheenNode = source.sheenNode;
+		this.sheenRoughnessNode = source.sheenRoughnessNode;
+
+		this.iridescenceNode = source.iridescenceNode;
+		this.iridescenceIORNode = source.iridescenceIORNode;
+		this.iridescenceThicknessNode = source.iridescenceThicknessNode;
+
+		this.specularIntensityNode = source.specularIntensityNode;
+		this.specularColorNode = source.specularColorNode;
+
+		this.transmissionNode = source.transmissionNode;
+		this.thicknessNode = source.thicknessNode;
+		this.attenuationDistanceNode = source.attenuationDistanceNode;
+		this.attenuationColorNode = source.attenuationColorNode;
+
+		return super.copy( source );
+
+	}
+
 }

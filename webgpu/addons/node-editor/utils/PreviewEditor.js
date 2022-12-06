@@ -1,152 +1,170 @@
-import { OrbitControls } from "../../controls/OrbitControls.js"
-import { ViewHelper } from "../../helpers/ViewHelper.js"
-import { Element, LabelElement, SelectInput } from "../../libs/flow.module.js"
-import { BaseNode } from "../core/BaseNode.js"
-import { MeshBasicNodeMaterial, ConstNode } from "three/nodes"
-import {
-  WebGLRenderer,
-  PerspectiveCamera,
-  Scene,
-  Mesh,
-  DoubleSide,
-  SphereGeometry,
-  BoxGeometry,
-  PlaneGeometry,
-  TorusKnotGeometry,
-} from "../../three.module.js"
+import { OrbitControls } from '../../controls/OrbitControls.js';
+import { ViewHelper } from '../../helpers/ViewHelper.js';
+import { Element, LabelElement, SelectInput } from '../../libs/flow.module.js';
+import { BaseNode } from '../core/BaseNode.js';
+import { MeshBasicNodeMaterial, ConstNode } from 'three/nodes';
+import { WebGLRenderer, PerspectiveCamera, Scene, Mesh, DoubleSide, SphereGeometry, BoxGeometry, PlaneGeometry, TorusKnotGeometry } from 'three';
 
-const nullValue = new ConstNode(0)
+const nullValue = new ConstNode( 0 );
 
-const sceneDict = {}
+const sceneDict = {};
 
-const getScene = (name) => {
-  let scene = sceneDict[name]
+const getScene = ( name ) => {
 
-  if (scene === undefined) {
-    scene = new Scene()
+	let scene = sceneDict[ name ];
 
-    if (name === "box") {
-      const box = new Mesh(new BoxGeometry(1.3, 1.3, 1.3))
-      scene.add(box)
-    } else if (name === "sphere") {
-      const sphere = new Mesh(new SphereGeometry(1, 32, 16))
-      scene.add(sphere)
-    } else if (name === "plane" || name === "sprite") {
-      const plane = new Mesh(new PlaneGeometry(2, 2))
-      scene.add(plane)
-    } else if (name === "torus") {
-      const torus = new Mesh(new TorusKnotGeometry(0.7, 0.1, 100, 16))
-      scene.add(torus)
-    }
+	if ( scene === undefined ) {
 
-    sceneDict[name] = scene
-  }
+		scene = new Scene();
 
-  return scene
-}
+		if ( name === 'box' ) {
+
+			const box = new Mesh( new BoxGeometry( 1.3, 1.3, 1.3 ) );
+			scene.add( box );
+
+		} else if ( name === 'sphere' ) {
+
+			const sphere = new Mesh( new SphereGeometry( 1, 32, 16 ) );
+			scene.add( sphere );
+
+		} else if ( name === 'plane' || name === 'sprite' ) {
+
+			const plane = new Mesh( new PlaneGeometry( 2, 2 ) );
+			scene.add( plane );
+
+
+		} else if ( name === 'torus' ) {
+
+			const torus = new Mesh( new TorusKnotGeometry( .7, .1, 100, 16 ) );
+			scene.add( torus );
+
+		}
+
+		sceneDict[ name ] = scene;
+
+	}
+
+	return scene;
+
+};
 
 export class PreviewEditor extends BaseNode {
-  constructor() {
-    const width = 300
-    const height = 300
 
-    super("Preview", 0, null, height)
+	constructor() {
 
-    const material = new MeshBasicNodeMaterial()
-    material.colorNode = nullValue
-    material.side = DoubleSide
-    material.transparent = true
+		const width = 300;
+		const height = 300;
 
-    const previewElement = new Element()
-    previewElement.dom.style["padding-top"] = 0
-    previewElement.dom.style["padding-bottom"] = 0
-    previewElement.dom.style["padding-left"] = 0
-    previewElement.dom.style["padding-right"] = "14px"
+		super( 'Preview', 0, null, height );
 
-    const sceneInput = new SelectInput(
-      [
-        { name: "Box", value: "box" },
-        { name: "Sphere", value: "sphere" },
-        { name: "Plane", value: "plane" },
-        { name: "Sprite", value: "sprite" },
-        { name: "Torus", value: "torus" },
-      ],
-      "box"
-    )
+		const material = new MeshBasicNodeMaterial();
+		material.colorNode = nullValue;
+		material.side = DoubleSide;
+		material.transparent = true;
 
-    const inputElement = new LabelElement("Input").setInput(4).onConnect(() => {
-      material.colorNode = inputElement.getLinkedObject() || nullValue
-      material.dispose()
-    }, true)
+		const previewElement = new Element();
+		previewElement.dom.style[ 'padding-top' ] = 0;
+		previewElement.dom.style[ 'padding-bottom' ] = 0;
+		previewElement.dom.style[ 'padding-left' ] = 0;
+		previewElement.dom.style[ 'padding-right' ] = '14px';
 
-    const canvas = document.createElement("canvas")
-    canvas.style.position = "absolute"
-    previewElement.dom.append(canvas)
-    previewElement.setHeight(height)
+		const sceneInput = new SelectInput( [
+			{ name: 'Box', value: 'box' },
+			{ name: 'Sphere', value: 'sphere' },
+			{ name: 'Plane', value: 'plane' },
+			{ name: 'Sprite', value: 'sprite' },
+			{ name: 'Torus', value: 'torus' }
+		], 'box' );
 
-    previewElement.dom.addEventListener("wheel", (e) => e.stopPropagation())
+		const inputElement = new LabelElement( 'Input' ).setInput( 4 ).onConnect( () => {
 
-    const renderer = new WebGLRenderer({
-      canvas,
-      alpha: true,
-    })
+			material.colorNode = inputElement.getLinkedObject() || nullValue;
+			material.dispose();
 
-    renderer.autoClear = false
-    renderer.setSize(width, height, true)
-    renderer.setPixelRatio(window.devicePixelRatio)
+		}, true );
 
-    const camera = new PerspectiveCamera(45, width / height, 0.1, 100)
-    camera.aspect = width / height
-    camera.updateProjectionMatrix()
-    camera.position.set(-2, 2, 2)
-    camera.lookAt(0, 0, 0)
+		const canvas = document.createElement( 'canvas' );
+		canvas.style.position = 'absolute';
+		previewElement.dom.append( canvas );
+		previewElement.setHeight( height );
 
-    const controls = new OrbitControls(camera, previewElement.dom)
-    controls.enableKeys = false
-    controls.update()
+		previewElement.dom.addEventListener( 'wheel', e => e.stopPropagation() );
 
-    const viewHelper = new ViewHelper(camera, previewElement.dom)
+		const renderer = new WebGLRenderer( {
+			canvas,
+			alpha: true
+		} );
 
-    this.sceneInput = sceneInput
-    this.viewHelper = viewHelper
-    this.material = material
-    this.camera = camera
-    this.renderer = renderer
+		renderer.autoClear = false;
+		renderer.setSize( width, height, true );
+		renderer.setPixelRatio( window.devicePixelRatio );
 
-    this.add(inputElement).add(new LabelElement("Object").add(sceneInput)).add(previewElement)
-  }
+		const camera = new PerspectiveCamera( 45, width / height, 0.1, 100 );
+		camera.aspect = width / height;
+		camera.updateProjectionMatrix();
+		camera.position.set( - 2, 2, 2 );
+		camera.lookAt( 0, 0, 0 );
 
-  setEditor(editor) {
-    super.setEditor(editor)
+		const controls = new OrbitControls( camera, previewElement.dom );
+		controls.enableKeys = false;
+		controls.update();
 
-    this.updateAnimationRequest()
-  }
+		const viewHelper = new ViewHelper( camera, previewElement.dom );
 
-  updateAnimationRequest() {
-    if (this.editor !== null) {
-      requestAnimationFrame(() => this.update())
-    }
-  }
+		this.sceneInput = sceneInput;
+		this.viewHelper = viewHelper;
+		this.material = material;
+		this.camera = camera;
+		this.renderer = renderer;
 
-  update() {
-    const { viewHelper, material, renderer, camera, sceneInput } = this
+		this.add( inputElement )
+			.add( new LabelElement( 'Object' ).add( sceneInput ) )
+			.add( previewElement );
 
-    this.updateAnimationRequest()
+	}
 
-    const sceneName = sceneInput.getValue()
+	setEditor( editor ) {
 
-    const scene = getScene(sceneName)
-    const mesh = scene.children[0]
+		super.setEditor( editor );
 
-    mesh.material = material
+		this.updateAnimationRequest();
 
-    if (sceneName === "sprite") {
-      mesh.lookAt(camera.position)
-    }
+	}
 
-    renderer.clear()
-    renderer.render(scene, camera)
+	updateAnimationRequest() {
 
-    viewHelper.render(renderer)
-  }
+		if ( this.editor !== null ) {
+
+			requestAnimationFrame( () => this.update() );
+
+		}
+
+	}
+
+	update() {
+
+		const { viewHelper, material, renderer, camera, sceneInput } = this;
+
+		this.updateAnimationRequest();
+
+		const sceneName = sceneInput.getValue();
+
+		const scene = getScene( sceneName );
+		const mesh = scene.children[ 0 ];
+
+		mesh.material = material;
+
+		if ( sceneName === 'sprite' ) {
+
+			mesh.lookAt( camera.position );
+
+		}
+
+		renderer.clear();
+		renderer.render( scene, camera );
+
+		viewHelper.render( renderer );
+
+	}
+
 }

@@ -1,145 +1,168 @@
 import {
-  LinearFilter,
-  Matrix3,
-  Mesh,
-  NearestFilter,
-  OrthographicCamera,
-  PlaneGeometry,
-  RGBAFormat,
-  Scene,
-  ShaderMaterial,
-  StereoCamera,
-  WebGLRenderTarget,
-} from "../../three.module.js"
+	LinearFilter,
+	Matrix3,
+	Mesh,
+	NearestFilter,
+	OrthographicCamera,
+	PlaneGeometry,
+	RGBAFormat,
+	Scene,
+	ShaderMaterial,
+	StereoCamera,
+	WebGLRenderTarget
+} from 'three';
 
 class AnaglyphEffect {
-  constructor(renderer, width = 512, height = 512) {
-    // Dubois matrices from https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.7.6968&rep=rep1&type=pdf#page=4
 
-    this.colorMatrixLeft = new Matrix3().fromArray([
-      0.4561, -0.0400822, -0.0152161, 0.500484, -0.0378246, -0.0205971, 0.176381, -0.0157589, -0.00546856,
-    ])
+	constructor( renderer, width = 512, height = 512 ) {
 
-    this.colorMatrixRight = new Matrix3().fromArray([
-      -0.0434706, 0.378476, -0.0721527, -0.0879388, 0.73364, -0.112961, -0.00155529, -0.0184503, 1.2264,
-    ])
+		// Dubois matrices from https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.7.6968&rep=rep1&type=pdf#page=4
 
-    const _camera = new OrthographicCamera(-1, 1, 1, -1, 0, 1)
+		this.colorMatrixLeft = new Matrix3().fromArray( [
+			0.456100, - 0.0400822, - 0.0152161,
+			0.500484, - 0.0378246, - 0.0205971,
+			0.176381, - 0.0157589, - 0.00546856
+		] );
 
-    const _scene = new Scene()
+		this.colorMatrixRight = new Matrix3().fromArray( [
+			- 0.0434706, 0.378476, - 0.0721527,
+			- 0.0879388, 0.73364, - 0.112961,
+			- 0.00155529, - 0.0184503, 1.2264
+		] );
 
-    const _stereo = new StereoCamera()
+		const _camera = new OrthographicCamera( - 1, 1, 1, - 1, 0, 1 );
 
-    const _params = { minFilter: LinearFilter, magFilter: NearestFilter, format: RGBAFormat }
+		const _scene = new Scene();
 
-    const _renderTargetL = new WebGLRenderTarget(width, height, _params)
-    const _renderTargetR = new WebGLRenderTarget(width, height, _params)
+		const _stereo = new StereoCamera();
 
-    const _material = new ShaderMaterial({
-      uniforms: {
-        mapLeft: { value: _renderTargetL.texture },
-        mapRight: { value: _renderTargetR.texture },
+		const _params = { minFilter: LinearFilter, magFilter: NearestFilter, format: RGBAFormat };
 
-        colorMatrixLeft: { value: this.colorMatrixLeft },
-        colorMatrixRight: { value: this.colorMatrixRight },
-      },
+		const _renderTargetL = new WebGLRenderTarget( width, height, _params );
+		const _renderTargetR = new WebGLRenderTarget( width, height, _params );
 
-      vertexShader: [
-        "varying vec2 vUv;",
+		const _material = new ShaderMaterial( {
 
-        "void main() {",
+			uniforms: {
 
-        "	vUv = vec2( uv.x, uv.y );",
-        "	gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );",
+				'mapLeft': { value: _renderTargetL.texture },
+				'mapRight': { value: _renderTargetR.texture },
 
-        "}",
-      ].join("\n"),
+				'colorMatrixLeft': { value: this.colorMatrixLeft },
+				'colorMatrixRight': { value: this.colorMatrixRight }
 
-      fragmentShader: [
-        "uniform sampler2D mapLeft;",
-        "uniform sampler2D mapRight;",
-        "varying vec2 vUv;",
+			},
 
-        "uniform mat3 colorMatrixLeft;",
-        "uniform mat3 colorMatrixRight;",
+			vertexShader: [
 
-        // These functions implement sRGB linearization and gamma correction
+				'varying vec2 vUv;',
 
-        "float lin( float c ) {",
-        "	return c <= 0.04045 ? c * 0.0773993808 :",
-        "			pow( c * 0.9478672986 + 0.0521327014, 2.4 );",
-        "}",
+				'void main() {',
 
-        "vec4 lin( vec4 c ) {",
-        "	return vec4( lin( c.r ), lin( c.g ), lin( c.b ), c.a );",
-        "}",
+				'	vUv = vec2( uv.x, uv.y );',
+				'	gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );',
 
-        "float dev( float c ) {",
-        "	return c <= 0.0031308 ? c * 12.92",
-        "			: pow( c, 0.41666 ) * 1.055 - 0.055;",
-        "}",
+				'}'
 
-        "void main() {",
+			].join( '\n' ),
 
-        "	vec2 uv = vUv;",
+			fragmentShader: [
 
-        "	vec4 colorL = lin( texture2D( mapLeft, uv ) );",
-        "	vec4 colorR = lin( texture2D( mapRight, uv ) );",
+				'uniform sampler2D mapLeft;',
+				'uniform sampler2D mapRight;',
+				'varying vec2 vUv;',
 
-        "	vec3 color = clamp(",
-        "			colorMatrixLeft * colorL.rgb +",
-        "			colorMatrixRight * colorR.rgb, 0., 1. );",
+				'uniform mat3 colorMatrixLeft;',
+				'uniform mat3 colorMatrixRight;',
 
-        "	gl_FragColor = vec4(",
-        "			dev( color.r ), dev( color.g ), dev( color.b ),",
-        "			max( colorL.a, colorR.a ) );",
+				// These functions implement sRGB linearization and gamma correction
 
-        "}",
-      ].join("\n"),
-    })
+				'float lin( float c ) {',
+				'	return c <= 0.04045 ? c * 0.0773993808 :',
+				'			pow( c * 0.9478672986 + 0.0521327014, 2.4 );',
+				'}',
 
-    const _mesh = new Mesh(new PlaneGeometry(2, 2), _material)
-    _scene.add(_mesh)
+				'vec4 lin( vec4 c ) {',
+				'	return vec4( lin( c.r ), lin( c.g ), lin( c.b ), c.a );',
+				'}',
 
-    this.setSize = function (width, height) {
-      renderer.setSize(width, height)
+				'float dev( float c ) {',
+				'	return c <= 0.0031308 ? c * 12.92',
+				'			: pow( c, 0.41666 ) * 1.055 - 0.055;',
+				'}',
 
-      const pixelRatio = renderer.getPixelRatio()
 
-      _renderTargetL.setSize(width * pixelRatio, height * pixelRatio)
-      _renderTargetR.setSize(width * pixelRatio, height * pixelRatio)
-    }
+				'void main() {',
 
-    this.render = function (scene, camera) {
-      const currentRenderTarget = renderer.getRenderTarget()
+				'	vec2 uv = vUv;',
 
-      if (scene.matrixWorldAutoUpdate === true) scene.updateMatrixWorld()
+				'	vec4 colorL = lin( texture2D( mapLeft, uv ) );',
+				'	vec4 colorR = lin( texture2D( mapRight, uv ) );',
 
-      if (camera.parent === null && camera.matrixWorldAutoUpdate === true) camera.updateMatrixWorld()
+				'	vec3 color = clamp(',
+				'			colorMatrixLeft * colorL.rgb +',
+				'			colorMatrixRight * colorR.rgb, 0., 1. );',
 
-      _stereo.update(camera)
+				'	gl_FragColor = vec4(',
+				'			dev( color.r ), dev( color.g ), dev( color.b ),',
+				'			max( colorL.a, colorR.a ) );',
 
-      renderer.setRenderTarget(_renderTargetL)
-      renderer.clear()
-      renderer.render(scene, _stereo.cameraL)
+				'}'
 
-      renderer.setRenderTarget(_renderTargetR)
-      renderer.clear()
-      renderer.render(scene, _stereo.cameraR)
+			].join( '\n' )
 
-      renderer.setRenderTarget(null)
-      renderer.render(_scene, _camera)
+		} );
 
-      renderer.setRenderTarget(currentRenderTarget)
-    }
+		const _mesh = new Mesh( new PlaneGeometry( 2, 2 ), _material );
+		_scene.add( _mesh );
 
-    this.dispose = function () {
-      _renderTargetL.dispose()
-      _renderTargetR.dispose()
-      _mesh.geometry.dispose()
-      _mesh.material.dispose()
-    }
-  }
+		this.setSize = function ( width, height ) {
+
+			renderer.setSize( width, height );
+
+			const pixelRatio = renderer.getPixelRatio();
+
+			_renderTargetL.setSize( width * pixelRatio, height * pixelRatio );
+			_renderTargetR.setSize( width * pixelRatio, height * pixelRatio );
+
+		};
+
+		this.render = function ( scene, camera ) {
+
+			const currentRenderTarget = renderer.getRenderTarget();
+
+			if ( scene.matrixWorldAutoUpdate === true ) scene.updateMatrixWorld();
+
+			if ( camera.parent === null && camera.matrixWorldAutoUpdate === true ) camera.updateMatrixWorld();
+
+			_stereo.update( camera );
+
+			renderer.setRenderTarget( _renderTargetL );
+			renderer.clear();
+			renderer.render( scene, _stereo.cameraL );
+
+			renderer.setRenderTarget( _renderTargetR );
+			renderer.clear();
+			renderer.render( scene, _stereo.cameraR );
+
+			renderer.setRenderTarget( null );
+			renderer.render( _scene, _camera );
+
+			renderer.setRenderTarget( currentRenderTarget );
+
+		};
+
+		this.dispose = function () {
+
+			_renderTargetL.dispose();
+			_renderTargetR.dispose();
+			_mesh.geometry.dispose();
+			_mesh.material.dispose();
+
+		};
+
+	}
+
 }
 
-export { AnaglyphEffect }
+export { AnaglyphEffect };

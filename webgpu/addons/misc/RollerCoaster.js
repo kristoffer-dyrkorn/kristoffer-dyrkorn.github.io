@@ -1,485 +1,560 @@
-import { BufferAttribute, BufferGeometry, Quaternion, Raycaster, Vector3 } from "../../three.module.js"
+import {
+	BufferAttribute,
+	BufferGeometry,
+	Quaternion,
+	Raycaster,
+	Vector3
+} from 'three';
 
 class RollerCoasterGeometry extends BufferGeometry {
-  constructor(curve, divisions) {
-    super()
 
-    const vertices = []
-    const normals = []
-    const colors = []
+	constructor( curve, divisions ) {
 
-    const color1 = [1, 1, 1]
-    const color2 = [1, 1, 0]
+		super();
 
-    const up = new Vector3(0, 1, 0)
-    const forward = new Vector3()
-    const right = new Vector3()
+		const vertices = [];
+		const normals = [];
+		const colors = [];
 
-    const quaternion = new Quaternion()
-    const prevQuaternion = new Quaternion()
-    prevQuaternion.setFromAxisAngle(up, Math.PI / 2)
+		const color1 = [ 1, 1, 1 ];
+		const color2 = [ 1, 1, 0 ];
 
-    const point = new Vector3()
-    const prevPoint = new Vector3()
-    prevPoint.copy(curve.getPointAt(0))
+		const up = new Vector3( 0, 1, 0 );
+		const forward = new Vector3();
+		const right = new Vector3();
 
-    // shapes
+		const quaternion = new Quaternion();
+		const prevQuaternion = new Quaternion();
+		prevQuaternion.setFromAxisAngle( up, Math.PI / 2 );
 
-    const step = [
-      new Vector3(-0.225, 0, 0),
-      new Vector3(0, -0.05, 0),
-      new Vector3(0, -0.175, 0),
+		const point = new Vector3();
+		const prevPoint = new Vector3();
+		prevPoint.copy( curve.getPointAt( 0 ) );
 
-      new Vector3(0, -0.05, 0),
-      new Vector3(0.225, 0, 0),
-      new Vector3(0, -0.175, 0),
-    ]
+		// shapes
 
-    const PI2 = Math.PI * 2
+		const step = [
+			new Vector3( - 0.225, 0, 0 ),
+			new Vector3( 0, - 0.050, 0 ),
+			new Vector3( 0, - 0.175, 0 ),
 
-    let sides = 5
-    const tube1 = []
+			new Vector3( 0, - 0.050, 0 ),
+			new Vector3( 0.225, 0, 0 ),
+			new Vector3( 0, - 0.175, 0 )
+		];
 
-    for (let i = 0; i < sides; i++) {
-      const angle = (i / sides) * PI2
-      tube1.push(new Vector3(Math.sin(angle) * 0.06, Math.cos(angle) * 0.06, 0))
-    }
+		const PI2 = Math.PI * 2;
 
-    sides = 6
-    const tube2 = []
+		let sides = 5;
+		const tube1 = [];
 
-    for (let i = 0; i < sides; i++) {
-      const angle = (i / sides) * PI2
-      tube2.push(new Vector3(Math.sin(angle) * 0.025, Math.cos(angle) * 0.025, 0))
-    }
+		for ( let i = 0; i < sides; i ++ ) {
 
-    const vector = new Vector3()
-    const normal = new Vector3()
+			const angle = ( i / sides ) * PI2;
+			tube1.push( new Vector3( Math.sin( angle ) * 0.06, Math.cos( angle ) * 0.06, 0 ) );
 
-    function drawShape(shape, color) {
-      normal.set(0, 0, -1).applyQuaternion(quaternion)
+		}
 
-      for (let j = 0; j < shape.length; j++) {
-        vector.copy(shape[j])
-        vector.applyQuaternion(quaternion)
-        vector.add(point)
+		sides = 6;
+		const tube2 = [];
 
-        vertices.push(vector.x, vector.y, vector.z)
-        normals.push(normal.x, normal.y, normal.z)
-        colors.push(color[0], color[1], color[2])
-      }
+		for ( let i = 0; i < sides; i ++ ) {
 
-      normal.set(0, 0, 1).applyQuaternion(quaternion)
+			const angle = ( i / sides ) * PI2;
+			tube2.push( new Vector3( Math.sin( angle ) * 0.025, Math.cos( angle ) * 0.025, 0 ) );
 
-      for (let j = shape.length - 1; j >= 0; j--) {
-        vector.copy(shape[j])
-        vector.applyQuaternion(quaternion)
-        vector.add(point)
+		}
 
-        vertices.push(vector.x, vector.y, vector.z)
-        normals.push(normal.x, normal.y, normal.z)
-        colors.push(color[0], color[1], color[2])
-      }
-    }
+		const vector = new Vector3();
+		const normal = new Vector3();
 
-    const vector1 = new Vector3()
-    const vector2 = new Vector3()
-    const vector3 = new Vector3()
-    const vector4 = new Vector3()
+		function drawShape( shape, color ) {
 
-    const normal1 = new Vector3()
-    const normal2 = new Vector3()
-    const normal3 = new Vector3()
-    const normal4 = new Vector3()
+			normal.set( 0, 0, - 1 ).applyQuaternion( quaternion );
 
-    function extrudeShape(shape, offset, color) {
-      for (let j = 0, jl = shape.length; j < jl; j++) {
-        const point1 = shape[j]
-        const point2 = shape[(j + 1) % jl]
+			for ( let j = 0; j < shape.length; j ++ ) {
 
-        vector1.copy(point1).add(offset)
-        vector1.applyQuaternion(quaternion)
-        vector1.add(point)
+				vector.copy( shape[ j ] );
+				vector.applyQuaternion( quaternion );
+				vector.add( point );
 
-        vector2.copy(point2).add(offset)
-        vector2.applyQuaternion(quaternion)
-        vector2.add(point)
+				vertices.push( vector.x, vector.y, vector.z );
+				normals.push( normal.x, normal.y, normal.z );
+				colors.push( color[ 0 ], color[ 1 ], color[ 2 ] );
 
-        vector3.copy(point2).add(offset)
-        vector3.applyQuaternion(prevQuaternion)
-        vector3.add(prevPoint)
+			}
 
-        vector4.copy(point1).add(offset)
-        vector4.applyQuaternion(prevQuaternion)
-        vector4.add(prevPoint)
+			normal.set( 0, 0, 1 ).applyQuaternion( quaternion );
 
-        vertices.push(vector1.x, vector1.y, vector1.z)
-        vertices.push(vector2.x, vector2.y, vector2.z)
-        vertices.push(vector4.x, vector4.y, vector4.z)
+			for ( let j = shape.length - 1; j >= 0; j -- ) {
 
-        vertices.push(vector2.x, vector2.y, vector2.z)
-        vertices.push(vector3.x, vector3.y, vector3.z)
-        vertices.push(vector4.x, vector4.y, vector4.z)
+				vector.copy( shape[ j ] );
+				vector.applyQuaternion( quaternion );
+				vector.add( point );
 
-        //
+				vertices.push( vector.x, vector.y, vector.z );
+				normals.push( normal.x, normal.y, normal.z );
+				colors.push( color[ 0 ], color[ 1 ], color[ 2 ] );
 
-        normal1.copy(point1)
-        normal1.applyQuaternion(quaternion)
-        normal1.normalize()
+			}
 
-        normal2.copy(point2)
-        normal2.applyQuaternion(quaternion)
-        normal2.normalize()
+		}
 
-        normal3.copy(point2)
-        normal3.applyQuaternion(prevQuaternion)
-        normal3.normalize()
+		const vector1 = new Vector3();
+		const vector2 = new Vector3();
+		const vector3 = new Vector3();
+		const vector4 = new Vector3();
 
-        normal4.copy(point1)
-        normal4.applyQuaternion(prevQuaternion)
-        normal4.normalize()
+		const normal1 = new Vector3();
+		const normal2 = new Vector3();
+		const normal3 = new Vector3();
+		const normal4 = new Vector3();
 
-        normals.push(normal1.x, normal1.y, normal1.z)
-        normals.push(normal2.x, normal2.y, normal2.z)
-        normals.push(normal4.x, normal4.y, normal4.z)
+		function extrudeShape( shape, offset, color ) {
 
-        normals.push(normal2.x, normal2.y, normal2.z)
-        normals.push(normal3.x, normal3.y, normal3.z)
-        normals.push(normal4.x, normal4.y, normal4.z)
+			for ( let j = 0, jl = shape.length; j < jl; j ++ ) {
 
-        colors.push(color[0], color[1], color[2])
-        colors.push(color[0], color[1], color[2])
-        colors.push(color[0], color[1], color[2])
+				const point1 = shape[ j ];
+				const point2 = shape[ ( j + 1 ) % jl ];
 
-        colors.push(color[0], color[1], color[2])
-        colors.push(color[0], color[1], color[2])
-        colors.push(color[0], color[1], color[2])
-      }
-    }
+				vector1.copy( point1 ).add( offset );
+				vector1.applyQuaternion( quaternion );
+				vector1.add( point );
 
-    const offset = new Vector3()
+				vector2.copy( point2 ).add( offset );
+				vector2.applyQuaternion( quaternion );
+				vector2.add( point );
 
-    for (let i = 1; i <= divisions; i++) {
-      point.copy(curve.getPointAt(i / divisions))
+				vector3.copy( point2 ).add( offset );
+				vector3.applyQuaternion( prevQuaternion );
+				vector3.add( prevPoint );
 
-      up.set(0, 1, 0)
+				vector4.copy( point1 ).add( offset );
+				vector4.applyQuaternion( prevQuaternion );
+				vector4.add( prevPoint );
 
-      forward.subVectors(point, prevPoint).normalize()
-      right.crossVectors(up, forward).normalize()
-      up.crossVectors(forward, right)
+				vertices.push( vector1.x, vector1.y, vector1.z );
+				vertices.push( vector2.x, vector2.y, vector2.z );
+				vertices.push( vector4.x, vector4.y, vector4.z );
 
-      const angle = Math.atan2(forward.x, forward.z)
+				vertices.push( vector2.x, vector2.y, vector2.z );
+				vertices.push( vector3.x, vector3.y, vector3.z );
+				vertices.push( vector4.x, vector4.y, vector4.z );
 
-      quaternion.setFromAxisAngle(up, angle)
+				//
 
-      if (i % 2 === 0) {
-        drawShape(step, color2)
-      }
+				normal1.copy( point1 );
+				normal1.applyQuaternion( quaternion );
+				normal1.normalize();
 
-      extrudeShape(tube1, offset.set(0, -0.125, 0), color2)
-      extrudeShape(tube2, offset.set(0.2, 0, 0), color1)
-      extrudeShape(tube2, offset.set(-0.2, 0, 0), color1)
+				normal2.copy( point2 );
+				normal2.applyQuaternion( quaternion );
+				normal2.normalize();
 
-      prevPoint.copy(point)
-      prevQuaternion.copy(quaternion)
-    }
+				normal3.copy( point2 );
+				normal3.applyQuaternion( prevQuaternion );
+				normal3.normalize();
 
-    // console.log( vertices.length );
+				normal4.copy( point1 );
+				normal4.applyQuaternion( prevQuaternion );
+				normal4.normalize();
 
-    this.setAttribute("position", new BufferAttribute(new Float32Array(vertices), 3))
-    this.setAttribute("normal", new BufferAttribute(new Float32Array(normals), 3))
-    this.setAttribute("color", new BufferAttribute(new Float32Array(colors), 3))
-  }
+				normals.push( normal1.x, normal1.y, normal1.z );
+				normals.push( normal2.x, normal2.y, normal2.z );
+				normals.push( normal4.x, normal4.y, normal4.z );
+
+				normals.push( normal2.x, normal2.y, normal2.z );
+				normals.push( normal3.x, normal3.y, normal3.z );
+				normals.push( normal4.x, normal4.y, normal4.z );
+
+				colors.push( color[ 0 ], color[ 1 ], color[ 2 ] );
+				colors.push( color[ 0 ], color[ 1 ], color[ 2 ] );
+				colors.push( color[ 0 ], color[ 1 ], color[ 2 ] );
+
+				colors.push( color[ 0 ], color[ 1 ], color[ 2 ] );
+				colors.push( color[ 0 ], color[ 1 ], color[ 2 ] );
+				colors.push( color[ 0 ], color[ 1 ], color[ 2 ] );
+
+			}
+
+		}
+
+		const offset = new Vector3();
+
+		for ( let i = 1; i <= divisions; i ++ ) {
+
+			point.copy( curve.getPointAt( i / divisions ) );
+
+			up.set( 0, 1, 0 );
+
+			forward.subVectors( point, prevPoint ).normalize();
+			right.crossVectors( up, forward ).normalize();
+			up.crossVectors( forward, right );
+
+			const angle = Math.atan2( forward.x, forward.z );
+
+			quaternion.setFromAxisAngle( up, angle );
+
+			if ( i % 2 === 0 ) {
+
+				drawShape( step, color2 );
+
+			}
+
+			extrudeShape( tube1, offset.set( 0, - 0.125, 0 ), color2 );
+			extrudeShape( tube2, offset.set( 0.2, 0, 0 ), color1 );
+			extrudeShape( tube2, offset.set( - 0.2, 0, 0 ), color1 );
+
+			prevPoint.copy( point );
+			prevQuaternion.copy( quaternion );
+
+		}
+
+		// console.log( vertices.length );
+
+		this.setAttribute( 'position', new BufferAttribute( new Float32Array( vertices ), 3 ) );
+		this.setAttribute( 'normal', new BufferAttribute( new Float32Array( normals ), 3 ) );
+		this.setAttribute( 'color', new BufferAttribute( new Float32Array( colors ), 3 ) );
+
+	}
+
 }
 
 class RollerCoasterLiftersGeometry extends BufferGeometry {
-  constructor(curve, divisions) {
-    super()
 
-    const vertices = []
-    const normals = []
+	constructor( curve, divisions ) {
 
-    const quaternion = new Quaternion()
+		super();
 
-    const up = new Vector3(0, 1, 0)
+		const vertices = [];
+		const normals = [];
 
-    const point = new Vector3()
-    const tangent = new Vector3()
+		const quaternion = new Quaternion();
 
-    // shapes
+		const up = new Vector3( 0, 1, 0 );
 
-    const tube1 = [new Vector3(0, 0.05, -0.05), new Vector3(0, 0.05, 0.05), new Vector3(0, -0.05, 0)]
+		const point = new Vector3();
+		const tangent = new Vector3();
 
-    const tube2 = [new Vector3(-0.05, 0, 0.05), new Vector3(-0.05, 0, -0.05), new Vector3(0.05, 0, 0)]
+		// shapes
 
-    const tube3 = [new Vector3(0.05, 0, -0.05), new Vector3(0.05, 0, 0.05), new Vector3(-0.05, 0, 0)]
+		const tube1 = [
+			new Vector3( 0, 0.05, - 0.05 ),
+			new Vector3( 0, 0.05, 0.05 ),
+			new Vector3( 0, - 0.05, 0 )
+		];
 
-    const vector1 = new Vector3()
-    const vector2 = new Vector3()
-    const vector3 = new Vector3()
-    const vector4 = new Vector3()
+		const tube2 = [
+			new Vector3( - 0.05, 0, 0.05 ),
+			new Vector3( - 0.05, 0, - 0.05 ),
+			new Vector3( 0.05, 0, 0 )
+		];
 
-    const normal1 = new Vector3()
-    const normal2 = new Vector3()
-    const normal3 = new Vector3()
-    const normal4 = new Vector3()
+		const tube3 = [
+			new Vector3( 0.05, 0, - 0.05 ),
+			new Vector3( 0.05, 0, 0.05 ),
+			new Vector3( - 0.05, 0, 0 )
+		];
 
-    function extrudeShape(shape, fromPoint, toPoint) {
-      for (let j = 0, jl = shape.length; j < jl; j++) {
-        const point1 = shape[j]
-        const point2 = shape[(j + 1) % jl]
+		const vector1 = new Vector3();
+		const vector2 = new Vector3();
+		const vector3 = new Vector3();
+		const vector4 = new Vector3();
 
-        vector1.copy(point1)
-        vector1.applyQuaternion(quaternion)
-        vector1.add(fromPoint)
+		const normal1 = new Vector3();
+		const normal2 = new Vector3();
+		const normal3 = new Vector3();
+		const normal4 = new Vector3();
 
-        vector2.copy(point2)
-        vector2.applyQuaternion(quaternion)
-        vector2.add(fromPoint)
+		function extrudeShape( shape, fromPoint, toPoint ) {
 
-        vector3.copy(point2)
-        vector3.applyQuaternion(quaternion)
-        vector3.add(toPoint)
+			for ( let j = 0, jl = shape.length; j < jl; j ++ ) {
 
-        vector4.copy(point1)
-        vector4.applyQuaternion(quaternion)
-        vector4.add(toPoint)
+				const point1 = shape[ j ];
+				const point2 = shape[ ( j + 1 ) % jl ];
 
-        vertices.push(vector1.x, vector1.y, vector1.z)
-        vertices.push(vector2.x, vector2.y, vector2.z)
-        vertices.push(vector4.x, vector4.y, vector4.z)
+				vector1.copy( point1 );
+				vector1.applyQuaternion( quaternion );
+				vector1.add( fromPoint );
 
-        vertices.push(vector2.x, vector2.y, vector2.z)
-        vertices.push(vector3.x, vector3.y, vector3.z)
-        vertices.push(vector4.x, vector4.y, vector4.z)
+				vector2.copy( point2 );
+				vector2.applyQuaternion( quaternion );
+				vector2.add( fromPoint );
 
-        //
+				vector3.copy( point2 );
+				vector3.applyQuaternion( quaternion );
+				vector3.add( toPoint );
 
-        normal1.copy(point1)
-        normal1.applyQuaternion(quaternion)
-        normal1.normalize()
+				vector4.copy( point1 );
+				vector4.applyQuaternion( quaternion );
+				vector4.add( toPoint );
 
-        normal2.copy(point2)
-        normal2.applyQuaternion(quaternion)
-        normal2.normalize()
+				vertices.push( vector1.x, vector1.y, vector1.z );
+				vertices.push( vector2.x, vector2.y, vector2.z );
+				vertices.push( vector4.x, vector4.y, vector4.z );
 
-        normal3.copy(point2)
-        normal3.applyQuaternion(quaternion)
-        normal3.normalize()
+				vertices.push( vector2.x, vector2.y, vector2.z );
+				vertices.push( vector3.x, vector3.y, vector3.z );
+				vertices.push( vector4.x, vector4.y, vector4.z );
 
-        normal4.copy(point1)
-        normal4.applyQuaternion(quaternion)
-        normal4.normalize()
+				//
 
-        normals.push(normal1.x, normal1.y, normal1.z)
-        normals.push(normal2.x, normal2.y, normal2.z)
-        normals.push(normal4.x, normal4.y, normal4.z)
+				normal1.copy( point1 );
+				normal1.applyQuaternion( quaternion );
+				normal1.normalize();
 
-        normals.push(normal2.x, normal2.y, normal2.z)
-        normals.push(normal3.x, normal3.y, normal3.z)
-        normals.push(normal4.x, normal4.y, normal4.z)
-      }
-    }
+				normal2.copy( point2 );
+				normal2.applyQuaternion( quaternion );
+				normal2.normalize();
 
-    const fromPoint = new Vector3()
-    const toPoint = new Vector3()
+				normal3.copy( point2 );
+				normal3.applyQuaternion( quaternion );
+				normal3.normalize();
 
-    for (let i = 1; i <= divisions; i++) {
-      point.copy(curve.getPointAt(i / divisions))
-      tangent.copy(curve.getTangentAt(i / divisions))
+				normal4.copy( point1 );
+				normal4.applyQuaternion( quaternion );
+				normal4.normalize();
 
-      const angle = Math.atan2(tangent.x, tangent.z)
+				normals.push( normal1.x, normal1.y, normal1.z );
+				normals.push( normal2.x, normal2.y, normal2.z );
+				normals.push( normal4.x, normal4.y, normal4.z );
 
-      quaternion.setFromAxisAngle(up, angle)
+				normals.push( normal2.x, normal2.y, normal2.z );
+				normals.push( normal3.x, normal3.y, normal3.z );
+				normals.push( normal4.x, normal4.y, normal4.z );
 
-      //
+			}
 
-      if (point.y > 10) {
-        fromPoint.set(-0.75, -0.35, 0)
-        fromPoint.applyQuaternion(quaternion)
-        fromPoint.add(point)
+		}
 
-        toPoint.set(0.75, -0.35, 0)
-        toPoint.applyQuaternion(quaternion)
-        toPoint.add(point)
+		const fromPoint = new Vector3();
+		const toPoint = new Vector3();
 
-        extrudeShape(tube1, fromPoint, toPoint)
+		for ( let i = 1; i <= divisions; i ++ ) {
 
-        fromPoint.set(-0.7, -0.3, 0)
-        fromPoint.applyQuaternion(quaternion)
-        fromPoint.add(point)
+			point.copy( curve.getPointAt( i / divisions ) );
+			tangent.copy( curve.getTangentAt( i / divisions ) );
 
-        toPoint.set(-0.7, -point.y, 0)
-        toPoint.applyQuaternion(quaternion)
-        toPoint.add(point)
+			const angle = Math.atan2( tangent.x, tangent.z );
 
-        extrudeShape(tube2, fromPoint, toPoint)
+			quaternion.setFromAxisAngle( up, angle );
 
-        fromPoint.set(0.7, -0.3, 0)
-        fromPoint.applyQuaternion(quaternion)
-        fromPoint.add(point)
+			//
 
-        toPoint.set(0.7, -point.y, 0)
-        toPoint.applyQuaternion(quaternion)
-        toPoint.add(point)
+			if ( point.y > 10 ) {
 
-        extrudeShape(tube3, fromPoint, toPoint)
-      } else {
-        fromPoint.set(0, -0.2, 0)
-        fromPoint.applyQuaternion(quaternion)
-        fromPoint.add(point)
+				fromPoint.set( - 0.75, - 0.35, 0 );
+				fromPoint.applyQuaternion( quaternion );
+				fromPoint.add( point );
 
-        toPoint.set(0, -point.y, 0)
-        toPoint.applyQuaternion(quaternion)
-        toPoint.add(point)
+				toPoint.set( 0.75, - 0.35, 0 );
+				toPoint.applyQuaternion( quaternion );
+				toPoint.add( point );
 
-        extrudeShape(tube3, fromPoint, toPoint)
-      }
-    }
+				extrudeShape( tube1, fromPoint, toPoint );
 
-    this.setAttribute("position", new BufferAttribute(new Float32Array(vertices), 3))
-    this.setAttribute("normal", new BufferAttribute(new Float32Array(normals), 3))
-  }
+				fromPoint.set( - 0.7, - 0.3, 0 );
+				fromPoint.applyQuaternion( quaternion );
+				fromPoint.add( point );
+
+				toPoint.set( - 0.7, - point.y, 0 );
+				toPoint.applyQuaternion( quaternion );
+				toPoint.add( point );
+
+				extrudeShape( tube2, fromPoint, toPoint );
+
+				fromPoint.set( 0.7, - 0.3, 0 );
+				fromPoint.applyQuaternion( quaternion );
+				fromPoint.add( point );
+
+				toPoint.set( 0.7, - point.y, 0 );
+				toPoint.applyQuaternion( quaternion );
+				toPoint.add( point );
+
+				extrudeShape( tube3, fromPoint, toPoint );
+
+			} else {
+
+				fromPoint.set( 0, - 0.2, 0 );
+				fromPoint.applyQuaternion( quaternion );
+				fromPoint.add( point );
+
+				toPoint.set( 0, - point.y, 0 );
+				toPoint.applyQuaternion( quaternion );
+				toPoint.add( point );
+
+				extrudeShape( tube3, fromPoint, toPoint );
+
+			}
+
+		}
+
+		this.setAttribute( 'position', new BufferAttribute( new Float32Array( vertices ), 3 ) );
+		this.setAttribute( 'normal', new BufferAttribute( new Float32Array( normals ), 3 ) );
+
+	}
+
 }
 
 class RollerCoasterShadowGeometry extends BufferGeometry {
-  constructor(curve, divisions) {
-    super()
 
-    const vertices = []
+	constructor( curve, divisions ) {
 
-    const up = new Vector3(0, 1, 0)
-    const forward = new Vector3()
+		super();
 
-    const quaternion = new Quaternion()
-    const prevQuaternion = new Quaternion()
-    prevQuaternion.setFromAxisAngle(up, Math.PI / 2)
+		const vertices = [];
 
-    const point = new Vector3()
+		const up = new Vector3( 0, 1, 0 );
+		const forward = new Vector3();
 
-    const prevPoint = new Vector3()
-    prevPoint.copy(curve.getPointAt(0))
-    prevPoint.y = 0
+		const quaternion = new Quaternion();
+		const prevQuaternion = new Quaternion();
+		prevQuaternion.setFromAxisAngle( up, Math.PI / 2 );
 
-    const vector1 = new Vector3()
-    const vector2 = new Vector3()
-    const vector3 = new Vector3()
-    const vector4 = new Vector3()
+		const point = new Vector3();
 
-    for (let i = 1; i <= divisions; i++) {
-      point.copy(curve.getPointAt(i / divisions))
-      point.y = 0
+		const prevPoint = new Vector3();
+		prevPoint.copy( curve.getPointAt( 0 ) );
+		prevPoint.y = 0;
 
-      forward.subVectors(point, prevPoint)
+		const vector1 = new Vector3();
+		const vector2 = new Vector3();
+		const vector3 = new Vector3();
+		const vector4 = new Vector3();
 
-      const angle = Math.atan2(forward.x, forward.z)
+		for ( let i = 1; i <= divisions; i ++ ) {
 
-      quaternion.setFromAxisAngle(up, angle)
+			point.copy( curve.getPointAt( i / divisions ) );
+			point.y = 0;
 
-      vector1.set(-0.3, 0, 0)
-      vector1.applyQuaternion(quaternion)
-      vector1.add(point)
+			forward.subVectors( point, prevPoint );
 
-      vector2.set(0.3, 0, 0)
-      vector2.applyQuaternion(quaternion)
-      vector2.add(point)
+			const angle = Math.atan2( forward.x, forward.z );
 
-      vector3.set(0.3, 0, 0)
-      vector3.applyQuaternion(prevQuaternion)
-      vector3.add(prevPoint)
+			quaternion.setFromAxisAngle( up, angle );
 
-      vector4.set(-0.3, 0, 0)
-      vector4.applyQuaternion(prevQuaternion)
-      vector4.add(prevPoint)
+			vector1.set( - 0.3, 0, 0 );
+			vector1.applyQuaternion( quaternion );
+			vector1.add( point );
 
-      vertices.push(vector1.x, vector1.y, vector1.z)
-      vertices.push(vector2.x, vector2.y, vector2.z)
-      vertices.push(vector4.x, vector4.y, vector4.z)
+			vector2.set( 0.3, 0, 0 );
+			vector2.applyQuaternion( quaternion );
+			vector2.add( point );
 
-      vertices.push(vector2.x, vector2.y, vector2.z)
-      vertices.push(vector3.x, vector3.y, vector3.z)
-      vertices.push(vector4.x, vector4.y, vector4.z)
+			vector3.set( 0.3, 0, 0 );
+			vector3.applyQuaternion( prevQuaternion );
+			vector3.add( prevPoint );
 
-      prevPoint.copy(point)
-      prevQuaternion.copy(quaternion)
-    }
+			vector4.set( - 0.3, 0, 0 );
+			vector4.applyQuaternion( prevQuaternion );
+			vector4.add( prevPoint );
 
-    this.setAttribute("position", new BufferAttribute(new Float32Array(vertices), 3))
-  }
+			vertices.push( vector1.x, vector1.y, vector1.z );
+			vertices.push( vector2.x, vector2.y, vector2.z );
+			vertices.push( vector4.x, vector4.y, vector4.z );
+
+			vertices.push( vector2.x, vector2.y, vector2.z );
+			vertices.push( vector3.x, vector3.y, vector3.z );
+			vertices.push( vector4.x, vector4.y, vector4.z );
+
+			prevPoint.copy( point );
+			prevQuaternion.copy( quaternion );
+
+		}
+
+		this.setAttribute( 'position', new BufferAttribute( new Float32Array( vertices ), 3 ) );
+
+	}
+
 }
 
 class SkyGeometry extends BufferGeometry {
-  constructor() {
-    super()
 
-    const vertices = []
+	constructor() {
 
-    for (let i = 0; i < 100; i++) {
-      const x = Math.random() * 800 - 400
-      const y = Math.random() * 50 + 50
-      const z = Math.random() * 800 - 400
+		super();
 
-      const size = Math.random() * 40 + 20
+		const vertices = [];
 
-      vertices.push(x - size, y, z - size)
-      vertices.push(x + size, y, z - size)
-      vertices.push(x - size, y, z + size)
+		for ( let i = 0; i < 100; i ++ ) {
 
-      vertices.push(x + size, y, z - size)
-      vertices.push(x + size, y, z + size)
-      vertices.push(x - size, y, z + size)
-    }
+			const x = Math.random() * 800 - 400;
+			const y = Math.random() * 50 + 50;
+			const z = Math.random() * 800 - 400;
 
-    this.setAttribute("position", new BufferAttribute(new Float32Array(vertices), 3))
-  }
+			const size = Math.random() * 40 + 20;
+
+			vertices.push( x - size, y, z - size );
+			vertices.push( x + size, y, z - size );
+			vertices.push( x - size, y, z + size );
+
+			vertices.push( x + size, y, z - size );
+			vertices.push( x + size, y, z + size );
+			vertices.push( x - size, y, z + size );
+
+		}
+
+
+		this.setAttribute( 'position', new BufferAttribute( new Float32Array( vertices ), 3 ) );
+
+	}
+
 }
 
 class TreesGeometry extends BufferGeometry {
-  constructor(landscape) {
-    super()
 
-    const vertices = []
-    const colors = []
+	constructor( landscape ) {
 
-    const raycaster = new Raycaster()
-    raycaster.ray.direction.set(0, -1, 0)
+		super();
 
-    for (let i = 0; i < 2000; i++) {
-      const x = Math.random() * 500 - 250
-      const z = Math.random() * 500 - 250
+		const vertices = [];
+		const colors = [];
 
-      raycaster.ray.origin.set(x, 50, z)
+		const raycaster = new Raycaster();
+		raycaster.ray.direction.set( 0, - 1, 0 );
 
-      const intersections = raycaster.intersectObject(landscape)
+		for ( let i = 0; i < 2000; i ++ ) {
 
-      if (intersections.length === 0) continue
+			const x = Math.random() * 500 - 250;
+			const z = Math.random() * 500 - 250;
 
-      const y = intersections[0].point.y
+			raycaster.ray.origin.set( x, 50, z );
 
-      const height = Math.random() * 5 + 0.5
+			const intersections = raycaster.intersectObject( landscape );
 
-      let angle = Math.random() * Math.PI * 2
+			if ( intersections.length === 0 ) continue;
 
-      vertices.push(x + Math.sin(angle), y, z + Math.cos(angle))
-      vertices.push(x, y + height, z)
-      vertices.push(x + Math.sin(angle + Math.PI), y, z + Math.cos(angle + Math.PI))
+			const y = intersections[ 0 ].point.y;
 
-      angle += Math.PI / 2
+			const height = Math.random() * 5 + 0.5;
 
-      vertices.push(x + Math.sin(angle), y, z + Math.cos(angle))
-      vertices.push(x, y + height, z)
-      vertices.push(x + Math.sin(angle + Math.PI), y, z + Math.cos(angle + Math.PI))
+			let angle = Math.random() * Math.PI * 2;
 
-      const random = Math.random() * 0.1
+			vertices.push( x + Math.sin( angle ), y, z + Math.cos( angle ) );
+			vertices.push( x, y + height, z );
+			vertices.push( x + Math.sin( angle + Math.PI ), y, z + Math.cos( angle + Math.PI ) );
 
-      for (let j = 0; j < 6; j++) {
-        colors.push(0.2 + random, 0.4 + random, 0)
-      }
-    }
+			angle += Math.PI / 2;
 
-    this.setAttribute("position", new BufferAttribute(new Float32Array(vertices), 3))
-    this.setAttribute("color", new BufferAttribute(new Float32Array(colors), 3))
-  }
+			vertices.push( x + Math.sin( angle ), y, z + Math.cos( angle ) );
+			vertices.push( x, y + height, z );
+			vertices.push( x + Math.sin( angle + Math.PI ), y, z + Math.cos( angle + Math.PI ) );
+
+			const random = Math.random() * 0.1;
+
+			for ( let j = 0; j < 6; j ++ ) {
+
+				colors.push( 0.2 + random, 0.4 + random, 0 );
+
+			}
+
+		}
+
+		this.setAttribute( 'position', new BufferAttribute( new Float32Array( vertices ), 3 ) );
+		this.setAttribute( 'color', new BufferAttribute( new Float32Array( colors ), 3 ) );
+
+	}
+
 }
 
-export { RollerCoasterGeometry, RollerCoasterLiftersGeometry, RollerCoasterShadowGeometry, SkyGeometry, TreesGeometry }
+export { RollerCoasterGeometry, RollerCoasterLiftersGeometry, RollerCoasterShadowGeometry, SkyGeometry, TreesGeometry };

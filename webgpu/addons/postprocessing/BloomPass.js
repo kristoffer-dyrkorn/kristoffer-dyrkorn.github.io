@@ -1,115 +1,139 @@
-import { AdditiveBlending, ShaderMaterial, UniformsUtils, Vector2, WebGLRenderTarget } from "../../three.module.js"
-import { Pass, FullScreenQuad } from "./Pass.js"
-import { ConvolutionShader } from "../shaders/ConvolutionShader.js"
+import {
+	AdditiveBlending,
+	ShaderMaterial,
+	UniformsUtils,
+	Vector2,
+	WebGLRenderTarget
+} from 'three';
+import { Pass, FullScreenQuad } from './Pass.js';
+import { ConvolutionShader } from '../shaders/ConvolutionShader.js';
 
 class BloomPass extends Pass {
-  constructor(strength = 1, kernelSize = 25, sigma = 4) {
-    super()
 
-    // render targets
+	constructor( strength = 1, kernelSize = 25, sigma = 4 ) {
 
-    this.renderTargetX = new WebGLRenderTarget() // will be resized later
-    this.renderTargetX.texture.name = "BloomPass.x"
-    this.renderTargetY = new WebGLRenderTarget() // will be resized later
-    this.renderTargetY.texture.name = "BloomPass.y"
+		super();
 
-    // combine material
+		// render targets
 
-    this.combineUniforms = UniformsUtils.clone(CombineShader.uniforms)
+		this.renderTargetX = new WebGLRenderTarget(); // will be resized later
+		this.renderTargetX.texture.name = 'BloomPass.x';
+		this.renderTargetY = new WebGLRenderTarget(); // will be resized later
+		this.renderTargetY.texture.name = 'BloomPass.y';
 
-    this.combineUniforms["strength"].value = strength
+		// combine material
 
-    this.materialCombine = new ShaderMaterial({
-      uniforms: this.combineUniforms,
-      vertexShader: CombineShader.vertexShader,
-      fragmentShader: CombineShader.fragmentShader,
-      blending: AdditiveBlending,
-      transparent: true,
-    })
+		this.combineUniforms = UniformsUtils.clone( CombineShader.uniforms );
 
-    // convolution material
+		this.combineUniforms[ 'strength' ].value = strength;
 
-    const convolutionShader = ConvolutionShader
+		this.materialCombine = new ShaderMaterial( {
 
-    this.convolutionUniforms = UniformsUtils.clone(convolutionShader.uniforms)
+			uniforms: this.combineUniforms,
+			vertexShader: CombineShader.vertexShader,
+			fragmentShader: CombineShader.fragmentShader,
+			blending: AdditiveBlending,
+			transparent: true
 
-    this.convolutionUniforms["uImageIncrement"].value = BloomPass.blurX
-    this.convolutionUniforms["cKernel"].value = ConvolutionShader.buildKernel(sigma)
+		} );
 
-    this.materialConvolution = new ShaderMaterial({
-      uniforms: this.convolutionUniforms,
-      vertexShader: convolutionShader.vertexShader,
-      fragmentShader: convolutionShader.fragmentShader,
-      defines: {
-        KERNEL_SIZE_FLOAT: kernelSize.toFixed(1),
-        KERNEL_SIZE_INT: kernelSize.toFixed(0),
-      },
-    })
+		// convolution material
 
-    this.needsSwap = false
+		const convolutionShader = ConvolutionShader;
 
-    this.fsQuad = new FullScreenQuad(null)
-  }
+		this.convolutionUniforms = UniformsUtils.clone( convolutionShader.uniforms );
 
-  render(renderer, writeBuffer, readBuffer, deltaTime, maskActive) {
-    if (maskActive) renderer.state.buffers.stencil.setTest(false)
+		this.convolutionUniforms[ 'uImageIncrement' ].value = BloomPass.blurX;
+		this.convolutionUniforms[ 'cKernel' ].value = ConvolutionShader.buildKernel( sigma );
 
-    // Render quad with blured scene into texture (convolution pass 1)
+		this.materialConvolution = new ShaderMaterial( {
 
-    this.fsQuad.material = this.materialConvolution
+			uniforms: this.convolutionUniforms,
+			vertexShader: convolutionShader.vertexShader,
+			fragmentShader: convolutionShader.fragmentShader,
+			defines: {
+				'KERNEL_SIZE_FLOAT': kernelSize.toFixed( 1 ),
+				'KERNEL_SIZE_INT': kernelSize.toFixed( 0 )
+			}
 
-    this.convolutionUniforms["tDiffuse"].value = readBuffer.texture
-    this.convolutionUniforms["uImageIncrement"].value = BloomPass.blurX
+		} );
 
-    renderer.setRenderTarget(this.renderTargetX)
-    renderer.clear()
-    this.fsQuad.render(renderer)
+		this.needsSwap = false;
 
-    // Render quad with blured scene into texture (convolution pass 2)
+		this.fsQuad = new FullScreenQuad( null );
 
-    this.convolutionUniforms["tDiffuse"].value = this.renderTargetX.texture
-    this.convolutionUniforms["uImageIncrement"].value = BloomPass.blurY
+	}
 
-    renderer.setRenderTarget(this.renderTargetY)
-    renderer.clear()
-    this.fsQuad.render(renderer)
+	render( renderer, writeBuffer, readBuffer, deltaTime, maskActive ) {
 
-    // Render original scene with superimposed blur to texture
+		if ( maskActive ) renderer.state.buffers.stencil.setTest( false );
 
-    this.fsQuad.material = this.materialCombine
+		// Render quad with blured scene into texture (convolution pass 1)
 
-    this.combineUniforms["tDiffuse"].value = this.renderTargetY.texture
+		this.fsQuad.material = this.materialConvolution;
 
-    if (maskActive) renderer.state.buffers.stencil.setTest(true)
+		this.convolutionUniforms[ 'tDiffuse' ].value = readBuffer.texture;
+		this.convolutionUniforms[ 'uImageIncrement' ].value = BloomPass.blurX;
 
-    renderer.setRenderTarget(readBuffer)
-    if (this.clear) renderer.clear()
-    this.fsQuad.render(renderer)
-  }
+		renderer.setRenderTarget( this.renderTargetX );
+		renderer.clear();
+		this.fsQuad.render( renderer );
 
-  setSize(width, height) {
-    this.renderTargetX.setSize(width, height)
-    this.renderTargetY.setSize(width, height)
-  }
 
-  dispose() {
-    this.renderTargetX.dispose()
-    this.renderTargetY.dispose()
+		// Render quad with blured scene into texture (convolution pass 2)
 
-    this.materialCombine.dispose()
-    this.materialConvolution.dispose()
+		this.convolutionUniforms[ 'tDiffuse' ].value = this.renderTargetX.texture;
+		this.convolutionUniforms[ 'uImageIncrement' ].value = BloomPass.blurY;
 
-    this.fsQuad.dispose()
-  }
+		renderer.setRenderTarget( this.renderTargetY );
+		renderer.clear();
+		this.fsQuad.render( renderer );
+
+		// Render original scene with superimposed blur to texture
+
+		this.fsQuad.material = this.materialCombine;
+
+		this.combineUniforms[ 'tDiffuse' ].value = this.renderTargetY.texture;
+
+		if ( maskActive ) renderer.state.buffers.stencil.setTest( true );
+
+		renderer.setRenderTarget( readBuffer );
+		if ( this.clear ) renderer.clear();
+		this.fsQuad.render( renderer );
+
+	}
+
+	setSize( width, height ) {
+
+		this.renderTargetX.setSize( width, height );
+		this.renderTargetY.setSize( width, height );
+
+	}
+
+	dispose() {
+
+		this.renderTargetX.dispose();
+		this.renderTargetY.dispose();
+
+		this.materialCombine.dispose();
+		this.materialConvolution.dispose();
+
+		this.fsQuad.dispose();
+
+	}
+
 }
 
 const CombineShader = {
-  uniforms: {
-    tDiffuse: { value: null },
-    strength: { value: 1.0 },
-  },
 
-  vertexShader: /* glsl */ `
+	uniforms: {
+
+		'tDiffuse': { value: null },
+		'strength': { value: 1.0 }
+
+	},
+
+	vertexShader: /* glsl */`
 
 		varying vec2 vUv;
 
@@ -120,7 +144,7 @@ const CombineShader = {
 
 		}`,
 
-  fragmentShader: /* glsl */ `
+	fragmentShader: /* glsl */`
 
 		uniform float strength;
 
@@ -133,10 +157,11 @@ const CombineShader = {
 			vec4 texel = texture2D( tDiffuse, vUv );
 			gl_FragColor = strength * texel;
 
-		}`,
-}
+		}`
 
-BloomPass.blurX = new Vector2(0.001953125, 0.0)
-BloomPass.blurY = new Vector2(0.0, 0.001953125)
+};
 
-export { BloomPass }
+BloomPass.blurX = new Vector2( 0.001953125, 0.0 );
+BloomPass.blurY = new Vector2( 0.0, 0.001953125 );
+
+export { BloomPass };

@@ -1,5 +1,10 @@
-import { MathUtils, Mesh, MeshBasicMaterial, Object3D } from "../../three.module.js"
-import { LightningStrike } from "../geometries/LightningStrike.js"
+import {
+	MathUtils,
+	Mesh,
+	MeshBasicMaterial,
+	Object3D
+} from 'three';
+import { LightningStrike } from '../geometries/LightningStrike.js';
 
 /**
  * @fileoverview Lightning strike object generator
@@ -45,181 +50,196 @@ import { LightningStrike } from "../geometries/LightningStrike.js"
  * @param {function} onLightningDown This optional callback is called with one parameter (lightningStrike) when a ray ends propagating, so it has hit the ground.
  *
  *
- */
+*/
 
 class LightningStorm extends Object3D {
-  constructor(stormParams = {}) {
-    super()
 
-    this.isLightningStorm = true
+	constructor( stormParams = {} ) {
 
-    // Parameters
+		super();
 
-    this.stormParams = stormParams
+		this.isLightningStorm = true;
 
-    stormParams.size = stormParams.size !== undefined ? stormParams.size : 1000.0
-    stormParams.minHeight = stormParams.minHeight !== undefined ? stormParams.minHeight : 80.0
-    stormParams.maxHeight = stormParams.maxHeight !== undefined ? stormParams.maxHeight : 100.0
-    stormParams.maxSlope = stormParams.maxSlope !== undefined ? stormParams.maxSlope : 1.1
+		// Parameters
 
-    stormParams.maxLightnings = stormParams.maxLightnings !== undefined ? stormParams.maxLightnings : 3
+		this.stormParams = stormParams;
 
-    stormParams.lightningMinPeriod = stormParams.lightningMinPeriod !== undefined ? stormParams.lightningMinPeriod : 3.0
-    stormParams.lightningMaxPeriod = stormParams.lightningMaxPeriod !== undefined ? stormParams.lightningMaxPeriod : 7.0
+		stormParams.size = stormParams.size !== undefined ? stormParams.size : 1000.0;
+		stormParams.minHeight = stormParams.minHeight !== undefined ? stormParams.minHeight : 80.0;
+		stormParams.maxHeight = stormParams.maxHeight !== undefined ? stormParams.maxHeight : 100.0;
+		stormParams.maxSlope = stormParams.maxSlope !== undefined ? stormParams.maxSlope : 1.1;
 
-    stormParams.lightningMinDuration =
-      stormParams.lightningMinDuration !== undefined ? stormParams.lightningMinDuration : 1.0
-    stormParams.lightningMaxDuration =
-      stormParams.lightningMaxDuration !== undefined ? stormParams.lightningMaxDuration : 2.5
+		stormParams.maxLightnings = stormParams.maxLightnings !== undefined ? stormParams.maxLightnings : 3;
 
-    this.lightningParameters = LightningStrike.copyParameters(
-      stormParams.lightningParameters,
-      stormParams.lightningParameters
-    )
+		stormParams.lightningMinPeriod = stormParams.lightningMinPeriod !== undefined ? stormParams.lightningMinPeriod : 3.0;
+		stormParams.lightningMaxPeriod = stormParams.lightningMaxPeriod !== undefined ? stormParams.lightningMaxPeriod : 7.0;
 
-    this.lightningParameters.isEternal = false
+		stormParams.lightningMinDuration = stormParams.lightningMinDuration !== undefined ? stormParams.lightningMinDuration : 1.0;
+		stormParams.lightningMaxDuration = stormParams.lightningMaxDuration !== undefined ? stormParams.lightningMaxDuration : 2.5;
 
-    this.lightningMaterial =
-      stormParams.lightningMaterial !== undefined
-        ? stormParams.lightningMaterial
-        : new MeshBasicMaterial({ color: 0xb0ffff })
+		this.lightningParameters = LightningStrike.copyParameters( stormParams.lightningParameters, stormParams.lightningParameters );
 
-    if (stormParams.onRayPosition !== undefined) {
-      this.onRayPosition = stormParams.onRayPosition
-    } else {
-      this.onRayPosition = function (source, dest) {
-        dest.set((Math.random() - 0.5) * stormParams.size, 0, (Math.random() - 0.5) * stormParams.size)
+		this.lightningParameters.isEternal = false;
 
-        const height = MathUtils.lerp(stormParams.minHeight, stormParams.maxHeight, Math.random())
+		this.lightningMaterial = stormParams.lightningMaterial !== undefined ? stormParams.lightningMaterial : new MeshBasicMaterial( { color: 0xB0FFFF } );
 
-        source
-          .set(stormParams.maxSlope * (2 * Math.random() - 1), 1, stormParams.maxSlope * (2 * Math.random() - 1))
-          .multiplyScalar(height)
-          .add(dest)
-      }
-    }
+		if ( stormParams.onRayPosition !== undefined ) {
 
-    this.onLightningDown = stormParams.onLightningDown
+			this.onRayPosition = stormParams.onRayPosition;
 
-    // Internal state
+		} else {
 
-    this.inited = false
-    this.nextLightningTime = 0
-    this.lightningsMeshes = []
-    this.deadLightningsMeshes = []
+			this.onRayPosition = function ( source, dest ) {
 
-    for (let i = 0; i < this.stormParams.maxLightnings; i++) {
-      const lightning = new LightningStrike(LightningStrike.copyParameters({}, this.lightningParameters))
-      const mesh = new Mesh(lightning, this.lightningMaterial)
-      this.deadLightningsMeshes.push(mesh)
-    }
-  }
+				dest.set( ( Math.random() - 0.5 ) * stormParams.size, 0, ( Math.random() - 0.5 ) * stormParams.size );
 
-  update(time) {
-    if (!this.inited) {
-      this.nextLightningTime = this.getNextLightningTime(time) * Math.random()
-      this.inited = true
-    }
+				const height = MathUtils.lerp( stormParams.minHeight, stormParams.maxHeight, Math.random() );
 
-    if (time >= this.nextLightningTime) {
-      // Lightning creation
+				source.set( stormParams.maxSlope * ( 2 * Math.random() - 1 ), 1, stormParams.maxSlope * ( 2 * Math.random() - 1 ) ).multiplyScalar( height ).add( dest );
 
-      const lightningMesh = this.deadLightningsMeshes.pop()
+			};
 
-      if (lightningMesh) {
-        const lightningParams1 = LightningStrike.copyParameters(
-          lightningMesh.geometry.rayParameters,
-          this.lightningParameters
-        )
+		}
 
-        lightningParams1.birthTime = time
-        lightningParams1.deathTime =
-          time +
-          MathUtils.lerp(this.stormParams.lightningMinDuration, this.stormParams.lightningMaxDuration, Math.random())
+		this.onLightningDown = stormParams.onLightningDown;
 
-        this.onRayPosition(lightningParams1.sourceOffset, lightningParams1.destOffset)
+		// Internal state
 
-        lightningParams1.noiseSeed = Math.random()
+		this.inited = false;
+		this.nextLightningTime = 0;
+		this.lightningsMeshes = [];
+		this.deadLightningsMeshes = [];
 
-        this.add(lightningMesh)
+		for ( let i = 0; i < this.stormParams.maxLightnings; i ++ ) {
 
-        this.lightningsMeshes.push(lightningMesh)
-      }
+			const lightning = new LightningStrike( LightningStrike.copyParameters( {}, this.lightningParameters ) );
+			const mesh = new Mesh( lightning, this.lightningMaterial );
+			this.deadLightningsMeshes.push( mesh );
 
-      // Schedule next lightning
-      this.nextLightningTime = this.getNextLightningTime(time)
-    }
+		}
 
-    let i = 0,
-      il = this.lightningsMeshes.length
+	}
 
-    while (i < il) {
-      const mesh = this.lightningsMeshes[i]
+	update( time ) {
 
-      const lightning = mesh.geometry
+		if ( ! this.inited ) {
 
-      const prevState = lightning.state
+			this.nextLightningTime = this.getNextLightningTime( time ) * Math.random();
+			this.inited = true;
 
-      lightning.update(time)
+		}
 
-      if (prevState === LightningStrike.RAY_PROPAGATING && lightning.state > prevState) {
-        if (this.onLightningDown) {
-          this.onLightningDown(lightning)
-        }
-      }
+		if ( time >= this.nextLightningTime ) {
 
-      if (lightning.state === LightningStrike.RAY_EXTINGUISHED) {
-        // Lightning is to be destroyed
+			// Lightning creation
 
-        this.lightningsMeshes.splice(this.lightningsMeshes.indexOf(mesh), 1)
+			const lightningMesh = this.deadLightningsMeshes.pop();
 
-        this.deadLightningsMeshes.push(mesh)
+			if ( lightningMesh ) {
 
-        this.remove(mesh)
+				const lightningParams1 = LightningStrike.copyParameters( lightningMesh.geometry.rayParameters, this.lightningParameters );
 
-        il--
-      } else {
-        i++
-      }
-    }
-  }
+				lightningParams1.birthTime = time;
+				lightningParams1.deathTime = time + MathUtils.lerp( this.stormParams.lightningMinDuration, this.stormParams.lightningMaxDuration, Math.random() );
 
-  getNextLightningTime(currentTime) {
-    return (
-      currentTime +
-      MathUtils.lerp(this.stormParams.lightningMinPeriod, this.stormParams.lightningMaxPeriod, Math.random()) /
-        (this.stormParams.maxLightnings + 1)
-    )
-  }
+				this.onRayPosition( lightningParams1.sourceOffset, lightningParams1.destOffset );
 
-  copy(source, recursive) {
-    super.copy(source, recursive)
+				lightningParams1.noiseSeed = Math.random();
 
-    this.stormParams.size = source.stormParams.size
-    this.stormParams.minHeight = source.stormParams.minHeight
-    this.stormParams.maxHeight = source.stormParams.maxHeight
-    this.stormParams.maxSlope = source.stormParams.maxSlope
+				this.add( lightningMesh );
 
-    this.stormParams.maxLightnings = source.stormParams.maxLightnings
+				this.lightningsMeshes.push( lightningMesh );
 
-    this.stormParams.lightningMinPeriod = source.stormParams.lightningMinPeriod
-    this.stormParams.lightningMaxPeriod = source.stormParams.lightningMaxPeriod
+			}
 
-    this.stormParams.lightningMinDuration = source.stormParams.lightningMinDuration
-    this.stormParams.lightningMaxDuration = source.stormParams.lightningMaxDuration
+			// Schedule next lightning
+			this.nextLightningTime = this.getNextLightningTime( time );
 
-    this.lightningParameters = LightningStrike.copyParameters({}, source.lightningParameters)
+		}
 
-    this.lightningMaterial = source.stormParams.lightningMaterial
+		let i = 0, il = this.lightningsMeshes.length;
 
-    this.onLightningDown = source.onLightningDown
+		while ( i < il ) {
 
-    return this
-  }
+			const mesh = this.lightningsMeshes[ i ];
 
-  clone() {
-    return new this.constructor(this.stormParams).copy(this)
-  }
+			const lightning = mesh.geometry;
+
+			const prevState = lightning.state;
+
+			lightning.update( time );
+
+			if ( prevState === LightningStrike.RAY_PROPAGATING && lightning.state > prevState ) {
+
+				if ( this.onLightningDown ) {
+
+					this.onLightningDown( lightning );
+
+				}
+
+			}
+
+			if ( lightning.state === LightningStrike.RAY_EXTINGUISHED ) {
+
+				// Lightning is to be destroyed
+
+				this.lightningsMeshes.splice( this.lightningsMeshes.indexOf( mesh ), 1 );
+
+				this.deadLightningsMeshes.push( mesh );
+
+				this.remove( mesh );
+
+				il --;
+
+			} else {
+
+				i ++;
+
+			}
+
+		}
+
+	}
+
+	getNextLightningTime( currentTime ) {
+
+		return currentTime + MathUtils.lerp( this.stormParams.lightningMinPeriod, this.stormParams.lightningMaxPeriod, Math.random() ) / ( this.stormParams.maxLightnings + 1 );
+
+	}
+
+	copy( source, recursive ) {
+
+		super.copy( source, recursive );
+
+		this.stormParams.size = source.stormParams.size;
+		this.stormParams.minHeight = source.stormParams.minHeight;
+		this.stormParams.maxHeight = source.stormParams.maxHeight;
+		this.stormParams.maxSlope = source.stormParams.maxSlope;
+
+		this.stormParams.maxLightnings = source.stormParams.maxLightnings;
+
+		this.stormParams.lightningMinPeriod = source.stormParams.lightningMinPeriod;
+		this.stormParams.lightningMaxPeriod = source.stormParams.lightningMaxPeriod;
+
+		this.stormParams.lightningMinDuration = source.stormParams.lightningMinDuration;
+		this.stormParams.lightningMaxDuration = source.stormParams.lightningMaxDuration;
+
+		this.lightningParameters = LightningStrike.copyParameters( {}, source.lightningParameters );
+
+		this.lightningMaterial = source.stormParams.lightningMaterial;
+
+		this.onLightningDown = source.onLightningDown;
+
+		return this;
+
+	}
+
+	clone() {
+
+		return new this.constructor( this.stormParams ).copy( this );
+
+	}
+
 }
 
-export { LightningStorm }
+export { LightningStorm };
