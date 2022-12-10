@@ -57,12 +57,18 @@
       const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5)
       scene.add(directionalLight)
 
+      const helper = new THREE.DirectionalLightHelper(directionalLight, 25)
+      scene.add(helper)
+
+      const light = new THREE.AmbientLight(0x404040)
+      scene.add(light)
+
       const gui = new GUI()
-      gui.add(config, "objectCount", 0, 100, 1).onChange((count) => {
+      gui.add(config, "objectCount", 0, 100, 1).onFinishChange((count) => {
         config.count = count
         setupMeshes(config, sceneGroup)
       })
-      gui.add(config, "objectDetail", 0, 10, 1).onChange((detail) => {
+      gui.add(config, "objectDetail", 0, 10, 1).onFinishChange((detail) => {
         config.detail = detail
         setupMeshes(config, sceneGroup)
       })
