@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title></title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
+    <meta
+      http-equiv="origin-trial"
+      content="AgENMG7IlwjCuDWrEt7D9Ku1OzglaVWypXlhKOgjN9etLMJsoROXcTQshqOueVYxX2T3Sw/G1WgW4V7h3LdtuA0AAABceyJvcmlnaW4iOiJodHRwczovL2tyaXN0b2ZmZXItZHlya29ybi5naXRodWIuaW86NDQzIiwiZmVhdHVyZSI6IldlYkdQVSIsImV4cGlyeSI6MTY3NTIwOTU5OX0="
+    />
+  </head>
+  <body>
+    <script async src="https://unpkg.com/es-module-shims@1.3.6/dist/es-module-shims.js"></script>
+
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "./three.module.js",
+          "three/addons/": "./addons/",
+          "three/nodes": "./addons/nodes/Nodes.js"
+        }
+      }
+    </script>
+
+    <script type="module">
+      import * as THREE from "three"
+
+      import Stats from "three/addons/libs/stats.module.js"
+      import { GUI } from "three/addons/libs/lil-gui.module.min.js"
+
+      import WebGPU from "three/addons/capabilities/WebGPU.js"
+      import WebGPURenderer from "three/addons/renderers/webgpu/WebGPURenderer.js"
+
+      let camera, scene, renderer, stats
+      let mesh
+
+      const config = {
+        objectCount: 10,
+        objectDetail: 4,
+      }
+
+      function setupMeshes(config, group) {
+        group.forEach((mesh) => {
+          mesh.geometry.dispose()
+          mesh.material.dispose()
+        })
+        group.clear()
+
+        mesh = Array.from({ length: config.objectCount }, () => [])
+
+        const material = new THREE.MeshLambertMaterial({ color: 0x156289 })
+        const geometry = new THREE.SphereGeometry(8, 8 * config.objectDetail, 4 * config.objectDetail)
+
+        for (let x = 0; x < count; x++) {
+          for (let y = 0; y < count; y++) {
+            mesh[x][y] = new THREE.Mesh(geometry, material)
+            group.add(mesh[x][y])
+          }
+        }
+      }
+
+      init()
+
+      function init() {
+        if (WebGPU.isAvailable() === false) {
+          document.body.appendChild(WebGPU.getErrorMessage())
+
+          throw new Error("No WebGPU support")
+        }
+
+        camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 100)
+        camera.position.set(0, 0, objectCount / 3)
+        camera.lookAt(0, 0, 0)
+
+        scene = new THREE.Scene()
+        const sceneGroup = new THREE.Group()
+        setupMeshes(config, sceneGroup)
+
+        const gui = new GUI()
+        gui.add(config, "objectCount", 0, 100).onChange((count) => {
+          config.count = count
+          setupMeshes(config, sceneGroup)
+        })
+        gui.add(config, "objectDetail", 0, 10).onChange((detail) => {
+          config.detail = detail
+          setupMeshes(config, sceneGroup)
+        })
+
+        renderer = new WebGPURenderer()
+        renderer.setPixelRatio(window.devicePixelRatio)
+        renderer.setSize(window.innerWidth, window.innerHeight)
+        renderer.setAnimationLoop(animate)
+        document.body.appendChild(renderer.domElement)
+
+        stats = new Stats()
+        document.body.appendChild(stats.dom)
+
+        window.addEventListener("resize", onWindowResize)
+      }
+
+      function onWindowResize() {
+        camera.aspect = window.innerWidth / window.innerHeight
+        camera.updateProjectionMatrix()
+
+        renderer.setSize(window.innerWidth, window.innerHeight)
+      }
+
+      function animate() {
+        render()
+        stats.update()
+      }
+
+      async function render() {
+        if (mesh) {
+          const time = Date.now() * 0.001
+          const offset = (objectCount - 1) / 2
+
+          for (let x = 0; x < config.objectCount; x++) {
+            for (let y = 0; y < config.objectCount; y++) {
+              mesh[x][y].position.set(offset - x, offset - y, 0)
+              mesh[x][y].rotation.y = Math.sin(x / 4 + time) + Math.sin(y / 4 + time)
+              mesh[x][y].rotation.z = mesh[x][y].rotation.y * 2
+
+              mesh[x][y].updateMatrix()
+            }
+          }
+        }
+
+        await renderer.render(scene, camera)
+      }
+    </script>
+  </body>
+</html>
