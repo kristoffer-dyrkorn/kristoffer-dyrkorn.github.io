@@ -39,19 +39,19 @@
       }
 
       const urlParams = new URLSearchParams(window.location.search)
-      const isWebGL = param.get("webgl")
+      const isWebGL = urlParams.get("webgl")
 
       if (isWebGL) {
         renderer = new WebGLRenderer()
         console.log("Using WebGLRenderer")
+      } else {
+        renderer = new WebGPURenderer()
+        console.log("Using WebGPURenderer")
         if (WebGPU.isAvailable() === false) {
           document.body.appendChild(WebGPU.getErrorMessage())
 
           throw new Error("No WebGPU support")
         }
-      } else {
-        renderer = new WebGPURenderer()
-        console.log("Using WebGPURenderer")
       }
 
       const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 100)
