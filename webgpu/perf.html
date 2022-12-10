@@ -54,7 +54,7 @@
         }
       }
 
-      const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 100)
+      const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 200)
       camera.lookAt(0, 0, 0)
 
       const sceneGroup = new THREE.Group()
@@ -64,11 +64,11 @@
       scene.add(sceneGroup)
 
       const gui = new GUI()
-      gui.add(config, "objectCount", 0, 100, 1).onFinishChange((count) => {
+      gui.add(config, "objectCount", 0, 200, 1).onFinishChange((count) => {
         config.count = count
         setupMeshes(config, sceneGroup)
       })
-      gui.add(config, "objectDetail", 0, 10, 1).onFinishChange((detail) => {
+      gui.add(config, "objectDetail", 0, 20, 1).onFinishChange((detail) => {
         config.detail = detail
         setupMeshes(config, sceneGroup)
       })
