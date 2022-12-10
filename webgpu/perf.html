@@ -53,15 +53,6 @@
       const scene = new THREE.Scene()
       scene.add(sceneGroup)
 
-      const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5)
-      scene.add(directionalLight)
-
-      const helper = new THREE.DirectionalLightHelper(directionalLight, 50)
-      scene.add(helper)
-
-      const light = new THREE.AmbientLight(0x404040)
-      scene.add(light)
-
       const gui = new GUI()
       gui.add(config, "objectCount", 0, 100, 1).onFinishChange((count) => {
         config.count = count
