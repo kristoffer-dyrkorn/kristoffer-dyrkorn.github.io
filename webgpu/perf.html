@@ -38,10 +38,6 @@
         objectDetail: 4,
       }
 
-      const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 100)
-      camera.position.set(0, 0, config.objectCount / 3)
-      camera.lookAt(0, 0, 0)
-
       if (WebGPU.isAvailable() === false) {
         document.body.appendChild(WebGPU.getErrorMessage())
 
@@ -53,6 +49,13 @@
 
       const scene = new THREE.Scene()
       scene.add(sceneGroup)
+
+      const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 100)
+      camera.position.set(0, 0, 30)
+      camera.lookAt(0, 0, 0)
+
+      const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5)
+      scene.add(directionalLight)
 
       const gui = new GUI()
       gui.add(config, "objectCount", 0, 100, 1).onChange((count) => {
