@@ -113,7 +113,7 @@
       async function render() {
         if (mesh) {
           const time = Date.now() * 0.001
-          const offset = (objectCount - 1) / 2
+          const offset = (config.objectCount - 1) / 2
 
           for (let x = 0; x < config.objectCount; x++) {
             for (let y = 0; y < config.objectCount; y++) {
