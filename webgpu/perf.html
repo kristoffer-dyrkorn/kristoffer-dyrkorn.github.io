@@ -31,17 +31,27 @@
       import WebGPU from "three/addons/capabilities/WebGPU.js"
       import WebGPURenderer from "three/addons/renderers/webgpu/WebGPURenderer.js"
 
-      let mesh
+      let mesh, renderer
 
       const config = {
         objectCount: 10,
         objectDetail: 4,
       }
 
-      if (WebGPU.isAvailable() === false) {
-        document.body.appendChild(WebGPU.getErrorMessage())
+      const urlParams = new URLSearchParams(window.location.search)
+      const isWebGL = param.get("webgl")
 
-        throw new Error("No WebGPU support")
+      if (isWebGL) {
+        renderer = new WebGLRenderer()
+        console.log("Using WebGLRenderer")
+        if (WebGPU.isAvailable() === false) {
+          document.body.appendChild(WebGPU.getErrorMessage())
+
+          throw new Error("No WebGPU support")
+        }
+      } else {
+        renderer = new WebGPURenderer()
+        console.log("Using WebGPURenderer")
       }
 
       const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 100)
@@ -63,7 +73,6 @@
         setupMeshes(config, sceneGroup)
       })
 
-      const renderer = new WebGPURenderer()
       renderer.setPixelRatio(window.devicePixelRatio)
       renderer.setSize(window.innerWidth, window.innerHeight)
       renderer.setAnimationLoop(animate)
