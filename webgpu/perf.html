@@ -51,8 +51,8 @@
         const material = new THREE.MeshLambertMaterial({ color: 0x156289 })
         const geometry = new THREE.SphereGeometry(8, 8 * config.objectDetail, 4 * config.objectDetail)
 
-        for (let x = 0; x < count; x++) {
-          for (let y = 0; y < count; y++) {
+        for (let x = 0; x < config.objectCount; x++) {
+          for (let y = 0; y < config.objectCount; y++) {
             mesh[x][y] = new THREE.Mesh(geometry, material)
             group.add(mesh[x][y])
           }
