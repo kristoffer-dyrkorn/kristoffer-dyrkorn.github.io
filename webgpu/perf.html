@@ -31,13 +31,49 @@
       import WebGPU from "three/addons/capabilities/WebGPU.js"
       import WebGPURenderer from "three/addons/renderers/webgpu/WebGPURenderer.js"
 
-      let camera, scene, renderer, stats
       let mesh
 
       const config = {
         objectCount: 10,
         objectDetail: 4,
       }
+
+      const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 100)
+      camera.position.set(0, 0, config.objectCount / 3)
+      camera.lookAt(0, 0, 0)
+
+      if (WebGPU.isAvailable() === false) {
+        document.body.appendChild(WebGPU.getErrorMessage())
+
+        throw new Error("No WebGPU support")
+      }
+
+      const sceneGroup = new THREE.Group()
+      setupMeshes(config, sceneGroup)
+
+      const scene = new THREE.Scene()
+      scene.add(sceneGroup)
+
+      const gui = new GUI()
+      gui.add(config, "objectCount", 0, 100).onChange((count) => {
+        config.count = count
+        setupMeshes(config, sceneGroup)
+      })
+      gui.add(config, "objectDetail", 0, 10).onChange((detail) => {
+        config.detail = detail
+        setupMeshes(config, sceneGroup)
+      })
+
+      const renderer = new WebGPURenderer()
+      renderer.setPixelRatio(window.devicePixelRatio)
+      renderer.setSize(window.innerWidth, window.innerHeight)
+      renderer.setAnimationLoop(animate)
+      document.body.appendChild(renderer.domElement)
+
+      const stats = new Stats()
+      document.body.appendChild(stats.dom)
+
+      window.addEventListener("resize", onWindowResize)
 
       function setupMeshes(config, group) {
         group.children.forEach((mesh) => {
@@ -57,45 +93,8 @@
             group.add(mesh[x][y])
           }
         }
-      }
 
-      init()
-
-      function init() {
-        if (WebGPU.isAvailable() === false) {
-          document.body.appendChild(WebGPU.getErrorMessage())
-
-          throw new Error("No WebGPU support")
-        }
-
-        camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 100)
         camera.position.set(0, 0, config.objectCount / 3)
-        camera.lookAt(0, 0, 0)
-
-        scene = new THREE.Scene()
-        const sceneGroup = new THREE.Group()
-        setupMeshes(config, sceneGroup)
-
-        const gui = new GUI()
-        gui.add(config, "objectCount", 0, 100).onChange((count) => {
-          config.count = count
-          setupMeshes(config, sceneGroup)
-        })
-        gui.add(config, "objectDetail", 0, 10).onChange((detail) => {
-          config.detail = detail
-          setupMeshes(config, sceneGroup)
-        })
-
-        renderer = new WebGPURenderer()
-        renderer.setPixelRatio(window.devicePixelRatio)
-        renderer.setSize(window.innerWidth, window.innerHeight)
-        renderer.setAnimationLoop(animate)
-        document.body.appendChild(renderer.domElement)
-
-        stats = new Stats()
-        document.body.appendChild(stats.dom)
-
-        window.addEventListener("resize", onWindowResize)
       }
 
       function onWindowResize() {
