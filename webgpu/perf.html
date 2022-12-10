@@ -40,7 +40,7 @@
       }
 
       function setupMeshes(config, group) {
-        group.forEach((mesh) => {
+        group.children.forEach((mesh) => {
           mesh.geometry.dispose()
           mesh.material.dispose()
         })
