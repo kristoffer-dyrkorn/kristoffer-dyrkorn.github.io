@@ -44,15 +44,15 @@
         throw new Error("No WebGPU support")
       }
 
+      const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 100)
+      camera.position.set(0, 0, 30)
+      camera.lookAt(0, 0, 0)
+
       const sceneGroup = new THREE.Group()
       setupMeshes(config, sceneGroup)
 
       const scene = new THREE.Scene()
       scene.add(sceneGroup)
-
-      const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 100)
-      camera.position.set(0, 0, 30)
-      camera.lookAt(0, 0, 0)
 
       const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5)
       scene.add(directionalLight)
