@@ -86,8 +86,8 @@
         const material = new THREE.MeshBasicMaterial({ color: 0x156289 })
         const geometry = new THREE.SphereGeometry(0.4, 8 * config.objectDetail, 4 * config.objectDetail)
 
-        console.log("Triangles per sphere:", geometry.index / 3)
-        console.log("Triangles in total:", (geometry.index / 3) * config.objectCount * config.objectCount)
+        console.log("Triangles per sphere:", geometry.index.length / 3)
+        console.log("Triangles in total:", (geometry.index.length / 3) * config.objectCount * config.objectCount)
         console.log("Draw calls per frame:", config.objectCount * config.objectCount)
 
         for (let x = 0; x < config.objectCount; x++) {
