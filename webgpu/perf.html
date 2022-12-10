@@ -55,11 +55,11 @@
       scene.add(sceneGroup)
 
       const gui = new GUI()
-      gui.add(config, "objectCount", 0, 100).onChange((count) => {
+      gui.add(config, "objectCount", 0, 100, 1).onChange((count) => {
         config.count = count
         setupMeshes(config, sceneGroup)
       })
-      gui.add(config, "objectDetail", 0, 10).onChange((detail) => {
+      gui.add(config, "objectDetail", 0, 10, 1).onChange((detail) => {
         config.detail = detail
         setupMeshes(config, sceneGroup)
       })
@@ -94,7 +94,7 @@
           }
         }
 
-        camera.position.set(0, 0, config.objectCount / 3)
+        camera.position.set(0, 0, 30)
       }
 
       function onWindowResize() {
