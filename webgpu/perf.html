@@ -84,7 +84,7 @@
         mesh = Array.from({ length: config.objectCount }, () => [])
 
         const material = new THREE.MeshBasicMaterial({ color: 0x156289 })
-        const geometry = new THREE.SphereGeometry(2, 8 * config.objectDetail, 4 * config.objectDetail)
+        const geometry = new THREE.SphereGeometry(0.8, 8 * config.objectDetail, 4 * config.objectDetail)
 
         for (let x = 0; x < config.objectCount; x++) {
           for (let y = 0; y < config.objectCount; y++) {
@@ -93,7 +93,7 @@
           }
         }
 
-        camera.position.set(0, 0, 3 * config.objectCount)
+        camera.position.set(0, 0, config.objectCount)
       }
 
       function onWindowResize() {
