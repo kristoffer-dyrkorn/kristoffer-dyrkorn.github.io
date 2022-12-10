@@ -42,7 +42,7 @@
       const isWebGL = urlParams.get("webgl")
 
       if (isWebGL) {
-        renderer = new WebGLRenderer()
+        renderer = new THREE.WebGLRenderer()
         console.log("Using WebGLRenderer")
       } else {
         renderer = new WebGPURenderer()
