@@ -75,7 +75,7 @@ The red point in the diagram is one of the vertices in the cube. The gray line i
 After the perspective effect has been applied, we need to make a few more adjustments before drawing the cube on the screen. First, we have to scale the coordinate values, since the unit from now on is pixels, and the original values are too small. In addition, we have to adjust the coordinate values so the cube ends up in the middle of the browser's canvas. In the figure below, the projection of the cube is shown on the left, and on the right side we see how this should look like on the screen.
 
 <p align="center">
-<img src="images/viewport.png.png" width="90%">
+<img src="images/viewport.png" width="90%">
 </p>
 
 The code to do all of that is here:
@@ -89,7 +89,7 @@ function project(scale, distance) {
 }
 ```
 
-We will now draw the surfaces that make up the cube. The Canvas API already has functions for drawing and filling polygons, so it will be enough for us to send the 4 vertices that each surface consists of to the API. First we define the outline of the surface, and then we say which color the surface should have. Finally, we give the command to draw the surface itself. Here is the code:
+We will now draw the surfaces that make up the cube. The Canvas API already has functions for drawing and filling polygons, so it will be enough for us to send the 4 vertices that each surface consists of to the API. First we define the outline of the surface, and then we say which color the surface should have. Finally, we send the command to draw the surface itself. Here is the code:
 
 ```
 // 6 shades of blue
@@ -117,15 +117,15 @@ function draw() {
 }
 ```
 
-For each surface, we access the x and y coordinates of the first vertex of the surface, and we set this as the starting point for the drawing operation. The commands `beginPath()` and `moveTo(...)` take care of that. Then we extract the next 3 vertices that define the surface, and specify a path to each of them in order with `lineTo()`. When we close the path with `closePath()`, the last location we were at will be connected to first location of the path, i.e. the vertex that was specified with `moveTo(...)`. At this stage we have defined the outline of this surface, and we then specify the surface color and tell the Canvas API to draw the surface using `fill()`.
+For each surface, we access the x and y coordinates of the first vertex of the surface, and we set this as the starting point for the drawing operation. The commands `beginPath()` and `moveTo(...)` take care of that. Then we access the next 3 vertices that define the surface, and specify a path to each of them in order with `lineTo()`. When we close the path with `closePath()`, the last location we were at will be connected to first location of the path, i.e. to the vertex in `moveTo(...)`. At this stage we have defined the outline of the surface. We then specify the color, and tell the Canvas API to fill the polygon using `fill()`.
 
-But there is a small problem: We have to consider that not all of the surfaces will be visible. We would definately like to draw just the surfaces that we can actually see. But how can we find that out? One way to do it, that works in this particular case, is to look at the average of the z coordinates of the surface vertices. If this average value is greater than 0, then the surface is facing towards us, and should then be drawn. This works in principle, but due to the perspective effect we have to set the threshold value slightly above 0. The value used in the code, 0.15, was chosen after a bit of trial and error.
+There is a small problem: We have to consider that not all of the surfaces will be visible. We would like to just draw the surfaces we can actually see. But how? One way to do it, that works in this particular case, is to calculate the average of the z coordinates of the surface vertices. If this value is greater than 0, then the surface is facing towards us, and should be drawn. This works in principle, but due to perspective we have to set the threshold slightly higher than 0. The value used in the code, 0.15, was chosen after a bit of trial and error.
 
 <p align="center">
 <img src="images/top_view.png" width="90%">
 </p>
 
-If we imagine that we are looking from above, the blue dot shows the average of the z coordinates of a surface. Due to the way that the perspective changes the appearance of the cube, this surface will only become visible to the viewer when the average z is slightly bigger than 0. When that happens, we call `fill()`.
+If we imagine that we are looking from above, the blue dot shows the average of the z coordinates of a surface. Due to the way that the perspective changes the appearance of the cube, the surface will only become visible for the viewer when the average z is slightly larger than 0. We make sure we call `fill()` only when that is the case.
 
 The only thing left now is the animation loop:
 
@@ -143,8 +143,8 @@ function animate() {
 }
 ```
 
-Here, `requestAnimationFrame(...)` is used to ensure smooth drawing. In the `animate()` function we first clear the canvas. Then we rotate the vertices, calculate the perspective effect and draw the cube. Finally, we add some small amounts to the angles that the cube will be rotated by the next time it is drawn.
+Here, `requestAnimationFrame(...)` is used to ensure smooth drawing. In the `animate()` function we first clear the canvas. Then we rotate the vertices, calculate the perspective effect and draw the cube. Finally, we increase the rotation angles so the cube will have rotated a bit the next time it is drawn.
 
-The finished application can be seen here. The source code is 1906 bytes when we also count a little bit of markup and layout code.
+The finished application can be seen here. The source code is 1906 bytes when we include a little bit of markup and layout code.
 
-And with that, this first part of the blog series is finished. Read what happens in the next part — then we'll shrink the code! We work relentlessly, and have only one goal in mind: to reduce the number of bytes. Everything will be fine, as long as the cube looks roughly the same as before.
+With that, this first part of the series is finished. Read on to see what happens in the next part, then we'll shrink the code! We will have only one goal in mind: to reduce the number of bytes while making the cube appear as before.
