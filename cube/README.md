@@ -2,11 +2,11 @@
 
 # Cubes, golfing and dual identities
 
-_Brief note: This is a translated version of a blog post I wrote back in 2016. If you write JavaScript code now and then you will see that some of the JavaScript conventions I use here have changed a bit since then :)_
-
 <p align="center">
 <img src="images/blue_cube.png" width="90%">
 </p>
+
+_Brief note: This is a translated version of a blog post I wrote back in 2016. If you write JavaScript code now and then you will see that some of the JavaScript conventions I use here have changed a bit since then :)_
 
 In this three-part blog series, I will go through an unusual exercise in programming: How to create an app, that does something meaningful, while at the same time making the source code as short as possible.
 
