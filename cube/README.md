@@ -151,4 +151,4 @@ Here, `requestAnimationFrame(...)` is used to ensure smooth animation - the draw
 
 The finished application can be seen [here](./app/1.html). The source code is 2156 bytes when we include a little bit of comments, markup and layout code.
 
-With that, this first part is done. Read on to see what happens next! We will then start the shortening the source code. There is only one goal: to reduce the number of bytes of the source code file while making the cube appear as before.
+With that, this first part is done. Read on to see what happens next - when we will start shrinking the source code! There is only one goal: to reduce the number of bytes while making the cube appear as before.

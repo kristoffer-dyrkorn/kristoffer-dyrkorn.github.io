@@ -1,0 +1,64 @@
+<html>
+  <canvas id="canvas" height="300"></canvas>
+  <script>
+    canvas = document.getElementById("canvas");
+    ctx = canvas.getContext("2d");
+
+    p = [-1, -1, 1, 1, -1, 1, 1, 1, 1, -1, 1, 1, -1, -1, -1, 1, -1, -1, 1, 1, -1, -1, 1, -1];
+    r = [];
+    f = [0, 1, 2, 3, 0, 3, 7, 4, 0, 4, 5, 1, 6, 5, 4, 7, 6, 2, 1, 5, 6, 7, 3, 2];
+    y = 0;
+    z = 0;
+
+    function rotate(y, z) {
+      for (i = 0; i < 24; i += 3) {
+        r[i] = p[i] * Math.cos(z) - p[i + 1] * Math.sin(z);
+        r[i + 1] = p[i] * Math.sin(z) + p[i + 1] * Math.cos(z);
+        r[i + 2] = p[i + 2] * Math.cos(y) - r[i] * Math.sin(y);
+        r[i] = p[i + 2] * Math.sin(y) + r[i] * Math.cos(y);
+      }
+    }
+
+    function project(s, d) {
+      for (i = 0; i < 24; i += 3) {
+        r[i] = (s * r[i]) / (d - r[i + 2]) + canvas.width / 2;
+        r[i + 1] = (-s * r[i + 1]) / (d - r[i + 2]) + canvas.height / 2;
+      }
+    }
+
+    colors = ["#003", "#006", "#009", "#00b", "#00d", "#00f"];
+
+    function draw() {
+      for (i = 0; i < 24; i += 4) {
+        ctx.beginPath();
+        ctx.moveTo(r[3 * f[i]], r[3 * f[i] + 1]);
+        s = r[3 * f[i] + 2];
+
+        for (j = 1; j < 4; j++) {
+          ctx.lineTo(r[3 * f[i + j]], r[3 * f[i + j] + 1]);
+          s += r[3 * f[i + j] + 2];
+        }
+
+        s = s / 4;
+
+        ctx.closePath();
+        ctx.fillStyle = colors[i / 4];
+        if (s > 0.15) {
+          ctx.fill();
+        }
+      }
+    }
+
+    function animate() {
+      requestAnimationFrame(animate);
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      rotate(y, z);
+      project(350, 5);
+      draw();
+      y += 0.018;
+      z += 0.011;
+    }
+
+    animate();
+  </script>
+</html>

@@ -1,0 +1,40 @@
+<canvas id="c" height="300"></canvas>
+<script>
+  a = c.getContext("2d")
+  p = [-1, -1, 1, 1, -1, 1, 1, 1, 1, -1, 1, 1, -1, -1, -1, 1, -1, -1, 1, 1, -1, -1, 1, -1]
+  r = []
+  f = [0, 1, 2, 3, 0, 3, 7, 4, 0, 4, 5, 1, 6, 5, 4, 7, 6, 2, 1, 5, 6, 7, 3, 2]
+  v = 0
+  m = Math.cos
+  function animate() {
+    requestAnimationFrame(animate)
+    a.clearRect(0, 0, c.width, c.height)
+    for (i = 0; i < 24; i += 3) {
+      u = m(v + 11)
+      o = m(v)
+      r[i] = p[i] * o - p[i + 1] * u
+      r[i + 1] = p[i] * u + p[i + 1] * o
+      r[i + 2] = p[i + 2] * o - r[i] * u
+      r[i] = p[i + 2] * u + r[i] * o
+      r[i] = (350 * r[i]) / (5 - r[i + 2]) + c.width / 2
+      r[i + 1] = (-350 * r[i + 1]) / (5 - r[i + 2]) + c.height / 2
+    }
+    for (i = 0; i < 24; i += 4) {
+      a.beginPath()
+      a.moveTo(r[3 * f[i]], r[3 * f[i] + 1])
+      s = r[3 * f[i] + 2]
+
+      for (j = 1; j < 4; j++) {
+        a.lineTo(r[3 * f[i + j]], r[3 * f[i + j] + 1])
+        s += r[3 * f[i + j] + 2]
+      }
+      a.closePath()
+      a.fillStyle = "rgb(0,0," + Math.trunc(127 + s * 32) + ")"
+      if (s > 0.6) {
+        a.fill()
+      }
+    }
+    v += 0.018
+  }
+  animate()
+</script>
