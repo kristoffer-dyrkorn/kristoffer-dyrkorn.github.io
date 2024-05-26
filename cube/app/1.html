@@ -1,0 +1,72 @@
+<html>
+  <canvas id="canvas" height="300"></canvas>
+  <script>
+    var canvas = document.getElementById("canvas");
+    var ctx = canvas.getContext("2d");
+
+    var points = [-1, -1, 1, 1, -1, 1, 1, 1, 1, -1, 1, 1, -1, -1, -1, 1, -1, -1, 1, 1, -1, -1, 1, -1];
+    var faces = [0, 1, 2, 3, 0, 3, 7, 4, 0, 4, 5, 1, 6, 5, 4, 7, 6, 2, 1, 5, 6, 7, 3, 2];
+
+    var y = 0;
+    var z = 0;
+
+    // already rotated vertices are stored here
+    var rotated = [];
+
+    function rotate(y, z) {
+      for (var i = 0; i < points.length; i += 3) {
+        // rotate around z axis
+        rotated[i] = points[i] * Math.cos(z) - points[i + 1] * Math.sin(z);
+        rotated[i + 1] = points[i] * Math.sin(z) + points[i + 1] * Math.cos(z);
+
+        // rotate around y axis
+        const new_x = points[i + 2] * Math.sin(y) + rotated[i] * Math.cos(y);
+        rotated[i + 2] = points[i + 2] * Math.cos(y) - rotated[i] * Math.sin(y);
+        rotated[i] = new_x;
+      }
+    }
+
+    function project(scale, distance) {
+      for (var i = 0; i < rotated.length; i += 3) {
+        rotated[i] = (scale * rotated[i]) / (distance - rotated[i + 2]) + canvas.width / 2;
+        rotated[i + 1] = (-scale * rotated[i + 1]) / (distance - rotated[i + 2]) + canvas.height / 2;
+      }
+    }
+
+    // 6 shades of blue
+    var colors = ["#003", "#006", "#009", "#00b", "#00d", "#00f"];
+
+    function draw() {
+      for (var i = 0; i < faces.length; i += 4) {
+        ctx.beginPath();
+        ctx.moveTo(rotated[3 * faces[i]], rotated[3 * faces[i] + 1]);
+        var show = rotated[3 * faces[i] + 2];
+
+        for (var j = 1; j < 4; j++) {
+          ctx.lineTo(rotated[3 * faces[i + j]], rotated[3 * faces[i + j] + 1]);
+          show += rotated[3 * faces[i + j] + 2];
+        }
+
+        show = show / 4;
+        ctx.closePath();
+
+        ctx.fillStyle = colors[i / 4];
+        if (show > 0.15) {
+          ctx.fill();
+        }
+      }
+    }
+
+    function animate() {
+      requestAnimationFrame(animate);
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      rotate(y, z);
+      project(350, 5);
+      draw();
+      y += 0.018;
+      z += 0.011;
+    }
+
+    animate();
+  </script>
+</html>

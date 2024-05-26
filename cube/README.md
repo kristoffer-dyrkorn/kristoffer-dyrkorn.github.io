@@ -6,46 +6,46 @@
 <img src="images/blue_cube.png" width="90%">
 </p>
 
-_Brief note: This is a translated version of a blog post I wrote back in 2016. If you write JavaScript code now and then you will see that some of the JavaScript conventions I use here have changed a bit since then :)_
+_Brief note: This is a translation of an article I wrote in 2016. You may notice that some JavaScript conventions have changed a bit since then :)_
 
-In this three-part blog series, I will go through an unusual exercise in programming: How to create an app, that does something meaningful, while at the same time making the source code as short as possible.
+In this three-part article, I will go through an unusual exercise in programming: How to create an app while making the source code as short a humanly possible.
 
-In this first blog post we will set up a small web app that renders a simple 3D object. By using the Canvas API and some JavaScript, we will draw a cube and animate it in the browser. In the second post, we will go through the source code and make it smaller. This is often called code golfing: An effort to minimize the size of the source code while still making the app do something useful. In part three, we'll take a look at how we can apply a trick, involving what we may call "dual identities", to make the code even shorter.
+In this first part we will make a small web page that renders a spinning cube. To help us, we will use the Canvas API and some JavaScript. In the second part, we will work through the source code with the aim of making it smaller. This process is often called code golfing: An effort to minimize the source code while trying not to change the functionality. In part three, we'll take a look at how we can apply another trick, involving a "dual identity", to make the source code even shorter.
 
-The blog posts can be read separately. So, if you are interested in creating 3D graphics from scratch in the browser, keep reading this post. Please note: It will get a bit nerdy. However, if you would rather take a closer look at code golfing in JavaScript, jump to part two. If you are more fascinated by compression tricks, then part three is the right place to go. Note: Part two and part three are also quite nerdy.
+The three parts can be read independently. So, if you are interested in seeing how you can create 3D graphics from scratch in the browser, keep reading this part. Please note: It will get a bit nerdy. If you would rather like to take a closer look at code golfing in JavaScript, jump to part two. If you are more fascinated by compression tricks, part three is the right place. Note: Part two and part three will also get nerdy.
 
-The app we will create here will draw a three-dimensional cube that rotates on the screen. It looks like this:
+The cube we will make looks like this:
 
 <script async src="//jsfiddle.net/0p43xm2s/embed/result/"></script>
 
-The cube consists of 8 vertices, each with x, y and z coordinates. We start by defining an array that holds all of the vertex coordinates:
+It consists of 8 vertices, each with x, y and z coordinates. We start off by defining an array the stores the vertex coordinates:
 
 ```
 var points = [-1, -1, 1, 1, -1, 1, 1, 1, 1, -1, 1, 1, -1, -1, -1, 1, -1, -1, 1, 1, -1, -1, 1, -1];
 ```
 
-The values in the array specify the x, y, and z coordinates of each point in sequence. A diagram makes it easier to understand:
+The values in the array define the x, y, and z coordinates of each point, in sequence. A diagram makes the setup easier to understand:
 
 <p align="center">
 <img src="images/cube_wireframe.png" width="90%">
 </p>
 
-X points to the right, Y up and Z towards us, out of the screen. The first vertex has coordinates (-1, -1, 1), and the next has (1, -1, 1).
+Here X points to the right, Y up and Z towards us, out of the screen. As you can see from the diagram, the first vertex (vertex 0) has coordinates (-1, -1, 1), and the next has (1, -1, 1).
 
-We will now describe how the surfaces in the cube are built. We do this by creating a table containing the numbers of each of the 4 vertices that the surfaces consist of.
+We will now define the surfaces of the cube. We do this by creating a table where groups of 4 numbers indicate the vertices that each surface consists of.
 
 ```
 var faces = [0, 1, 2, 3, 0, 3, 7, 4, 0, 4, 5, 1, 6, 5, 4, 7, 6, 2, 1, 5, 6, 7, 3, 2];
 ```
 
-The first surface, ie the front of the cube, consists of the vertices (0, 1, 2, 3). The next surface consists of the points (0, 3, 7, 4). Note that we specify the vertex numbers in a counter-clockwise order when the surface is facing us.
+The first surface, ie the front of the cube, is defined by the vertices (0, 1, 2, 3). The next surface is defined by the vertices (0, 3, 7, 4). We follow the convention that vertex numbers form a counter-clockwise sequence when the surface is facing us.
 
-We will now make the cube rotate. We do this by rotating the vertices around 2 axes - the z-axis and the y-axis. We keep the original, un-rotated vertices in its own array, and store the new, rotated vertices in a separate array before drawing the cube using those vertides. Each time the cube is drawn we increase the rotation angles a little bit, and when we keep drawing and keep rotating that will make the cube animate. The definition of the faces themselves (4 and 4 points in sequence) remains unchanged.
+We will now make the cube rotate. We do this by rotating the vertices around 2 axes - the z-axis and the y-axis. We keep the original, un-rotated vertices as they are in the original `points` array, and store the new, rotated vertices in a separate array. When we draw the cube we read out the rotated coordinates. Each time we draw the cube we first increase the rotation angles a little bit, then perform the rotation, and then draw. By increasing the angles for each redraw we make the cube animate. Note that the definition of the faces themselves (4 and 4 points in sequence) remains unchanged.
 
-There exists rotation formulas that we can use to calculate the new, rotated x, y and z values from the original ones. We will not go into detail about the formulas, but translated into code it looks like this:
+Here is the rotation code we will use to calculate the new, rotated vertices. We will not go into detail on the formulas here. The implementation looks like this:
 
 ```
-// already rotated vertices are stored here
+// the rotated vertices are stored here
 var rotated = [];
 
 function rotate(y, z) {
@@ -62,23 +62,25 @@ function rotate(y, z) {
 }
 ```
 
-Here we go through the original vertices in turn, and first calculate new x and y coordinates when rotating around the z-axis. (When we rotate around the z axis, the z coordinate stays the same. So we don't need to do anything with it.) Next, we start with the already rotated x coordinates, and the original z coordinates, and rotate those around the y axis. We use a temporary variable new_x in order to now overwrite the new x coordinate too early in the sequence of calculations. The reason is that the original value must be used when calculating the new z coordinate.
+Here we loop over each of the original vertices, and first do the z axis rotationm, and find new x and y coordinates. (When we rotate around the z axis, the z coordinate will stay the same - so we don't need to do anything with it.) Next, we use the already rotated x coordinates and the original z coordinates, and rotate everything around the y axis. We use the temporary variable `new_x` to avoid overwriting the new x coordinate in the middle of the operations.
 
-To make the cube look a bit more realistic, we add a perspective effect. A simple description of perspective is that things that are closer to us must be drawn larger than things that are further away. This can be explained by imagining that you set up a camera at some distance `d` from the center of the cube, which is at coordinate (0, 0, 0). We then calculate how the cube will look like if we project each vertex onto a surface that we place 1 unit away from the camera (in front of it). If we imagine that we see all this from the side, it can look like this:
+To make the cube look a bit more realistic, we add a perspective effect. A simple explanation of perspective is that things that are closer to us must be drawn larger on the screen than things that are further away.
+
+The maths can be explained by imagining that you set up a camera some distance `d` from the center of the cube. The center has coordinates (0, 0, 0). We then calculate how the cube will look like if we project each vertex onto a surface that we place 1 unit away from the camera, and in front of it. This is how it can look like when viewed from the side:
 
 <p align="center">
 <img src="images/side_view.png" width="90%">
 </p>
 
-The red point in the diagram is one of the vertices in the cube. The gray line is the that we project the points onto. After some thinking it is possible to see that `y'/1 = y/(d-z)`. That is, the `y` value, as measured on the surface, here called `y'`, will be `y/(d-z)`. At the same time, we can see that the y coordinates of vertices further away from the camera (ie points with smaller z coordinates) will get lower values because in that case, `(d-z)` will be larger.
+The red dot to the right is one of the vertices in the cube in 3D space. It has y and z coordinates as the arrows pointing to it indicate. The gray vertical line is the surface where the points are projected onto - we can image this is the screen. You might see that `y'/1 = y/(d-z)`. That is, the `y` value, as measured on the surface, called `y'` in the diagram, will be `y/(d-z)`. We can see that the y coordinates of vertices further away from the camera (having with smaller z coordinates) will have lower values since in that case, `(d-z)` will be larger.
 
-After the perspective effect has been applied, we need to make a few more adjustments before drawing the cube on the screen. First, we have to scale the coordinate values, since the unit from now on is pixels, and the original values are too small. In addition, we have to adjust the coordinate values so the cube ends up in the middle of the browser's canvas. In the figure below, the projection of the cube is shown on the left, and on the right side we see how this should look like on the screen.
+After we have applied the perspective effect we need to make another adjustment before we can draw the cube on the screen. First, we have to scale the coordinate values, since the unit from now on will be pixels, and the original values are too small (they are -+1) to produce a cube that will cover a good portion of the browser's canvas. In addition, we have to adjust the coordinates so the cube ends up in the center of the canvas - where (0, 0) is to the top left. In the figure below, the perspective projection of the cube is shown on the left, and we see how the cube should look like on the screen on the right.
 
 <p align="center">
 <img src="images/viewport.png" width="90%">
 </p>
 
-The code to do all of that is here:
+The code to convert to suitable screen coordinates is here:
 
 ```
 function project(scale, distance) {
@@ -89,7 +91,9 @@ function project(scale, distance) {
 }
 ```
 
-We will now draw the surfaces that make up the cube. The Canvas API already has functions for drawing and filling polygons, so it will be enough for us to send the 4 vertices that each surface consists of to the API. First we define the outline of the surface, and then we say which color the surface should have. Finally, we send the command to draw the surface itself. Here is the code:
+We will now draw the surfaces / polygons that make up the cube. The Canvas API already has functions for drawing and filling polygons, so we only need to send the 4 vertices for each surface to the API. We need to first define the outline of the surface, and then which color the surface should have. Finally, we send a command to the Canvas API to draw the surface.
+
+Here is the code:
 
 ```
 // 6 shades of blue
@@ -117,15 +121,15 @@ function draw() {
 }
 ```
 
-For each surface, we access the x and y coordinates of the first vertex of the surface, and we set this as the starting point for the drawing operation. The commands `beginPath()` and `moveTo(...)` take care of that. Then we access the next 3 vertices that define the surface, and specify a path to each of them in order with `lineTo()`. When we close the path with `closePath()`, the last location we were at will be connected to first location of the path, i.e. to the vertex in `moveTo(...)`. At this stage we have defined the outline of the surface. We then specify the color, and tell the Canvas API to fill the polygon using `fill()`.
+For each surface, we mark the start of a new surface, read out the x and y coordinates of the first vertex, and set this as the starting point. The commands `beginPath()` and `moveTo(...)` do that. Then we access the next 3 vertices that define the surface in the `for` loop, and specify a path to each of them using `lineTo()`. When we close the path with `closePath()`, the last vertex will be connected to first vertex and we have defined a polygon outline. We then specify the color, and tell the Canvas API to fill using `fill()`.
 
-There is a small problem: We have to consider that not all of the surfaces will be visible. We would like to just draw the surfaces we can actually see. But how? One way to do it, that works in this particular case, is to calculate the average of the z coordinates of the surface vertices. If this value is greater than 0, then the surface is facing towards us, and should be drawn. This works in principle, but due to perspective we have to set the threshold slightly higher than 0. The value used in the code, 0.15, was chosen after a bit of trial and error.
+There is a small problem here: We need to consider that not all of the surfaces in the cube will be visible at once. We would like to just draw the surfaces facing us - ie the ones we can see given the rotation at any given time. But how? One way to do it, that works well in this particular case, is to use the average z coordinates of the surface vertices. If this value is greater than 0, then the surface is facing towards us, and should be drawn. This works in principle, but due to the perspective effect we are using we have to set the threshold a bit higher than 0. The value used in the code, 0.15, was chosen after a bit of trial and error.
 
 <p align="center">
 <img src="images/top_view.png" width="90%">
 </p>
 
-If we imagine that we are looking from above, the blue dot shows the average of the z coordinates of a surface. Due to the way that the perspective changes the appearance of the cube, the surface will only become visible for the viewer when the average z is slightly larger than 0. We make sure we call `fill()` only when that is the case.
+If we imagine that we are looking from above, the blue dot in the diagram shows the average z coordinates of one surface. Due to the way that the perspective effect changes the shape of the cube, the surface will only become visible for the viewer when the average z is slightly larger than 0. We make sure we call `fill()` only when that is the case.
 
 The only thing left now is the animation loop:
 
@@ -143,8 +147,8 @@ function animate() {
 }
 ```
 
-Here, `requestAnimationFrame(...)` is used to ensure smooth drawing. In the `animate()` function we first clear the canvas. Then we rotate the vertices, calculate the perspective effect and draw the cube. Finally, we increase the rotation angles so the cube will have rotated a bit the next time it is drawn.
+Here, `requestAnimationFrame(...)` is used to ensure smooth animation - the drawing and clearing of the canvas is synchronised to the refresh rate of the monitor. In the `animate()` function we first clear the canvas using `clearRect(...)`. We then rotate the vertices, calculate the perspective effect and draw the cube. Finally, we increase the rotation angles so the cube will have rotated a bit the next time it is drawn.
 
-The finished application can be seen here. The source code is 1906 bytes when we include a little bit of markup and layout code.
+The finished application can be seen [here](./app/1.html). The source code is 2156 bytes when we include a little bit of comments, markup and layout code.
 
-With that, this first part of the series is finished. Read on to see what happens in the next part, then we'll shrink the code! We will have only one goal in mind: to reduce the number of bytes while making the cube appear as before.
+With that, this first part is done. Read on to see what happens next! We will then start the shortening the source code. There is only one goal: to reduce the number of bytes of the source code file while making the cube appear as before.
