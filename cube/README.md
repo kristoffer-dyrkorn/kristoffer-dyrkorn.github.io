@@ -6,7 +6,7 @@
 <img src="images/blue_cube.png" width="90%">
 </p>
 
-_Brief note: This is a translation of an article I wrote in 2016. You may notice that some JavaScript conventions have changed since then :)_
+_Brief note: This is a translation of an article I wrote in 2016. You may notice that JavaScript conventions have changed since then :)_
 
 In this three-part article, I will go through an unusual exercise in programming: How to create an app while making the source code as short as absolutely possible.
 
