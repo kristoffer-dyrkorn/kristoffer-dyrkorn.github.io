@@ -6,13 +6,13 @@
 <img src="images/blue_cube.png" width="90%">
 </p>
 
-_Brief note: This is a translation of an article I wrote in 2016. You may notice that JavaScript conventions have changed since then :)_
+_Note: This is a translation of an article I wrote in 2016. You may notice that JavaScript conventions have changed since then :)_
 
 In this three-part article, I will go through an unusual exercise in programming: How to create an app while making the source code as short as absolutely possible.
 
-In this first part we will make a small web app that shows a spinning cube. We will use the Canvas API a bit of JavaScript and maths to make this happen. In the second part, we will work through the source code and shorten it. This process is often called code golfing: A quest to minimize source code while keeping the functionality. In part three, we'll make the source code even shorter by applying another trick involving what we may call "dual identities".
+In this first part we will make a small web app that shows a spinning cube. We will use the Canvas API a bit of JavaScript and maths to make this happen. In [the second part](./2), we will work through the source code and shorten it. This process is often called code golfing: A quest to minimize source code while keeping the functionality unchanged. In [part three](./3), we'll make the source code even shorter by applying another trick involving what we may call "dual identities".
 
-The three parts can be read independently. So, if you are interested in seeing how you can create 3D graphics from scratch in the browser, keep reading this part. Please note: It will get a bit nerdy. If you would rather take a look at code golfing in JavaScript, jump to part two. If compression tricks is your thing, part three is the right place. Note: Part two and part three are also a bit nerdy.
+The three parts can be read independently. So, if you are interested in seeing how you can create 3D graphics from scratch in the browser, keep reading this part. Please note: It will get a bit nerdy. If you would rather take a look at code golfing in JavaScript, jump to [part two](./2). If compression tricks is your thing, [part three](./3) is the right place. Note: Part two and part three are also a bit nerdy.
 
 The cube we will make looks like this:
 
@@ -151,4 +151,4 @@ Here, `requestAnimationFrame(...)` is used to ensure smooth animation. This func
 
 The final application can be seen [here](./app/1.html). The source code is 2156 bytes when we include a little bit of comments, markup and layout code.
 
-And with that, this first part is done. Read on to see what happens next, as we shrink the code! There is only one goal: to reduce the number of bytes while keeping the cube as before.
+And with that, this first part is done. Read [part two](./2) to see what happens next, as we shrink the code! There is only one goal: to reduce the number of bytes while keeping the cube as before.
