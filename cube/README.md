@@ -8,9 +8,9 @@
 
 _Note: This is a translation of an article I wrote in 2016. You may notice that JavaScript conventions have changed since then :)_
 
-In this three-part article, I will go through an unusual exercise in programming: How to create an app while making the source code as short as absolutely possible.
+In this three-part article, I will go through an unusual exercise in programming: How to create an app while making the source code as short as absolutely possible. Every byte counts.
 
-In this first part we will make a small web app that shows a spinning cube. We will use the Canvas API a bit of JavaScript and maths to make this happen. In [the second part](./2), we will work through the source code and shorten it. This process is often called code golfing: A quest to minimize source code while keeping the functionality unchanged. In [part three](./3), we'll make the source code even shorter by applying another trick involving what we may call "dual identities".
+In this first part we will make a small web app that shows a spinning cube. We will use the Canvas API and a bit of JavaScript and maths to make this happen. In [the second part](./2), we will work through the source code and shorten it. This process is often called code golfing: A quest to minimize source code while keeping the functionality unchanged. In [part three](./3), we'll make the source code even shorter by applying another trick involving what we may call "dual identities".
 
 The three parts can be read independently. So, if you are interested in seeing how you can create 3D graphics from scratch in the browser, keep reading this part. Please note: It will get a bit nerdy. If you would rather take a look at code golfing in JavaScript, jump to [part two](./2). If compression tricks is your thing, [part three](./3) is the right place. Note: Part two and part three are also a bit nerdy.
 
