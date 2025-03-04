@@ -10,9 +10,9 @@ In an earlier article series, I have showed how to write a [fast and precise tri
 
 This time I would like to go through a different rasterization method, based on scanline conversion. This method is older than Piñeda's. The first published version came out in 1967, in the paper ["Half-tone perspective drawings by computer"](https://dl.acm.org/doi/pdf/10.1145/1465611.1465619) by Wylie et al. At that time (and until the mid 90's) 3D graphics was done on the CPU, and this meant that graphics code was optimized for single-threaded hardware.
 
-Although the concepts will be explained in detail, it will be an advantage if you either have read the [previous article series](/triangle-rasterizer), or have some experience from writing graphics code.
+Although the concepts will be explained in detail, it will be an advantage if you either have read the [previous article series](/triangle-rasterizer), or have some experience from writing graphics code. In a sense, this article series will extend the previous one.
 
-The scanline rasterization method that we will go through here is not used that much anymore, but it is still useful and relevant whenever your runtime environment is well suited for serial execution. And that is the case here: We will write our code in JavaScript and run it in the browser. Multithreaded code in the browser (via web workers) has too much overhead to be useful in this context.
+The scanline rasterization method that we will go through here is not used that often, but it is still useful and relevant whenever your runtime environment is well suited for serial execution. And that is the case here: We will write the code in JavaScript and run it in the browser. Multithreaded code in the browser (via web workers) has too much overhead to be useful in this context.
 
 This article series is structured as follows: First, you will get to know the basic principles behind the scanline conversion method - while we make a first, simple implementation of it. We then add various refinements to this implementation - and in the end we have a rather nice implementation. After that, we sum up and compate the two approaches.
 
