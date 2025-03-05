@@ -8,7 +8,7 @@
 
 In an earlier article series, I have showed how to write a [fast and precise triangle rasterizer](/triangle-rasterizer). The algorithm described there was published by Juan Piñeda back in 1988. Today, it is still the preferred method for triangle rasterization - as it fits very well with the highly parallel hardware architectures of GPUs.
 
-This time I would like to go through a different rasterization method, based on scanline conversion. This method is older than Piñeda's. The first published version came out in 1967, in the paper ["Half-tone perspective drawings by computer"](https://dl.acm.org/doi/pdf/10.1145/1465611.1465619) by Wylie et al. At that time (and until the mid 90's) 3D graphics was done on the CPU, and this meant that graphics code was optimized for single-threaded hardware.
+This time I would like to go through a different rasterization method, based on scanline conversion, that is older than Piñeda's. The first published version came out in 1967, in the paper ["Half-tone perspective drawings by computer"](https://dl.acm.org/doi/pdf/10.1145/1465611.1465619) by Wylie et al. At that time (and until the mid 90's) 3D graphics was done on the CPU, and this meant that graphics code was optimized for single-threaded hardware.
 
 Although the concepts will be explained in detail, it will be an advantage if you either have read the [previous article series](/triangle-rasterizer), or have some experience from writing graphics code. In a sense, this article series will extend the previous one.
 
@@ -27,4 +27,4 @@ As in the previous article series, the focus here will be on correctness and vis
 3. [Faster horizontal lines](3)
 4. [How to be smooth](4)
 5. [Use the math, Luke](5)
-6. [Epilogue](7)
+6. [Epilogue](6)
