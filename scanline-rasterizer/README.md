@@ -10,7 +10,7 @@ In an earlier article series, I have shown how to write a [fast and precise tria
 
 This time I would like to go through a different rasterization method, based on scanline conversion, that is older than Piñeda's. The first published version came out in 1967, in the paper ["Half-tone perspective drawings by computer"](https://dl.acm.org/doi/pdf/10.1145/1465611.1465619) by Wylie et al. At that time (and until the mid 90's) 3D graphics was done on the CPU, and this meant that graphics code was optimized for single-threaded hardware.
 
-Although the concepts will be explained in detail, it will be an advantage if you either have read the [previous article series](/triangle-rasterizer), or have some experience from writing graphics code. In a sense, this article series will extend the previous one.
+Although the concepts will be explained in detail, it will be an advantage if you either have read the [previous article series](/triangle-rasterizer), or have some experience from writing graphics code. This article series builds upon, and extends, the previous one.
 
 The scanline rasterization method that we will go through here is not used that often, but it is still useful and relevant whenever your runtime environment is well suited for serial execution. And that is the case here: We will write the code in JavaScript and run it in the browser. Multithreaded code in the browser (via web workers) has too much overhead to be useful in this context.
 
