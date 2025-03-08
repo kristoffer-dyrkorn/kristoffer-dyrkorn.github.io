@@ -7,9 +7,9 @@
 </p>
 
 In this article series, I will go through an algorithm to draw (rasterize) triangles. The method is based on a technique called called scanline conversion. The algorithm itself is quite old - the earliest reference I have found is the 1967 paper ["Half-tone perspective drawings by computer"](https://dl.acm.org/doi/pdf/10.1145/1465611.1465619), by Wylie et al. At that time (and until the mid 90's) 3D graphics was done on the CPU, and
-that meant the code and the algorithms were optimized for single-threaded hardware. That is the case for the method here as well.
+that meant that code and algorithms were optimized for single-threaded hardware. And that's the case for this method as well.
 
-In an [earlier article series](/triangle-rasterizer), I have gone through a different algorithm for triangle rasterization. That method was published by Juan Piñeda in 1988. Today, it is still the preferred way to rasterize triangles - since it is well suited for the highly parallel hardware architectures of modern GPUs.
+In an [earlier article series](/triangle-rasterizer), I have gone through a different algorithm for triangle rasterization. That method was published by Juan Piñeda in 1988. Today, it is still the preferred way to rasterize triangles - since it is well suited for parallel hardware, which is what you find inside modern GPUs.
 
 The scanline method, the topic of this article series, is not that popular anymore. But it is still relevant and valuable whenever your runtime environment is single-threaded. And that is the case here: We will implement the rasterizer in JavaScript and run it in the browser. By all means, it is possible to write multi-threaded browser code via web workers, but the overhead is too large for our purposes here.
 
