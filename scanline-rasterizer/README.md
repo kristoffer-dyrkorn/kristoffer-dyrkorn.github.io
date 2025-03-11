@@ -15,7 +15,7 @@ The scanline method, the topic of this article series, is not that popular anymo
 
 Although the main concepts of rasterization will be explained in detail, it will still help if you have read the [previous article series on rasterization](/triangle-rasterizer), or have some experience from writing graphics code yourself. This article series builds upon, and extends, the previous one.
 
-The contents is structured as follows: First, you will get to know the basic principles behind the scanline conversion method as we make a first, simple implementation of it. In the next sections we will then add various refinements, and we will end up with a nice little app. Finally, we will compare and contrast the two rasterizations methods as they are described in the articles.
+The contents is structured as follows: First, you will get to know the basic principles behind the scanline conversion method as we make a first, simple implementation of it. In the next sections we will then add various refinements, and we will end up with a nice little app. Finally, we will compare and contrast the two rasterizations methods as they are described in the articles. A key result is that the method here is around 5 times as fast as the previous.
 
 Please note: The contents here is published under a Creative Commons [BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/) license. In short, this means you are free to adapt and share the material as you want, as long as you don't make money by doing so, and as long as you give proper credit to the author.
 
