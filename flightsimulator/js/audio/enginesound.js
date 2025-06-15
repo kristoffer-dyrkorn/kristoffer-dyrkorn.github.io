@@ -9,7 +9,7 @@ export default class EngineSound {
     this.panner.coneOuterAngle = 120
     this.panner.coneOuterGain = 0.4
     this.panner.refDistance = 70
-    this.panner.rolloffFactor = 3
+    this.panner.rolloffFactor = 2
 
     this.noiseSource = new AudioWorkletNode(this.audioContext, "brown-noise-processor")
     this.noiseGain = this.audioContext.createGain()
